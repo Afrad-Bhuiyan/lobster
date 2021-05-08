@@ -1,0 +1,91 @@
+
+//global scss
+@import "../global";
+
+
+// //importing sidebar css
+@import "nav-sidebar-dashboard";
+
+
+
+.overview{
+    width: 100%;
+    //border: 1px solid black;
+    padding: 3rem 0;
+
+    &__container{
+        //border: 1px solid red;
+    }
+
+    &__head{
+        margin: 0 -15px 3rem -15px;
+        padding: 0 15px;
+        //border: 1px solid blue; 
+    }
+    &__title{
+        text-transform: capitalize;
+        color: #484848;
+
+    }
+
+    &__row{
+       //border: 1px solid red;
+    }
+
+    &__row--box{
+        //border: 1px solid red;
+    }
+
+    &__col{
+        //border: 1px solid black;
+        margin: 0 0 30px 0;
+        //background-color: gray;
+    }
+
+    &__box{
+        padding:6rem 1rem;
+        box-shadow: 0 0 .5rem .15rem #dfdbdb;
+        border-bottom: .3rem solid $primary;
+        border-radius: .3rem;
+        background-color: $white;
+    }
+
+    &__box-title{
+        color: $secondary;
+        text-align: center;
+    }
+
+    &__box-subtitle{
+        width: 100%;
+        display: inline-block;
+        font-size: 1.8rem;
+        font-weight: 600;
+        text-align: center;
+        text-transform: capitalize;
+        color: #777;
+    }
+
+    &__box--tp{
+
+    }
+
+    &__box--tr{
+
+    }
+
+    &__box--tl{
+
+    }
+
+    &__box--td{
+
+    }
+
+    &__box--tc{
+
+    }
+
+
+
+}
+

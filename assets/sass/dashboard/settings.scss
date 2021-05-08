@@ -1,0 +1,673 @@
+//global scss
+@import "../global";
+
+
+//importing sidebar css
+@import "nav-sidebar-dashboard";
+
+
+.acc-sett{
+    // border: 1px solid black;
+
+    &__img{
+        display: block;
+        object-fit: cover;
+        object-position: center center;
+    }
+    
+    &__img--profile{
+        width: 12rem;
+        height: 12rem;
+        border-radius: 50%;
+        margin: 0 auto;
+    }
+
+    &__img--banner{
+        width: 25rem;
+        height: 10rem;
+        margin: 0 auto;
+    }
+
+    &__btn{
+        border: none;
+        background-color: transparent;
+        font-size: 1.5rem;
+        font-weight: 500;
+        text-transform: capitalize;
+        display: inline-block;
+    }
+
+    &__btn-icon{
+        // border: 1px solid black;
+        margin: 0 .25rem 0 0;
+    }
+    
+    &__btn-text{
+        // border: 1px solid black;
+        margin: 0 0 0 .25rem;
+    }
+
+
+    &__btn--action{
+        border: .15rem solid transparent;
+        padding: .8rem 1.6rem;
+        margin: 0 1.5rem 0 0;
+    }
+
+    &__btn--upload{
+        color: $white;
+        background-color: $primary;
+        &:hover,
+        &:focus{
+            background-color: #258822;  
+        }
+    }
+
+    &__btn--change{
+        color: $white;
+        background-color: $primary;
+        &:hover,
+        &:focus{
+            background-color: #258822;  
+        }
+    }
+
+    &__btn--remove{
+        border-color: #e3dcdc;
+        background-color: $white;  
+        color: #6c6a6a;
+        &:hover,
+        &:focus{
+            color: $secondary;
+        }
+    }
+    
+    &__btn--edit{
+        color: #5c5c5c;
+        padding: .3rem .6rem;
+        margin: 0 0 auto 0;
+        &:hover,
+        &:focus{
+            color: $secondary;
+        }
+    }
+
+    &__link{
+        display: inline-block;
+    }
+
+    &__link--resend{
+        color: $primary;
+        
+        &:hover,
+        &:focus{
+            color: #258822;
+        }
+    }
+
+    &__msg{
+        margin: .5rem 0;
+        //border: 1px solid black;
+        // display: none;
+        &--hide{
+            display: none;
+        }
+
+        p{
+            font-size: 1.3rem;
+            margin: 0;
+            font-weight: 500;
+        }
+
+        &--error{
+            p{
+                color:#fd3e3e;
+            }
+        }
+
+        &--verification{
+            p{
+                color: #646060;
+                span{
+                    color: $secondary;
+                }
+            }
+        }
+    }
+
+    &__badge{
+        font-size: 1rem;
+        font-weight: 500;
+        background-color: $secondary;
+        color: $white;
+        padding: .2rem .6rem;
+        display: inline-block;
+        border-radius: 3rem;
+        text-transform:capitalize;
+        margin: 0 0 0 .5rem;
+
+        &--verified{
+            background-color: $primary;
+        }
+
+        &--unverified{
+            background-color: #fb9932;
+        }
+    }
+
+
+    &__container{
+        padding: 2rem 15px;
+        //border: 1px solid black;
+    }
+    
+    &__col{
+        margin: 0 auto;
+        background-color: $white;
+    }
+    
+    &__col-wrap{
+        padding: 15px 0;
+    }
+
+    &__col-head{
+        border-bottom: .15rem solid #eeeeee;
+        margin: 0 0 3rem 0;
+        padding: 1.5rem 0;
+    }
+
+      
+    &__title{
+        text-align: center;
+        margin: 0 0 0 0;
+        // border: 1px solid black;
+    }
+
+    &__col-body{
+        //border: 1px solid black;
+        padding: 0 15px;
+    }
+    
+
+    &__opt{
+        padding: 2rem 0;
+        // border: 1px solid black;
+        &:not(:last-child){
+            border-bottom: .15rem solid #eeeeee;
+        }
+    }
+
+    &__opt--pi{
+        // border: 1px solid red;
+    }
+
+    &__opt-title{
+        border-left: .3rem solid $primary;
+        padding: 0 0 0 .5rem;
+        margin: 0 0 1rem 0;
+    }
+
+    &__opt-subtitle{
+        font-size: 1.3rem;
+        font-weight: 500;
+        color: #616161;
+        // border: 1px solid red;
+    }
+
+    
+    &__opt-content{
+        display: flex;
+        margin:  2rem 0 0 0;
+        // border: 1px solid red;
+    }
+    &__opt-case{
+        width: 35%;
+        margin: 0 .8rem 0 0;
+        // border: 1px solid black;
+    }
+    
+    &__opt-info{
+        width: 65%;
+        display: flex;
+        flex-direction: column;
+        border-left: 0.15rem solid #23263a4f;
+        // border: 1px solid blue;
+        margin: 0 0 0 .8rem;
+        padding: 0 0 0 1rem;
+    }
+
+    &__opt-desc{
+        width: 100%;
+        // border: 1px solid black;
+        font-size: 1.3rem;
+        font-weight: 500;
+        color: #616161;
+        margin: 0;
+    }
+    
+    &__opt-action{
+    //    border: 1px solid black;
+       margin: 2rem 0 0 0;
+    }
+
+    &__form{
+        // border: 1px solid black;
+       
+    }
+
+    &__form--pi{
+        padding: 0 15px;
+        margin: 3rem -15px 0 -15px;
+    }
+
+    &__form-row{
+        margin-bottom:2rem;
+
+        &:not(:last-child){
+            border-bottom: .15rem solid #eeeeee;
+        }  
+    }
+
+    &__form-col{
+        // border: 1px solid black;
+        display: flex;
+        flex-direction: column;
+    }
+
+    &__form-col--label{
+    
+    }
+    
+    &__form-col--field{
+     
+    }
+
+    &__form-label{
+        width: 100%;
+        font-size: 1.5rem;
+        font-weight: 500;
+        text-align: left;
+        display:flex;
+        color: #646464;
+        //border: 1px solid black;
+        margin: 1rem 0 auto 0;
+
+        span{
+            margin: 0 auto 0 0;
+        }
+        
+        strong{
+            margin: 0 0 0 auto;
+        }
+
+        @media (max-width: 767px){
+
+            span{
+                margin: 0 .5rem 0 0;
+            }
+            
+            strong{
+                margin: 0 0 0 .5rem ;
+            }
+        }
+    }
+    
+    &__form-field{
+        width: 100%;
+        min-height: 5rem;
+        max-height: 100%;
+        display: flex;
+        // border: 1px solid red;
+    }
+
+    &__ff-value{
+        width: 100%;
+        margin: auto 0;
+        // border: 1px solid black;
+        display: flex;
+
+    }
+
+    &__ff-value--hide{
+        display: none;
+    }
+
+    &__ff-value-text{
+        width: 100%;
+        font-size: 1.5rem;
+        font-weight: 500;
+        color: #868686;
+        // border: 1px solid green;
+        margin: 0;
+        
+    }
+
+    &__input-wrap{
+        width: 100%;
+        margin: 0 0 .5rem 0;
+        display: flex;
+        // border: 1px solid black;
+        flex-direction: column;
+    }
+
+    &__form-input--file{
+        display: none;
+    }
+
+    &__form-input:not(&__form-input--file){
+        width: 100%;    
+        height: 5rem;
+        border-radius: .25rem;
+        font-size: 1.5rem;
+        font-weight: 400;
+        padding: 1rem;  
+        border: .15rem solid #eeeeee;
+        background-color: transparent;
+
+        &:focus{
+            border-color: $primary;
+        }
+    }
+
+    &__form-input--textarea{
+        height: 25rem;
+        resize: none;
+    }
+    
+    &__input-lc{
+        font-size: 1.2rem;
+        // border: 1px solid black;
+        margin: .5rem 0 0 auto;
+
+        span{
+            color: #868686;
+            font-family: 500;
+        }
+
+        strong{
+            color: $secondary;
+            font-weight:600;
+        }
+
+        &--error{
+            span,
+            strong{
+                color: #fd3e3e;
+            } 
+        }
+    }
+}
+
+
+.secu-sett{
+    //border: 1px solid black;
+
+    &__btn{
+        border: none;
+        background-color: transparent;
+        display: inline-block;
+    }
+
+    &__btn--changePwd,
+    &__btn--deleteAcc{
+        font-size: 1.5rem;
+        font-weight: 500;
+        color: $btn-primary-text;
+        background-color: $btn-primary-bg;
+        text-transform: capitalize;
+        letter-spacing: .05rem;
+        border-radius: .25rem;
+        padding: 1rem 2rem;
+        transition: all 150ms ease-in-out;
+        margin: 0 0 0 auto;
+        &:hover,
+        &:focus{
+            background-color:$btn-primary-hover;
+        }
+        
+        &:focus,
+        &:active{
+            box-shadow: 0px 0px .2rem .1rem $btn-primary-shadow;
+        }
+    }
+
+    &__btn--eye{
+        font-size: 1.5rem;
+        padding: 0 .8rem;
+        color: #868686;
+        &:hover,
+        &:focus{
+            color: $primary;
+        }
+    }
+    
+    &__btn--eye.secu-sett__btn--active{
+        color: $primary;
+    }
+
+    &__btn.secu-sett__btn--disable{
+        color: #a69b9b;
+        background-color: #aaa8a859;
+        pointer-events: none;
+        &:focus,
+        &:active{
+            box-shadow: none;
+        }
+    }
+
+
+    
+    &__container{
+        padding: 2rem 15px;
+        //border: 1px solid black;
+    }
+    
+    &__col{
+        margin: 0 auto;
+        padding-top: 3rem;
+        padding-bottom: 3rem;
+        background-color: $white;
+    }
+
+    &__col-wrap{
+    
+   
+    }
+
+    &__head{
+        padding: 1.5rem 0;
+        margin-bottom: 3rem;
+        border-bottom: .15rem solid#eeeeee;
+        // border: 1px solid black;
+    }
+
+    &__title{
+        margin: 0;
+        text-align: center;
+        text-transform: capitalize;
+    }
+
+
+    &__body{
+        //border: 1px solid black;
+    }
+
+    &__form{
+        //border: 1px solid black;
+        &:not(:last-child){
+            margin-bottom: 2rem;
+        }
+    }
+
+    &__form-head{
+        //border: 1px solid black;
+    }
+
+    &__form-title{
+        border-left: .3rem solid $primary;
+        margin: 0 0 1rem 0;
+        padding: 0 0 0 .5rem;
+       
+    }
+
+    &__form-subtitle{
+        font-size: 1.3rem;
+        font-weight: 500;
+        margin: 0;
+        padding: 0 0 0 .5rem;
+        // border: 1px solid black;
+        color: #868686;
+
+    }
+
+    &__form-head{
+        //border: 1px solid black;
+        margin-bottom: 2rem;
+    }
+
+
+    &__form-body{
+        // border: 1px solid black;
+        padding: 0 15px;
+    }
+
+    &__form-row{
+        // border: 1px solid red;
+        &:not(:last-child){
+            margin-bottom: 2rem;
+        }
+    }
+
+    &__form-col{
+        // border: 1px solid black;
+    }
+    
+    &__form-col--label{
+        // border: 1px solid black;
+        display: flex;
+        margin: 0 0 1rem 0;
+
+        @media (min-width:768px){
+            padding-right: 10px;  
+            margin: 0 0 0 0;
+        }
+      
+    }
+
+    &__form-col--field{
+        // border: 1px solid black;
+        @media (min-width:768px){
+            padding-left: 10px;
+        }
+       
+        
+    }
+
+    &__form-label{
+        width: 100%;
+        //border: 1px solid black;
+        display: flex;
+        font-size: 1.5rem;
+        font-weight: 500;
+        margin: auto 0 auto 0;
+        color: #868686;
+        span{
+            margin: 0 .3rem 0 0;
+        }
+
+        strong{
+            margin: 0 0 0 .3rem;
+        }
+
+        @media (min-width:768px){
+
+            span{
+                margin: 0 auto 0 0;
+            }
+    
+            strong{
+                margin: 0 0 0 auto;
+            }
+        }
+    }
+
+
+    &__form-field{
+        display: flex;
+        //border: 1px solid black;
+    }
+
+    &__form-input-wrap{
+        width: 100%;
+        position: relative;
+        border: .15rem solid #eeeeee;
+        display: flex;
+        border-radius: .25rem;
+        overflow: hidden;
+    }
+
+ 
+    &__form-field--error  &__form-input-wrap{
+        border-color: #ff3131;
+    }
+
+    &__form-field--error  &__form-input{
+        color: #ff3131;
+    }
+
+    &__form-field--focused  &__form-input-wrap{
+        border-color: $primary;
+    }
+
+    &__form-input-wrap--select::after{
+        content: "\f0d7";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        color: #868686;
+        right: 1rem;
+        font-size: 1.6rem;
+        font-family: "fontawesome";
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+    }
+
+    &__form-input{
+        width: 100%;
+        height: 5rem;
+        border: none;
+        background-color: transparent;
+        color: #868686;
+        font-size: 1.5rem;
+        font-weight: 500;
+        padding: 0 0 0 1rem;
+        
+    }
+
+    &__form-input--select{
+        appearance: none;
+    }
+
+    &__form-msg{
+        //border: 1px solid black;
+        margin: .8rem 0 0;
+        &__text{
+            font-size: 1.4rem;
+            font-weight: 500;
+            margin: 0;
+        }
+
+        &--error &__text{
+            color:#ff3131;
+        }
+    }
+    
+
+}
+
+
+
+
+
+

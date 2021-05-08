@@ -1,0 +1,14 @@
+RewriteEngine on
+Options -indexes
+RewriteBase /lobster/
+RewriteRule ^users/(.*)$ index.php?url2=users/$1 [QSA,L,NC]
+RewriteRule ^ajax_users/(.*)$ index.php?url2=ajax_users/$1 [QSA,L,NC]
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php?url=$1 [QSA,L,NC]
+
+
+
+
+

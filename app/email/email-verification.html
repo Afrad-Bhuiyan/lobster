@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+      *::after{margin:0;padding:0;-webkit-box-sizing:border-box;box-sizing:border-box;list-style-type:none}
+      *::before{margin:0;padding:0;-webkit-box-sizing:border-box;box-sizing:border-box;list-style-type:none}
+      *:focus{border:none;outline:none}
+      *:hover{border:none;outline:none}
+      .link-web:hover{color:#36b332}
+      .link-click:hover{color:#36b332}
+      .link-verify:hover{background-color:#2a8826}
+      .link-verify:focus{background-color:#2a8826}
+    </style>
+    <style type="text/css">
+      @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");@media (max-width: 767px){.content-body h2{font-size:20px}.content-body p{font-size:12px;text-align:justify}.img-env{width:80px;height:80px}.img-logo{width:110px}.link-verify{padding:10px 0;font-size:12px}}
+    </style>
+  </head>
+  <body style="margin:0;padding:0;-webkit-box-sizing:border-box;box-sizing:border-box;list-style-type:none;width:100%;height:100vh;display:-webkit-box;display:-ms-flexbox;display:flex;font-size:15px;font-family:'Poppins', sans-serif;font-weight:400;color:#23263a;background-color:#eeeeee;padding:0 10px;">
+    <div class="container" style="margin:0;padding:0;-webkit-box-sizing:border-box;box-sizing:border-box;list-style-type:none;max-width:650px;margin:auto;width:100%;background-color:#fff;padding:30px;border-radius:3px;border:1.5px solid #e8e1e1;-webkit-box-shadow:0 0 2px 1px #e8e7e7;box-shadow:0 0 2px 1px #e8e7e7;">
+      <div class="content" style="margin:0;padding:0;-webkit-box-sizing:border-box;box-sizing:border-box;list-style-type:none;">
+        <div class="content-head" style="margin:0;padding:0;-webkit-box-sizing:border-box;box-sizing:border-box;list-style-type:none;margin:0 0 30px 0;">
+          <img class="img img-env" src="https://i.ibb.co/3NvPgxD/email.png" alt="Envelope Icon" style="margin:0;padding:0;-webkit-box-sizing:border-box;box-sizing:border-box;list-style-type:none;-o-object-fit:cover;object-fit:cover;-o-object-position:center center;object-position:center center;display:block;width:100px;height:100px;margin:0 auto 15px auto;">
+          <img class="img img-logo" src="https://i.ibb.co/1bDTpXr/lobster-logo-poppins.png" alt="Lobster Logo" style="margin:0;padding:0;-webkit-box-sizing:border-box;box-sizing:border-box;list-style-type:none;-o-object-fit:cover;object-fit:cover;-o-object-position:center center;object-position:center center;display:block;width:200px;height:auto;margin:15px auto 0 auto;">
+        </div>
+        <div class="content-body" style="margin:0;padding:0;-webkit-box-sizing:border-box;box-sizing:border-box;list-style-type:none;margin:10px 0;">
+            <h2 style="margin:0;padding:0;-webkit-box-sizing:border-box;box-sizing:border-box;list-style-type:none;text-align:center;margin:0 0 10px 0;">Verify Your E-mail Address</h2>
+            <p style="margin:0;padding:0;-webkit-box-sizing:border-box;box-sizing:border-box;list-style-type:none;font-size:16px;font-weight:400;color:#212529c9; text-align: justify;">
+                A request has been made to create an account on <a class="link link-web" href="{SITE_URL}" style="margin:0;padding:0;-webkit-box-sizing:border-box;box-sizing:border-box;list-style-type:none;display:inline-block;text-decoration:none;font-weight:500;color:#212529;">Lobster</a> by using this  E-mail address <strong style="margin:0;padding:0;-webkit-box-sizing:border-box;box-sizing:border-box;list-style-type:none;font-weight:500;color:black;">{EMAIL_ADDRESS}</strong>. 
+                If you have made this request, click the button below to verify your E-mail Address. Otherwise, <a class="link link-click" href="#" style="margin:0;padding:0;-webkit-box-sizing:border-box;box-sizing:border-box;list-style-type:none;display:inline-block;text-decoration:none;font-weight:500;color:#212529;">click here</a> to prevent the request.
+            </p>
+        </div>
+        <div class="content-footer" style="margin:0;padding:0;-webkit-box-sizing:border-box;box-sizing:border-box;list-style-type:none;margin:10px 0 0 0;">
+            <a class="link link-verify" href="{VERIFY_LINK}" style="margin:0;padding:0;-webkit-box-sizing:border-box;box-sizing:border-box;list-style-type:none;display:inline-block;text-decoration:none;width:100%;display:block;margin:0 auto;padding:15px 0;font-size:16px;font-weight:500;text-align:center;color:#fff;background-color:#36b332;">
+             Verify Now
+            </a>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

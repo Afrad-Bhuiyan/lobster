@@ -1,0 +1,150 @@
+@import "global";
+@import "header";
+
+
+.main-wrap{
+    
+    &__container--post{
+        min-height: 5rem;
+        padding-top: 15px;
+        padding-bottom: 15px;
+        // border: 1px solid black;
+        position: relative;
+    }
+    
+    &__row{
+        //border: 1px solid black;
+    }
+
+    &__row--notfound{
+       p{
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            span{
+                font-size: 1.6rem;
+                font-weight: 500;
+                margin: auto 0 auto .3rem;
+                color: #403f3f;
+            }
+
+            i{
+                margin: auto .3rem auto 0;
+                color: #66676a;    
+            }
+        }
+       
+    }
+}
+
+.post{
+    //border: 1px solid black;
+    margin-bottom: 30px;
+    //display: none;
+
+    &__wrap{
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        // border: .15rem solid #b0afaf78;
+    }
+
+    &__thumb{
+        a{
+            width: 100%;
+            display: block;
+        }
+
+        img{
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: cover;
+            object-position: center center;
+        }
+        
+    }
+
+    &__info{
+        height: 100%;
+        padding: 10px 10px 20px 10px;
+        background-color: $white;
+        border: .15rem solid #b0afaf78;
+
+        //border: 1px solid green;
+        display: flex;
+        flex-direction: column;
+    }
+
+    &__title{
+        //border: 1px solid black;
+        margin: 0 0 .5rem 0;
+        a{
+            font-size: 16px;
+            font-weight: 600;
+            color: $secondary;
+            &:hover{
+                color: $primary;
+            }
+        }
+    }
+
+    &__meta{
+        //border: 1px solid black;
+        margin: 1rem 0;
+        display: flex;
+    }
+
+    &__view,
+    &__time{
+        font-size: 14px;
+        font-weight: 500;
+        color: #868686;
+        //border: 1px solid black;
+        cursor: pointer;
+
+        &:hover{
+            color: $secondary;
+        }
+    }
+
+    &__icon--circle{
+        font-size: 6px;
+        margin: auto 6px;
+        color: #868686;
+        //border: 1px solid black;    
+    }
+
+    &__author{
+        //border: 1px solid black;
+        margin: auto 0 0 0;
+        img{
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            object-position: center center;
+            border-radius: 50%;
+            margin: auto 0 auto 0;
+        }
+    
+        a{
+            font-size: 14px;
+            font-weight: 600;
+            // color: #6c6c6c;
+            color: #6a6969;
+            //border: 1px solid black;
+            margin: auto 0 auto .5rem;
+
+            &:hover{
+                color: $secondary;
+
+            }
+     
+        }
+    }
+}
+
+
+
+@import "footer";
+

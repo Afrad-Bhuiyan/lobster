@@ -1,0 +1,463 @@
+@import "global";
+
+
+.main-wrap{
+    width: 100%;
+    height:100vh;
+    display: flex;
+    //border: 1px solid black;
+
+    &__link{
+        display: inline-block;
+        //border: 1px solid black;
+    }
+
+    &__link--logo{
+        margin: 0 auto 1rem auto;
+    }
+
+    &__img{ 
+        display: block;
+        object-fit: cover;
+        object-position: center center;
+    }
+
+    &__img--logo{
+        width: 20rem;
+        height: auto;
+    }
+
+    &__sec{
+        width: 100%;
+        //border: 1px solid black;
+        margin: auto 0;
+    }
+
+    &__container{
+       // border: 1px solid black;
+    }
+
+    &__col{
+        margin: 0 auto;
+        //border: 1px solid black;
+    }
+
+
+    &__col-wrap{
+        display: flex;
+        flex-direction: column;
+        margin: 0 -15px;
+        border: .15rem solid #d7d7d7;
+        border-radius: .5rem;
+        box-shadow: 0 0 5px 0px #d7d7d7;
+        padding: 4rem 0;
+        position: relative;
+        // background-color: $white;
+    }
+
+}
+
+.ac-form{
+    padding: 0 0;
+    margin: 1rem 0 0 0;
+    //border:1px solid black;
+    //background-color: $white;
+
+    &__link{
+        display: inline-block;
+        // border:1px solid black;
+    }
+
+    &__link--fpw{
+        font-size: 1.5rem;
+        font-weight: 500;
+        color: $secondary;
+        margin: 0 0 0 auto;
+        // border:1px solid black;
+        &:hover,
+        &:focus{
+            color: $primary;
+        }
+    }
+
+    &__link--login,
+    &__link--signup{
+        font-size: 1.4rem;
+        font-weight: 500;
+        text-transform: capitalize;
+        color: $primary;
+        &:hover,
+        &:focus{
+            color: #309f2d;
+        }
+    }
+
+    &__btn{
+        border: none;
+        background-color: transparent;
+        cursor: pointer;
+        display: inline-block;
+        padding: 0;
+    }
+
+    &__btn--signup,
+    &__btn--login,
+    &__btn--resetpwd{
+        width: 100%;
+        font-size: 1.6rem;
+        font-weight: 500;
+        text-align: center;
+        text-transform: capitalize;
+        color: $btn-primary-text;
+        background-color: $btn-primary-bg;
+        letter-spacing: .05rem;
+        border-radius: .25rem;
+        transition: all 200ms ease-in-out;
+        padding: 1.5rem 0;
+        
+        &:hover,
+        &:focus{
+            background-color:$btn-primary-hover;
+        }
+    }
+
+
+    &__btn--recovery,
+    &__btn--loginpage{
+        width: 100%;
+        padding: 1.5rem 0;
+        // border: 1px solid black;
+        text-align: center;
+        border-radius: .25rem;
+        font-size: 1.6rem;
+        font-weight: 500;
+    }
+
+    &__btn--recovery{
+        color: $white;
+        margin: 0 0 .75rem 0;
+        color: $btn-primary-text;
+        background-color: $btn-primary-bg;
+        &:hover,
+        &:focus{
+            background-color:$btn-primary-hover;
+        }
+    }
+
+    &__btn--loginpage{
+        margin: .75rem 0 0 0;
+        color: $btn-secondary-text;
+        background-color: $btn-secondary-bg;
+
+        &:hover,
+        &:focus{
+            background-color:$btn-secondary-hover;
+        }
+
+        &:focus,
+        &:active{
+            box-shadow: 0px 0px .2rem .1rem $btn-secondary-shadow;
+        }
+    }
+
+    &__btn-icon{
+        margin: 0 .3rem 0 0;
+        // border: 1px solid red;
+    }
+
+    &__btn-text{
+        margin: 0 0 0 .3rem;
+        // border: 1px solid red;
+    }
+
+
+
+
+
+
+    &__btn--eye{
+        font-size: 1.6rem;
+        font-weight: 500;
+        color: #848484;
+        padding: 0 .8rem;
+        &:hover{
+            color: $secondary;
+        }
+    }
+
+    &__btn--eye.ac-form__btn--active{
+        color: $primary;
+    }
+
+
+    &__btn--disabled{
+        pointer-events: none;
+        color: #887d7d;
+        background-color: #aaa8a859;
+    }
+
+    &__msg{
+        //border: 1px solid black;
+        margin: .8rem 0 0 0;
+    }
+
+    &__msg--text{
+        margin: 0 0 0 0;
+        font-size: 1.4rem;
+        font-weight: 500;
+    }
+
+    &__msg--error &__msg--text{
+        color: #ff2727;
+    }
+
+
+
+    &__head{
+        //border: 1px solid black;
+        margin: 0 0 3rem 0;
+        padding:0 15px;
+    }
+
+ 
+
+
+    &__title{
+        text-align: center;
+        // border: 1px solid black;
+        text-transform: capitalize;
+        font-weight: 600;
+        letter-spacing: .05rem;
+        color: $secondary;
+        position: relative;
+        &::after{
+            content: "";
+            position: absolute;
+            width:3rem;
+            height:.35rem;
+            border-radius: .3rem;
+            background-color: $primary;
+            top: 110%;
+            left: 0;
+            right: 0;
+            margin: 0 auto;
+            // border: .2rem solid $primary;
+        }
+    }
+    
+    &__info{
+        //border: 1px solid black;
+        margin: 2rem 0 0 0;
+    }
+
+    &__info-list{
+        margin: 0;
+        padding: 0 0 0 1.5rem;
+        // border: 1px solid black;
+    }
+
+    &__info-item{
+        font-size: 1.2rem;
+        font-weight: 500;
+        color: #797979;
+        // border: 1px solid black;
+        
+        &:not(:last-child){
+            margin: 0 0 .5rem 0;
+        }
+        strong{
+            font-weight: 500;
+            color: $secondary;
+        }
+    }
+
+    &__subtitle{
+        text-align: center;
+        font-size: 1.4rem;
+        font-weight:500;
+        letter-spacing: .05rem;
+        text-align: center;
+        color: $secondary;
+        // border: 1px solid black;
+        margin: 2rem 0 0 0;
+    }
+
+    &__subtitle--resetpwd{
+        text-align: left;
+        margin: 0 0 1rem 0;
+        // border: 1px solid black;
+    }
+
+
+
+    &__body{
+        //border: 1px solid black;
+        padding: 0 15px;
+    }
+
+    &__row{
+        //border: 1px solid red;
+        &:not(:last-child){
+            margin-bottom: 2rem;
+        }
+    }
+
+    &__col{
+        //border: 1px solid black;
+    }
+
+    &__col--refpw,
+    &__col-wrap--refpw{
+        display: flex;
+        //border: 1px solid black;
+    }
+    &__col--fpw{
+        display: flex;
+        flex-direction: column;
+    }
+    
+    @media (max-width: 991px){
+        &__col--fname{
+            //border: 1px solid black;
+            margin-bottom: 1rem;
+        }
+        
+        &__col--lname{
+            margin-top: 1rem;
+            //border: 1px solid black;
+        }
+    }
+
+
+    &__field{
+        display: flex;
+        border-radius:  .3rem;
+        overflow: hidden;
+        background-color: $white;
+        border: .15rem solid #eee;
+        
+        &--focused{
+            border-color: $primary;
+        }
+        &--error{
+            border-color: #ff2727; 
+
+        }
+    }
+
+    &__input:not(&__input--remember){
+        width: 100%;
+        height: 5rem;
+        font-size: 1.6rem;
+        font-weight: 500;
+        padding: 0 1rem;
+        border: none;
+        background-color: $white;
+        color: $secondary;
+        //border: 1px solid black;
+    }
+
+   
+    &__field--error &__input{
+        color: #ff2727; 
+    }
+
+
+    &__input--remember{
+        display: none;
+    }
+
+    &__input--remember:checked + &__label::after{
+        display: flex;
+    }
+
+    &__label{
+        width:1.8rem;
+        height: 1.8rem;
+        border-radius: .25rem;
+        display: inline-block;
+        border: 0.15rem solid #9d9a9a;
+        cursor: pointer;
+        position: relative;
+        margin: auto .3rem auto 0;
+        &::after{
+            content: "\f00c";
+            font-family: "fontAwesome";
+            width: 100%;
+            height: 100%;
+            font-size: 1.2rem;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            color: $white;
+            background-color: $primary;
+        }
+
+        &:hover{
+            border-color: $secondary;
+        }
+    }
+
+    
+    &__label-text{
+        font-size: 1.5rem;
+        font-weight: 500;
+        color: #23263ac4;
+        margin: auto 0 auto .3rem;
+        &:hover,
+        &:focus{
+            color: $secondary;
+        }
+    }
+ 
+    &__input-check{
+        width: 1.8rem;
+        height: 1.8rem;
+        flex-shrink: 0;
+        margin: auto .5rem auto .2rem;
+        border-radius: 50%;
+        border: .15rem solid transparent;
+        position: relative;
+        &::after{
+            content: "";
+            color: $white;
+            font-size: 1.2rem;
+            font-family: "fontAwesome";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    }
+
+    &__input-check--valid{
+        border-color: $primary;
+        background-color: #36b3329c;
+        &::after{
+            content: "\f00c";
+        }
+    }
+
+    &__input-check--invalid{
+        border-color: #ff2f2f;
+        background-color: #ff2f2fc5;
+        &::after{
+            content: "\f00d";
+        }
+    }
+  
+
+}
+
+

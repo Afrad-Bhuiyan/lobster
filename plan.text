@@ -1,0 +1,25 @@
+Main Fetures
+===============
+* Signup
+* Login/Loginout
+* Forget Password
+* Read
+* Like, Dislike, 
+* Comments, Comments Reply, 
+* Subscribe
+* Notification
+
+Pages
+=================
+* Home Page
+* Single Post Page
+* Search Result Page
+* show user profile
+
+To do list
+================
+1. Make the input empty after remove the uploaded Image[complete]
+2. Highlight Selected posts while deleting theme[complete]
+2. Make an input field for replying Comments
+
+

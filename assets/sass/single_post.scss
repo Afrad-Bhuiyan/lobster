@@ -1,0 +1,824 @@
+@import "global";
+@import "header";
+
+
+.main-wrap{
+    
+    //sp = Single Post
+
+    &__sec{
+        //border: 1px solid black;
+    }
+
+    &__container{
+        //border: 1px solid black;
+        padding-top: 15px;
+        padding-bottom: 15px;
+    }
+    
+    &__row{
+        //border: 1px solid black;
+    }
+
+    &__col{
+        //border: 1px solid blue;
+    }
+
+    &__col-wrap{
+        background-color: $white;
+        //border: 1px solid blue;
+    }
+    &__col-wrap--sp{
+        padding-bottom: 1.5rem;
+    }
+}
+
+.sp-content{//Single Post
+    //border: 1px solid black;
+
+    &__col{
+        //border: 1px solid black;
+    }
+
+    &__col-wrap{
+        background-color: $white;
+        //border: 1px solid black;
+    }
+
+    &__thumb{
+        //border: 1px solid black;
+        img{
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: cover;
+            object-position: center center;
+        }
+    }
+
+    &__title{
+        //border: 1px solid black;
+        margin: 1rem 0;
+        padding: 0 1.5rem;
+        h2{
+            margin: 0;
+            font-size: calc(1.8rem * 1.3);
+        }
+    }
+    
+    &__meta-wrap{
+        //border: 1px solid black;
+        display: flex;
+        margin: 1rem 0 0 0;
+        padding: 0 1.5rem;
+
+    }
+    
+    &__meta-side{
+        //border: 1px solid black;
+        display: flex;
+        margin: auto 0;
+    }
+
+    &__meta-side--left{
+        margin: 0 auto 0 0;
+    }
+
+    &__meta-side--right{
+        margin: 0 0 0 auto;
+    }
+    
+
+    &__meta-item{
+        //border: 1px solid black;
+        position: relative;
+        position: relative;
+        color: #6c6c6c;
+        font-weight: 500;
+        font-size: calc(1.4rem * 1.1);
+        &:hover{
+            color: $secondary;
+        }
+
+        &:not(:last-child)::after{
+            content: "|";
+            display: inline-block;
+            margin: 0 .8rem;
+        }
+    }
+
+    &__meta-btn{
+        border: none;
+        background-color: transparent;
+        padding: 0;
+        font-size: calc(1.4rem * 1.1);
+        color: #6c6c6c;
+        &:hover,
+        &:focus{
+            color: $secondary;
+        }
+    }
+    
+
+    &__meta-btn--pressed:not(.sp-content__meta-btn--save){
+        color: $primary;
+        border-bottom: .2rem solid $primary;
+        &:hover,
+        &:focus{
+            color: $primary;
+        }
+    }
+
+    &__meta-btn--pressed.sp-content__meta-btn--save{
+       color: #007bff;
+       &:hover,
+       &:focus{
+           color: #007bff;
+       }
+    }
+
+    
+
+    &__auth-wrap{
+        border: .15rem solid #eeeeee;
+        border-left: none;
+        border-right: none;
+        padding: 1.5rem;
+        margin: 40px 0 0 0;
+        display: flex;
+    }
+    
+    &__auth-side{
+        display: flex;
+        //border: 1px solid red;
+    }
+
+    &__auth-side--left{
+        margin: 0 auto 0 0;
+    }
+
+    &__auth-side--right{
+        margin: 0 0 0 auto;
+    }
+    
+
+    &__auth-info{
+        display: flex;
+    }
+
+    &__auth-img{
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        margin: auto .5rem auto 0;
+        display: block;
+        object-fit: cover;
+        object-position: center center;
+    }
+
+    &__auth-text{
+        //border: 1px solid black;
+        margin: auto 0 auto .5rem;
+    }
+
+    &__auth-name{
+        //border: 1px solid black;
+        color: $secondary;
+        font-size: 1.6rem;
+        font-weight: 600;
+        display: inline-block;
+        &:hover{
+            color: $primary;
+        }
+    
+    }
+    &__auth-subs{
+        //border: 1px solid black;
+        font-size: 1.4rem;
+        font-weight: 500;
+        color: #6c6c6c;
+    
+    }
+
+
+    &__btn--subscribe{
+        display: flex;
+        font-size: 1.5rem;
+        font-weight: 400;
+        border: none;
+        color:$btn-primary-text;
+        background-color:  $btn-primary-bg;
+        padding: 1rem 2rem;
+        margin: auto 0;
+        text-transform: uppercase;
+        letter-spacing: .05rem;
+        cursor: pointer;
+        border-radius: .25rem;
+        transition: all 200ms ease-in-out;
+        text-align: center;
+
+        &:hover,
+        &:focus{
+            background-color:$btn-primary-hover;
+        }
+
+        &:focus,
+        &:active{
+            box-shadow: 0px 0px .2rem .1rem $btn-primary-shadow;
+        }
+    }
+
+    &__btn--subscribe.sp-content__btn--pressed{
+        background-color: $secondary;
+        span{
+            margin: 0 .25rem 0 0;
+        }
+        
+        &::after{
+            content: "\f0f3 ";
+            border: 1px solid black;
+            font-family: "fontAwesome";
+            display: inline-block;
+            margin: 0 0 0 .25rem;
+
+        }
+        
+    }
+    
+
+
+
+    &__desc{
+        //border: 1px solid black;
+        padding: 0 1.5rem;
+        margin: 4rem 0 0 0;
+        
+        p{
+            font-size: 1.6rem;
+            font-weight: 400;
+            line-height: 3rem;
+            word-wrap: break-word;
+            text-align: justify;
+        }
+    }   
+
+}
+
+.sp-comm{
+    //border: 1px solid black;
+    padding: 0 1.5rem;
+    &__title{
+        //border: 1px solid black;
+        margin: 0 0 2rem 0;
+        h4{
+            margin: 0;
+        }
+
+        span,
+        strong{
+            font-weight: 600;
+            color: $secondary;
+        }
+    }
+    
+    &__form--primary{
+        margin-bottom: 1.5rem;
+    }
+
+    &__form--secondary{
+        margin: 1.5rem 0;
+    }
+
+    &__form-side--top{
+        border: .15rem solid #eeeeee;
+        display: flex;
+    }
+
+ 
+    &__logged-user-info{
+        border-right: .15rem solid #eeeeee;
+        padding: 1.5rem;
+        img{
+            border-radius: 50%;
+            margin: 0 auto;
+            display: block;
+            object-fit: cover;
+            object-position: center center;
+        }
+    }
+
+    &__form--md &__logged-user-info{
+        img{
+            width: 4rem;
+            height: 4rem;
+        }
+    }
+
+    &__form--lg &__logged-user-info{
+        img{
+            width: 5rem;
+            height: 5rem;
+        }
+    }
+
+    &__form-field{
+        width: 100%;
+    }
+
+    &__form-input{
+        width: 100%;
+        font-size: 1.6rem;
+        font-weight: 500;
+        color: $secondary;
+        border: none;
+    }
+
+    &__form--md &__form-input{
+        min-height: 5rem;
+        padding: 1rem;
+        
+    }
+
+    &__form--lg &__form-input{
+        min-height: 10rem;
+        padding: 1.5rem 1rem 1rem 1rem;
+
+    }
+    
+    &__form-side--focused{
+        border-color: $primary;
+    }
+
+    &__form-side--bottom{
+        display: flex;
+       // border: 1px solid black;
+        margin: 1.5rem 0 0 0;
+    }
+
+    &__form-side--hide{
+        display: none;
+    }
+
+    &__form-btn-wrap{
+        margin: 0 0 0 auto;
+    }
+
+    &__form-btn{
+        border: none;
+        background-color: transparent;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: .05rem;
+        display: inline-block;
+        transition: all 150ms ease-in-out;
+    }
+
+    &__form-btn--disabled{
+        background-color: #aaa8a859 !important;
+        color:#a69b9b !important;
+        pointer-events: none;  
+    }
+
+    &__form-btn--loading{
+
+        &::after{
+            content:"";
+            width:2.5rem;
+            height:2.5rem;
+            border-radius: 50%;
+            background-color:transparent;
+            position:absolute;
+            top:0;
+            bottom:0;
+            right:0;
+            left:0;
+            margin:auto;
+            border: .5rem solid transparent;
+            border-top-color:var(--white-color);
+            animation: loading-btn-animation 1s ease-in-out infinite;
+        }
+        span{
+            visibility: hidden;
+            opacity: 0;
+        }
+
+        @keyframes loading-btn-animation {
+
+            from{
+                transform: rotate(0turn);
+            }
+
+            to{
+                transform:rotate(1turn);
+            }
+                
+        }
+    }
+
+    &__form--md &__form-btn{
+        font-size: 1.3rem;
+        padding: .8rem 1.6rem;
+    }
+
+    &__form--lg &__form-btn{
+        font-size: 1.5rem;
+        padding: 1rem 2rem;
+    }
+
+    &__form-btn--cancel{
+        border: .15rem solid #eeeeee;
+        color: #717171;
+        margin: 0 .8rem 0 0;
+        &:hover,
+        &:focus{
+            color: $secondary;
+        }
+    }
+
+    &__form-btn--comment{
+        color: $white;
+        background-color: $primary;
+        margin: 0 0 0 .8rem;
+        margin: 0 .8rem 0 0;
+        position: relative;
+
+        &:hover,
+        &:focus{
+            background-color: #2e992a;
+        }
+    }
+
+    &__msg{
+        h5{
+            margin: 0;
+            i{
+                color: orange;
+            }
+        }
+    }
+}
+
+.sp-single-comm{
+    display: flex;
+    background-color: $white;
+    // border: 1px solid black;
+    padding: 1rem  0;
+    &:not(:last-child){
+        margin-bottom: 2.5rem;
+        border-bottom: .15rem solid #eeeeee;
+        // border: 1px solid red;
+    }
+
+    &--primary{
+       // border: 1px solid red;
+    }
+
+    &--secondary{
+        margin: 1rem 0 0 0;
+    }
+
+    &__userimg{
+        //border: 1px solid black;
+        img{
+            width: 5rem;
+            height: 5rem;
+            border-radius: 50%;
+            object-fit: cover;
+            object-position: center center;
+
+        }
+    }
+    
+    &__userimg--primary{
+        padding: 1rem;
+    }
+
+    &__userimg--secondary{
+        padding: .5rem;
+    }
+
+    &__wrap{
+        width: 100%;
+        //border: 1px solid green;
+    }
+
+    &__content{
+        width: 100%;
+        margin: 0 0 0 0;
+    }
+
+    &__content--primary{
+        padding: 1rem;
+    }
+
+    &__content--secondary{
+        padding: .5rem;
+    }
+
+    &__username{
+        //border: 1px solid black;
+        display: flex;
+        margin:  0 0 1.5rem 0;
+        color:  #868686;
+
+        a{
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin: auto 0;
+            display: inline-block;
+            color: #6a6969;
+            &:hover,
+            &:focus{
+                color:  $secondary;
+            }
+        }
+
+        span{
+            font-size: 1.4rem;
+            font-weight: 500;
+            margin: auto 0;
+            //border: 1px solid black;
+        }
+
+        i{
+            font-size: .5rem;
+            //border: 1px solid black;
+            margin: auto .5rem;
+        }
+        
+    }
+
+    &__username--admin{
+        a{
+            background-color: $secondary;
+            color: #dddddd;
+            padding: 0 .8rem;
+            border-radius: 2rem;
+            &:hover,
+            &:focus{
+                color: $white;
+            }
+        }
+    }
+
+    &__body{
+        width: 100%;
+        //border: 1px solid black;
+        p{
+            font-size: 1.5rem;
+            font-weight: 400;
+            // text-align: justify;
+            color: #393b48;
+        }
+    }
+
+    &__btn{
+        background-color: transparent;
+        font-size: 1.6rem;
+        font-weight: 500;
+        border: none; 
+    }
+
+    &__btn--reply{
+        // color: #007bff;
+        color: $primary;
+        padding: 0;
+    }
+
+    &__opt{
+        margin:  0 0 0 0;
+       // border: 1px solid black;
+    }
+
+    &__opt--primary{
+        padding: 1rem 0 0 0;
+    }
+
+    &__opt--secondary{
+        padding: .5rem 0 0 0;
+    }
+
+    &__btn--opt{
+        margin: 0 0 auto 0;
+        padding: 0 1.5rem;
+        color: #868686;
+        background-color: transparent;
+        &:hover{
+            color: $secondary;
+        }
+    }
+
+    &__dropdown{
+        width: 15rem;
+    }
+
+    &__dropdown-list{
+        margin: 0;
+        padding: 0;
+        list-style-type: none;
+    }
+
+    &__dropdown-item:not(:last-child){
+        border-bottom: .15rem solid #eeeeee;
+    }
+
+    &__dropdown-link{
+        //border: 1px solid black;
+        display: flex;
+        font-size: 1.6rem;
+        font-weight: 500;
+        color: #6a6969;
+        text-transform: capitalize;
+        padding: .7rem 0 .7rem 1rem;
+        &:hover{
+            color: $secondary;
+        }
+
+        i{
+            margin: auto .35rem auto 0;
+        }
+        span{
+            margin: auto 0 auto .35rem;
+        }
+        
+    }
+
+}
+
+
+.sidebar-lg{
+    padding: 0 0 0 0;
+    //border: 1px solid black;
+    
+    &__filters{
+        width: 100%;
+        border: .15rem solid #eeeeee;
+        display: flex;
+        //border: 1px solid black;
+    }
+
+    &__filter-wrap{
+        width: 100%;
+        max-width: 100%;
+        // max-width: 100%;
+        padding: 1.5rem .5rem;
+        overflow: hidden;
+        // border: 1px solid red;
+    }
+
+    &__filter-track{
+        width: max-content;
+        // border: 1px solid blue;
+        display: flex;
+        transition: transform 150ms ease-in-out;
+
+    }
+
+
+    &__filter-btn{
+        border: none;
+        background-color: transparent;
+        font-weight: 500;
+        padding: 0;
+    }
+
+    &__filter-btn--action{
+        //border: 1px solid black;
+        padding: 0 1.2rem;
+        font-size: 2.2rem;
+        color: #868686;
+        display: none;
+        &:hover,
+        &:focus{
+            color: $secondary;
+        }
+    }
+
+    &__filter-btn--block{
+        display: block;
+    }
+
+
+
+    &__filter-btn--cat{
+        color: $secondary;
+        border: .15rem solid #dfdddd;
+        background-color: #eeeeee87;
+        padding: .5rem 1.5rem;
+        border-radius: 3rem;
+        font-size: 1.4rem;
+        text-transform: capitalize;
+        &:not(:last-child){
+            margin:  0 .5rem 0 0;
+        }
+    }
+
+    &__filter-btn--active{
+        border-color: $primary;
+        background-color: $primary;
+        color: $white;
+    }
+
+
+    &__content{
+        width: 100%;
+        min-height: 80rem;
+        position: relative;
+        //border: 1px solid black;
+        padding: 1rem 0;
+    }
+
+
+    &__sp{
+        border-bottom: .15rem solid #eeeeee;
+        //border: 1px solid black;
+        display: flex;
+        padding: 0 .5rem;
+        &:not(:last-child){
+            margin:  0 0 2rem 0;
+        }
+    
+    }
+    
+    &__sp-thumb{
+        display:block;
+        margin:  0 .5rem 0 0;
+        img{
+            width: 15rem;
+            height: 10rem;
+            object-fit: cover;
+            object-position: center center;
+        }
+
+    }
+
+    &__sp-content{
+        margin: 0 0 0 .5rem;
+        //border: 1px solid black;
+    }
+
+    &__sp-title{
+        margin: .5rem 0 0 0;
+        //border: 1px solid black;
+
+        a{
+            font-weight: 600;
+            color: $secondary;
+        }
+        
+    }
+
+    &__sp-username{
+        font-size: 1.2rem;
+        font-weight: 500;
+        color: #6a6969;
+        &:hover{
+            color: $secondary;
+        }
+
+        //border: 1px solid black;
+    }
+
+    &__sp-meta{
+        margin:  .8rem 0 0 0;
+        //border: 1px solid black;
+        display: flex;
+    }
+
+    &__sp-meta-item{
+        font-size: 1.2rem;
+        font-weight: 500;
+        cursor: pointer;
+        //border: 1px solid black;
+        display: flex;
+        color: #868686;
+        &:hover{
+            color: $secondary;
+        }
+        &:not(:last-child):after{
+            content: "\f111";   
+            font-family: "FontAwesome";
+            display: inline-block;
+            font-size: 5px;
+            margin: auto .5rem;
+            color: $secondary;
+            //border: 1px solid black;
+        }
+    }
+
+
+}
+
+
+/*
+    Sidebar Column
+*/
+.sidebar-column{
+    background-color: $white;
+    padding-top: 15px;
+    border-left: .15rem solid #eeee;
+}
+
+
+
+@import "footer";

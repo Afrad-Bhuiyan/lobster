@@ -1,0 +1,355 @@
+@import "global";
+@import "header";
+
+
+
+.main-wrap{
+    //border: 1px solid black;
+
+    &__container{
+      // border: 1px solid black;
+    }
+
+    &__row--posts{
+        //border: 1px solid black;
+    }
+}
+
+.profile-area{
+    background-color: $white;
+    margin: 0 -15px;
+    padding: 0 15px;
+    //border: 1px solid black;
+
+    &__img{
+        display: block;
+        object-fit: cover;
+        object-position: center center;
+    }
+
+    &__img--bg{
+        width: 100%;
+        height: auto;
+    }
+
+    &__img--profile{
+        width: 8rem;
+        height: 8rem;
+        border-radius: 50%;
+        margin: auto 1rem auto 0;
+        //border: 1px solid black;
+    }
+
+    &__img--post{
+        width: 100%;
+        height: auto;
+        //border: 1px solid black;
+    }
+
+    &__img--user{
+        width: 4rem !important;
+        height: 4rem !important;
+        border-radius: 50%;
+        margin: auto .5rem auto 0;
+        //border: 1px solid black;
+    }
+
+    &__btn{
+        background-color: transparent;
+        display: inline-block;
+        border: none;
+        cursor: pointer;
+    }
+
+    &__btn--subs{
+        font-size: 1.6rem;
+        font-weight: 400;
+        color: $btn-primary-text;
+        background-color: $btn-primary-bg;
+        padding: 1rem 2rem;
+        text-transform: capitalize;
+        letter-spacing: .05rem;
+        border-radius: .25rem;
+        transition: all 200ms;
+
+        &:hover,
+        &:focus{
+            background-color:$btn-primary-hover;
+        }
+
+        &:focus,
+        &:active{
+            box-shadow: 0px 0px .2rem .1rem $btn-primary-shadow;
+        }
+    }
+
+
+    &__btn--search{
+        font-size: 1.6rem;
+        color: #555555;
+        &:hover,
+        &:focus{
+            color: $secondary;
+        }
+    }
+
+    &__link{
+        display: inline-block;
+        
+    }
+
+    &__link--bar{
+        padding: .5rem 1.2rem;
+        font-size: 1.6rem;
+        font-weight: 500;
+        color: #555555;
+        border-bottom: .25rem solid transparent;
+        text-transform: uppercase;
+        &:hover{
+            color: $secondary;
+        }
+    }
+
+    &__link--bar.profile-area__link--active{
+        color: $primary;
+        border-color: $primary;
+
+    }
+
+    &__link--postimg{
+        display: block;
+        //border: 1px solid blue;
+        
+    }
+
+    &__link--uname{
+        font-size: 1.4rem;
+        font-weight: 600;
+        color: #6a6969;
+        //border: 1px solid black;
+        margin: auto 0 auto .5rem;
+        
+        &:hover{
+            color: $secondary;
+
+        }
+    }
+
+    &__link--posttitle{ 
+        font-size: 1.6rem;
+        font-weight: 600;
+        color: $secondary;
+        &:hover{
+            color: $primary;
+        }
+    }
+
+
+
+    &__title{
+        //border: 1px solid black;
+        margin: 0;
+    }
+    
+    &__title--username{
+        //border: 1px solid black;
+        margin: 0 0 .3rem 0;
+    }
+    
+    &__title--recent{
+        border-left: .25rem solid $primary;
+        padding: 0 0 0 .5rem;
+        margin: 0 0 2rem 0;
+        text-transform: capitalize;
+    }
+
+    &__text{
+        //border: 1px solid black;
+    }
+    
+    &__text--subs{
+        font-size: 1.4rem;
+        font-weight: 500;
+        color: #6a6969;
+        text-transform: capitalize;
+    }
+
+    &__banner{
+        margin: 0 -15px;
+        //border: 1px solid red;
+    }
+
+    &__info{
+        display: flex;
+        margin: 1.5rem 0 5rem 0;
+    //    border: 1px solid blue;
+    }
+
+    &__info-side{
+        // margin: 1.5rem 0 0 0;
+        //border: 1px solid blue;
+        display: flex;
+    }
+
+    &__info-side--left{
+        // margin: 1.5rem 0 0 0;
+        margin: auto auto auto 0;
+    }
+
+    &__info-side--right{
+        // margin: 1.5rem 0 0 0;
+        margin: auto 0 auto auto;
+    }
+
+    &__info-text{
+        margin: auto 0 auto 1rem;
+        //border: 1px solid black;
+    }
+
+    &__bar{
+        border-top: .15rem solid #eee;
+        margin: 0 0 1.5rem 0;
+        padding: 1rem 0;
+        //border: 1px solid black;
+        display: flex;
+    }
+
+    &__bar-list{
+        margin: 0;
+        padding: 0;
+        list-style-type: none;
+        display: flex;
+        //border: 1px solid black;
+
+    }
+
+    &__bar-item{
+        //border: 1px solid black;
+        &:not(:last-child){
+            margin: 0 2rem 0 0;
+        }
+    }
+    
+    &__form{
+        //border: 1px solid black;
+        margin: 0 0 0 auto;
+    }
+
+    &__form-wrap{
+        height: 100%;
+        //border: 1px solid black;
+        display: flex;
+    }
+
+    &__form-input{
+        padding: 0 1rem 0 .5rem;
+        height: 4rem;
+        border: none;
+        display: none;
+        border-bottom: .15rem solid $secondary;
+        &:focus{
+            border-color: $primary;
+        }
+    }
+
+    &__content{
+        //border: 1px solid black;
+    }
+
+    &__content--dynamic{
+
+    }
+    
+    &__posts{
+       //border: 1px solid red;
+    }
+
+    &__posts--recent{
+        // border: 1px solid red;
+    }
+
+    &__carousel{
+        //border: 1px solid  black;
+        
+        .owl-prev,
+        .owl-next{
+            width: 4rem;
+            height: 4rem;
+            border-radius: 50%;
+            border: none;
+            font-size: 1.8rem;
+            color: $white;
+            background-color: $secondary;
+            position: absolute;
+            z-index: 1000;
+            top: 0;
+            bottom: 0;
+            margin: auto 0;
+        }
+
+        .owl-prev{
+            left: -2rem;
+        }
+
+        .owl-next{
+            right: -2rem;
+        }
+    }
+    
+    &__post{
+        border: 1px solid  black;
+        border: .15rem solid #b0afaf78;
+
+    }
+    
+    &__post-thumb{
+        // border: 1px solid black;
+    }
+
+    &__post-info{
+        //border: 1px solid red;
+        display: flex;
+        flex-direction: column;
+        padding: 1rem 1rem 2rem 1rem;
+    }
+    
+    &__post-title{
+        //border: 1px solid black;
+        margin: 0 0 .5rem 0;
+    }
+
+    &__post-meta{
+        display: flex;
+        margin: 1rem 0;
+        // border: 1px solid black;
+    }
+    &__post-view,
+    &__time{
+
+        font-size: 1.4rem;
+        font-weight: 500;
+        color: #868686;
+        //border: 1px solid black;
+        cursor: pointer;
+
+        &:hover{
+            color: $secondary;
+        }
+    }
+
+    &__icon--circle{
+        font-size: .6rem;
+        margin: auto .6rem;
+        color: #868686;
+        //border: 1px solid black;  
+        
+    }
+
+
+    &__post-author{
+        display: flex;
+        margin: auto 0 0 0;
+        //border: 1px solid black;
+    }
+
+}
