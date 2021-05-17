@@ -20,6 +20,10 @@ class ajax_users_settings{
     
     //Here we will store all the required model's object
     private $model_objs=array();
+    
+    //store logged user's information
+    private $user_info=array();
+
 
     /**
      * =============================
@@ -43,6 +47,10 @@ class ajax_users_settings{
             
             //store the `mail class from $thie variable
             $this->mail=$objs["mail"];
+
+             //store the `mail class from $thie variable
+             $this->user_info=$objs["user_info"];
+
         }
     }
 
@@ -58,6 +66,36 @@ class ajax_users_settings{
      * All private functions  starts 
      * =============================
      */
+
+        //use the function for fetching 'profile' and `bg` image of a single user
+        private function fetch_user_files($user_id,$ufile_usage)
+        {
+
+            $output = array();
+
+            //store the user_files's model from $this->model_objs variable
+            $ufile_obj=$this->model_objs["ufile_obj"];
+
+            $fetch_file=$ufile_obj->select(array(
+                "where"=>"user_files.user_id={$user_id} AND user_files.ufile_usage='{$ufile_usage}'"
+            ));
+
+            if($fetch_file["status"] == 1 && $fetch_file["num_rows"] == 1){
+
+                $fetched_file=$fetch_file["fetch_all"][0];
+                
+                $output=array(
+                    "name"=>$fetched_file["ufile_name"],
+                    "ext"=>$fetched_file["ufile_ext"],
+                    "status"=>$fetched_file["ufile_status"],
+                    "dimension"=>unserialize($fetched_file["ufile_dimension"])
+                );
+            }
+
+            return $output;
+        }
+
+
 
         //user the function to check username or E-mail exist
         private function check_uname_email_exists($which, $value)

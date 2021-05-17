@@ -10,6 +10,7 @@ $(function(){
         //Here you will store the filter query string
         var filter="";
 
+        //Default page number for my posts
         var page=1;
 
         //first check if the object has `filter` paramter
@@ -26,11 +27,195 @@ $(function(){
             page=query_strings.get("page");
         }
 
+
+        //use the function to add events after printing my posts table
+        function add_events(){
+            
+            //store class name of dropdown toggle button's
+            const ddToggle_btn_class=".my-posts__btn--ddToggle";
+            
+            //select the button using jquery
+            const ddToggle_btn=$(ddToggle_btn_class);
+
+            $(document).on("click",ddToggle_btn_class,function(){
+
+                //store dropdown optios element
+                const dropdown_opts = $(".my-posts__dropdown-opts");
+                
+                //store the current dropdown options element
+                var current_dropdown_opts = $(this).parent().find(".my-posts__dropdown-opts");
+            
+                const obj={
+                
+                    open:function(){
+
+                        //store the object
+                        const that=this;
+                        
+                        //remove any existing  .document-wrap elemenet
+                        $(".document-wrap").remove();
+
+                        //append a .document-wrap element into the body
+                        $("body").append(`<div class="document-wrap"></div>`);
+
+                        if(!current_dropdown_opts.hasClass("my-posts__dropdown-opts--show")){
+
+                            //add the block class in dropdown options
+                            current_dropdown_opts.addClass("my-posts__dropdown-opts--block");
+                            
+                            setTimeout(function(){
+                                
+                                //add the show class in dropdown options
+                                current_dropdown_opts.addClass("my-posts__dropdown-opts--show");
+
+                                //call the close function from object
+                                $(".document-wrap").on("click",that.close);
+                            
+                            },50);
+                        }
+                    },
+
+                    close:function(){
+
+                        //remove the .documen-wrap first
+                        $(".document-wrap").remove();
+                        
+                        if(current_dropdown_opts.hasClass("my-posts__dropdown-opts--show")){
+                            
+                            //remove the show from options
+                            current_dropdown_opts.removeClass("my-posts__dropdown-opts--show");
+                            
+                            setTimeout(function(){
+                                
+                                //remove the block class from options
+                                current_dropdown_opts.removeClass("my-posts__dropdown-opts--block");
+
+                            },155);
+                        }  
+                    }
+                }
+
+                //call the open function to show the popup
+                obj.open();
+
+            });
+
+
+            //select the checkbox labels
+            const checkbox_labels=$(".my-posts__label");
+
+            $(document).on("click",".my-posts__label",function(){
+
+                //store the clicked checkbox label
+                const current_checkbox_label=$(this);
+                
+                //store the clicked label's closest input checkbox
+                const current_input_checkbox=$(this).parent().find(".my-posts__input--checkbox");
+
+                //store current input's tr apart from tr--the
+                const checkbox_tr=$(this).parents(".my-posts__tr--tbody");
+                
+            
+                //store all the single input checkbox
+                const single_inputs = $(".my-posts__input--single");
+
+                if(!current_input_checkbox.prop("checked")){
+
+                    //make input checkbox checked
+                    current_input_checkbox.prop("checked",true);
+
+                    if(checkbox_tr.length == 1){
+
+                        //add a css class to highlight the checkbox_tr
+                        checkbox_tr.addClass("my-posts__tr--selected");
+                    }
+                    
+
+                }else{
+                    
+                    //make the input checkbox unchecked
+                    current_input_checkbox.prop("checked",false);
+
+                    if(checkbox_tr.length == 1){
+
+                        //remove the class that was added to highlight the checkbox_tr
+                        checkbox_tr.removeClass("my-posts__tr--selected");
+                    }
+                }
+
+          
+                
+                setTimeout(function(){
+
+                    //store all the checked single input checkboxes
+                    let checked_inputs = $(".my-posts__input--single:checked");
+                    
+                    //store all the unchecked single input checkboxes
+                    let unchecked_inputs =$(".my-posts__input--single").not(":checked");
+
+                    if(current_checkbox_label.hasClass("my-posts__label--checkAll")){
+
+                        if(current_input_checkbox.prop("checked")){
+    
+                            unchecked_inputs.each(function(index,input){
+                                
+                                //make the unchecked inputs checked
+                                $(input).prop("checked",true);
+
+                                $(input).parents(".my-posts__tr--tbody").addClass("my-posts__tr--selected");
+                                
+                            });
+
+                        }else{
+                        
+                            checked_inputs.each(function(index,input){
+    
+                                //make the unchecked inputs checked
+                                $(input).prop("checked",false);
+
+                                $(input).parents(".my-posts__tr--tbody").removeClass("my-posts__tr--selected");
+
+                            });
+                        }
+
+                    }
+                    
+                    //set the checked_inputs to updated checkd inputs
+                    checked_inputs = $(".my-posts__input--single:checked");
+                    
+                    //set the unchecked_inputs to updated unchecked inputs
+                    unchecked_inputs =$(".my-posts__input--single").not(":checked");
+
+                    if(checked_inputs.length > 0){
+                        
+                        //when a single post is checked then appear the delete button
+                        $(".my-posts__btn--delete").removeClass("my-posts__btn--hide");
+
+                        if(checked_inputs.length == single_inputs.length){
+                            
+                            //condition true means all posts are checked. let's checked the checkAll input
+                            $(".my-posts__input--checkAll").prop("checked",true);
+                        }
+                        
+                        
+                    }else{
+                        
+                        //when a single post not is checked then disappear the delete button
+                        $(".my-posts__btn--delete").addClass("my-posts__btn--hide");
+
+                        //unchecked the checkAll input
+                        $(".my-posts__input--checkAll").prop("checked",false);
+                    }
+                },50)
+            });
+            
+        }
+    
         //Load all logged user posts
         function load_my_posts(){
 
             $.ajax({
-                url:`${post_request_url()}load_my_posts`,
+                url:`${post_request_url()}?class=posts&&method=load_my_posts`,
                 method:"POST",
                 data:{
                     filter:filter,
@@ -38,45 +223,49 @@ $(function(){
                 },
                 success:function(response){
 
-                    if(response){
+                    //first make the parent element empty
+                    $(".my-posts__col-body").html(" ");
 
-                        //first make the parent element empty
-                        $(".my-posts__post-col").html(" ");
-
-                        //append all the HTML in parent element
-                        $(".my-posts__post-col").append(response);
-
-                        //console.log(response);
-                    }
+                    //append all the HTML in parent element
+                    $(".my-posts__col-body").append(response);
+            
                 }
             });
         }
 
-        //store data-load_post attribute value
-        const load_posts=$(".elements__my-posts").data("load_posts");
+        
+
+
+        // //store data-load_post attribute value
+        // const load_posts=$(".elements__my-posts").data("load_posts");
 
         //check if logged in user posted any posts
-        if(load_posts == 1){    
-
+        if(true){    
             load_my_posts();
         }
+
+        setTimeout(function(){
+
+            add_events();
+
+        },1000)
 
         //catch the current location
         const current_location=location.href;
 
         //adding active class in topbar links
-        const topbar_links=$(".my-posts__topbar-link");
+        const topbar_links=$(".my-posts__topBar-link");
 
         $.each(topbar_links,function(index, topbar_link){
 
             if(topbar_link.href == current_location){
 
-                topbar_link.classList.add("my-posts__topbar-link--active");
+                topbar_link.classList.add("my-posts__topBar-link--active");
             }
         });
 
         //store topbar dropdown filter
-        const topbar_filter=$(".my-posts__select-input--topbar-filter");
+        const topbar_filter=$(".my-posts__input--filter");
 
         topbar_filter.on("change",function(e){
 
@@ -84,7 +273,7 @@ $(function(){
 
             if(selected_value !== ""){
                 $.ajax({
-                    url:`${post_request_url()}filter_my_posts`,
+                    url:`${post_request_url()}?class=posts&&method=filter_my_posts`,
                     method:"POST",
                     data:{
                         selected_value:selected_value,
@@ -93,12 +282,12 @@ $(function(){
                     success:function(response){
 
                         //first make the parent element empty
-                        $(".my-posts__post-col").html(" ");
-                        
-                        //append all the HTML in parent element
-                        $(".my-posts__post-col").append(response);    
+                        $(".my-posts__col-body").html(" ");
 
-                        //console.log(response);
+                        //append all the HTML in parent element
+                        $(".my-posts__col-body").append(response);
+
+                        console.log(response);
                     }
                 }); 
 
@@ -110,30 +299,40 @@ $(function(){
 
         });
 
-        //prevent the search form to submit
-        $(".my-posts__form--search").on("submit",function(e){
 
-            e.preventDefault();
+        //store all the forms in my posts section
+        const my_posts_forms=$(".my-posts__form");
+
+        my_posts_forms.each(function(index,form){
+            
+            $(form).on("submit",function(e){
+
+                //prevent the default behaviour on submitting the form
+                e.preventDefault();
+            });
         });
         
-        //store the topbar search input
-        const topbar_search_input=$(".my-posts__input--search");
 
-        topbar_search_input.on("focusin focusout",function(e){
+        //store all inputs in my-posts section
+        const form_inputs=$(".my-posts__input");
 
-         
+        form_inputs.on("focusin focusout",function(e){
+
             if(e.type == "focusin"){
 
-                $(this).parents("form").addClass("my-posts__form--focused");
+                $(this).parents(".my-posts__form-field").addClass("my-posts__form-field--focused");
                 
             }else if(e.type == "focusout"){
                 
-                $(this).parents("form").removeClass("my-posts__form--focused");
+                $(this).parents(".my-posts__form-field").removeClass("my-posts__form-field--focused");
             }
 
         });
 
-        topbar_search_input.on("keyup",function(e){
+        //store the topbar search input
+        const search_input=$(".my-posts__input--search");
+
+        search_input.on("keyup",function(e){
 
             //store the search query
             const search_query=$(this).val();
@@ -141,7 +340,7 @@ $(function(){
             if(search_query !== ""){
 
                 $.ajax({
-                    url:`${post_request_url()}search_my_posts`,
+                    url:`${post_request_url()}?class=posts&&method=search_my_posts`,
                     method:"POST",
                     data:{
                         search_query:search_query,
@@ -152,13 +351,14 @@ $(function(){
                         if(response){
 
                             //first make the parent element empty
-                            $(".my-posts__post-col").html(" ");
+                            $(".my-posts__col-body").html(" ");
 
                             //append all the HTML in parent element
-                            $(".my-posts__post-col").append(response);
+                            $(".my-posts__col-body").append(response);
+
                         }
                         
-                        //console.log(response)
+                        console.log(response)
                     }
                 });
 
@@ -175,88 +375,97 @@ $(function(){
 
         });
 
-        $(".post-checkbox label").on("click",function(){
+        //store the posts delete button
+        const post_delete_btn=$(".my-posts__btn--delete");
 
+        post_delete_btn.on("click",function(e){
 
-            if($(this).parents(".post-checkbox").hasClass("all")){
+            //store all the checked inputs
+            const checked_inputs = $(".my-posts__input--single:checked");
 
-                $(this).parents(".post-checkbox").toggleClass("checked");
-
-                if($(this).parents(".post-checkbox").hasClass("checked")){
-
-                    //add class on all .table-row.post element for styling
-                    $(".table-row.post").addClass("checked");
-
-                    //click all input's that are not checked for selecting them
-                    $(".table-row.post input[type='checkbox']").not(":checked").click();
-                    
-                    
-                }else{
-                    
-                    ///click all input's that are aleardy checked for deselecting them
-                    $(".table-row.post input[type='checkbox']:checked").click();
-
-                    //remove the class .table-row.post element for destyling
-                    $(".table-row.post").removeClass("checked");
-
-                }
-            }
+            const dymanic_text = (checked_inputs.length > 1) ? `${checked_inputs.length} posts` : `${checked_inputs.length} post`;
+            
+            const post_ids = [];
 
             
-            if($(this).parents(".post-checkbox").hasClass("single")){
+            checked_inputs.each(function(index,input){
 
-                //toggle the .checked class for styling
-                $(this).parents(".table-row.post").toggleClass("checked");
+                post_ids.push($(input).val());
+            });
 
-                setTimeout(function(){
+            if(post_ids.length !== 0){
 
-                    //Total checkbox length
-                    const total_post_checkbox_length=$(".post-checkbox.single input[type='checkbox']").length;
-                    
-                    //Total checked checkbox length
-                    const total_checked_post_length=$(".post-checkbox.single input[type='checkbox']:checked").length;
-                    
-                    if(total_post_checkbox_length == total_checked_post_length){
-
-                        //add the check mark from  all the post checkedbox
-                        $(".post-checkbox.all input[type='checkbox']").not(":checked").click();
+                modal.open("post_delete",{
+                
+                    modal_text:`
+                        You are about to delete <strong>${dymanic_text}</strong>. 
+                        Deleting posts will permanantly delete all the comments, notifications, ratings etc. 
+                        Are you sure to proceed with the action? This action can't be undone.
+                    `,
+                    onTrue:function(){
+    
+                        //store the true button
+                        const trueBtn = $(this);
+                        
+                        //store the selected modal
+                        const selected_modal = trueBtn.parents(".modal");
+                        
+                        $.ajax({
+                            url:`${post_request_url()}?class=posts&method=delete_my_posts`,
+                            method:"POST",
+                            data:{
+                                post_ids:post_ids
+                            },
+                            success:function(response){
+    
+                                console.log(response)
+                            }
+                        })
+    
+    
+                        //call the modal function to hide
+                        selected_modal.modal("hide");
+    
+                        selected_modal.on("hidden.bs.modal",function(e){
+    
+                            //permanantly remove the modal from the dom
+                            $(this).remove();
+                        });
+                
+                        console.log("delete posts");
+                        
+                    },
+                    onFalse:function(){
+    
+                        //store the true button
+                        const falsBtn = $(this);
+                        
+                        //store the selected modal
+                        const selected_modal = falsBtn.parents(".modal");
+                        
+                        //call the modal function to hide
+                        selected_modal.modal("hide");
+    
+                        selected_modal.on("hidden.bs.modal",function(e){
+    
+                            //permanantly remove the modal from the dom
+                            $(this).remove();
+                        });
+                     
+                        console.log("don't delete posts");
+    
                     }
-                    
-                },50)
+                });
+
+            }else{
+
+                alert("Please selected at a single post");
             }
-
-            
-            setTimeout(function(){
-
-                let checked_inputs=$(".post-checkbox.single input[type='checkbox']:checked");
-
-                if(checked_inputs.length > 0){
-
-                    if($(".record-delete-btn").hasClass("d-none")){
-
-                        //appear the .record-delete-btn
-                        $(".record-delete-btn").removeClass("d-none")
-                        
-                    }
-                    
-                }else{
-                    
-                    if(!$(".record-delete-btn").hasClass("d-none")){
-                        
-                        //disappear the .record-delete-btn
-                        $(".record-delete-btn").addClass("d-none")
-                    }
-
-                    //remove the check mark from  all the post checkedbox
-                    $(".post-checkbox.all input[type='checkbox']:checked").click();
-                }
-
-            },50)
         });
 
 
     }else if(post_type == "publish"){
-        
+
         const editor=document.querySelector("#editor");
 
         let data;
@@ -313,7 +522,7 @@ $(function(){
             form_data.append("request","post_img");
 
             $.ajax({
-                url:`${post_request_url()}add_the_post`,
+                url:`${post_request_url()}?class=posts&method=add_the_post`,
                 method:"POST",
                 data:form_data,
                 contentType:false,
@@ -324,7 +533,18 @@ $(function(){
                     //before showing the error_msg first remove that
                     $(".pp-sec__form-msg").remove();
 
-                    if(response == 1){
+                    if(response.error_status == 1){
+                        
+                        //store all the errors
+                        const errors = response.errors;
+
+                        for(const key in errors){
+
+                            //print all the errors
+                            $(`${errors[key].target}`).append(`${errors[key].error_msg}`)
+                        }
+
+                    }else if(response.error_status == 0){
 
                         //create FileReader Object
                         const reader=new FileReader();
@@ -354,17 +574,10 @@ $(function(){
                             
                             //remove event from dropzone so that a popup can not appear after clicking on dropzone
                             dropzone.removeEventListener("click",show_file_upload_popup);
-
-                        }
-
-                    }else if(typeof response == "object"){
-
-                        //Printing the error msg from obj
-                        for(const key in response){
-
-                            $(`${response[key].target}`).append(`${response[key].error_msg}`)
                         }
                     }
+
+                    console.log(response);
                 }
             });
         }
@@ -417,11 +630,10 @@ $(function(){
         })
 
         dropzone.addEventListener("drop",function(e){
-
             e.preventDefault();
 
             this.classList.remove("pp-sec__dropzone--focused");
-        
+    
             show_post_img("drop",e.dataTransfer.files)
         });
 
@@ -446,9 +658,10 @@ $(function(){
 
         });
 
+        //store the posts publish button
         const form_btn_publish=$(".pp-sec__form-btn--publish");
 
-        //submitting the form 
+     
         form_btn_publish.on("click",function(e){
             
             e.preventDefault();
@@ -460,7 +673,7 @@ $(function(){
             form_data.append("request","post_form");
 
             $.ajax({
-                url:`${post_request_url()}add_the_post`,
+                url:`${post_request_url()}?class=posts&method=add_the_post`,
                 method:"POST",
                 data:form_data,
                 contentType:false,
@@ -469,8 +682,19 @@ $(function(){
                 success:function(response){
 
                     $(".pp-sec__form-msg").remove();
+                
+                    if(response.error_status == 1){
 
-                    if(response == 1){
+                         //store all the errors
+                         const errors = response.errors;
+
+                         for(const key in errors){
+ 
+                             //print all the errors
+                             $(`${errors[key].target}`).append(`${errors[key].error_msg}`)
+                         }
+
+                    }else if(response.error_status == 0){
 
                         $(".pp-sec__form--publish").trigger("reset");
 
@@ -489,16 +713,10 @@ $(function(){
                             $(".pp-sec__form-btn--close").addClass("pp-sec__form-btn--hide");
                         }
                         
-                        window.location.href=`${user_profile_link()}dashboard?posts=myposts&filter=all`;
-                      
+                        window.location.href=`${user_profile_link()}dashboard/posts?sub_option=my_posts&filter=all`;
 
-                    }else if(typeof response == "object"){
-
-                        for(const key in response){
-
-                            $(`${response[key].target}`).append(`${response[key].error_msg}`)
-                        }
                     }
+
 
                     console.log(response);
                 }

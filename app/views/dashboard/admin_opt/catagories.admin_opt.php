@@ -44,7 +44,7 @@
                                     </thead>
 
                                     <tbody class="cat-list__tbody">
-                                        <?php for($i=1; $i <= 15; $i++): ?>
+                                        <?php for($i=1; $i <= 10; $i++): ?>
                                         <tr class="cat-list__tr cat-list__tr--tbody">
                                             <td class="cat-list__td cat-list__td--catId">
                                                 <div class="cat-list__td-wrap">

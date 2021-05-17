@@ -444,45 +444,6 @@ class functions{
         }
     }
 
-    //add a notification in `notifications` table
-    public function add_notification($param)
-    {
-        /*
-            $param=array(
-                "nf_title"=>"",
-                "nf_date"=>"",
-                "from_user_id"=>"",
-                "to_user_id"=>"",
-                "post_id"=>"",
-            )
-         */
-
-        //set the time zone to Asia/Dhaka
-        date_default_timezone_set("Asia/Dhaka");
-    
-        $nf_obj=$param["nf_obj"];
-         
-         $insert_nf=$nf_obj->insert(array(
-            "fields"=>array(
-                "nf_title"=>$param["nf_title"],
-                "nf_date"=>date("d F, Y_h:i:sA"),
-                "from_user_id"=>$param["from_user_id"],
-                "to_user_id"=>$param["to_user_id"],
-                "post_id"=>$param["post_id"],
-                "nf_status"=>"unread",
-            )
-         ));
-
-         if($insert_nf["status"] == 1 && isset($insert_nf["insert_id"])){
-
-            return true;
-
-         }else{
-
-             return false;
-         }
-    }
-
     public function check_user_verified_email(){
         
         echo "Hellow";
@@ -497,6 +458,21 @@ class functions{
         $page_obj=new pages;
         $page_obj->not_found();
     }//not_found
+
+
+    //use the function to get `error_pages` controller's object
+    public function error_pages(){
+
+        //include the `error_pages` controller
+        include "app/controllers/error_pages.php";
+
+        //create the object of `error_pages`
+        $error_pages_obj=new error_pages;
+
+        //Return the output
+        return $error_pages_obj;
+
+    }
 }
 
 

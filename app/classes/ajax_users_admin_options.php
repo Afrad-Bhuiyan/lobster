@@ -21,8 +21,8 @@ class ajax_users_admin_options{
         //Here we will store all the required model's object
         private $model_objs=array();
 
-        //Here we will store the logged user's information
-        private $logged_user_info;
+        //store logged user's information
+        private $user_info=array();
 
     /**
      * =============================
@@ -46,9 +46,9 @@ class ajax_users_admin_options{
                 
                 //store the `mail class from $thie variable
                 $this->mail=$objs["mail"];
-
-                //store the logged in user's information
-                $this->logged_user_info=$this->fetch_user_info($_SESSION['user_id']);
+                
+                //store the `mail class from $thie variable
+                $this->user_info=$objs["user_info"];
             }
         }
 
@@ -65,33 +65,7 @@ class ajax_users_admin_options{
      * All private functions  starts 
      * =============================
      */
-        //use the function to fetch a single user's information
-        private function fetch_user_info($user_id){
 
-            $output = array();
-
-            //store the user's model from $this->model_objs variable
-            $user_obj=$this->model_objs["user_obj"];
-
-            //fetch user
-            $fetch_user=$user_obj->select(array(
-                "column_name"=>"
-                    users.user_fname,
-                    users.user_lname,
-                    users.user_email,
-                    users.user_name
-                ",
-                "where"=>"users.user_id={$user_id}"
-            ));
-
-            if($fetch_user["status"] == 1 && $fetch_user["num_rows"] == 1){
-                
-                $output=$fetch_user["fetch_all"][0];
-            }
-
-            
-            return $output;
-        }
         //use the function for fetching 'profile' and `bg` image of a single user
         private function fetch_user_files($user_id,$ufile_usage)
         {
@@ -120,6 +94,37 @@ class ajax_users_admin_options{
             return $output;
         }
 
+
+        //use the function to fetch a single user's information
+        private function fetch_user_info($user_id)
+        {
+
+            $output = array();
+
+            //store the user's model from $this->model_objs variable
+            $user_obj=$this->model_objs["user_obj"];
+
+            //fetch user
+            $fetch_user=$user_obj->select(array(
+                "column_name"=>"
+                    users.user_fname,
+                    users.user_lname,
+                    users.user_email,
+                    users.user_name
+                ",
+                "where"=>"users.user_id={$user_id}"
+            ));
+
+            if($fetch_user["status"] == 1 && $fetch_user["num_rows"] == 1){
+                
+                $output=$fetch_user["fetch_all"][0];
+            }
+
+            
+            return $output;
+        }
+    
+
         //use the function for fetching  total posts of a user
         private function fetch_total_posts($user_id)
         {
@@ -147,7 +152,6 @@ class ajax_users_admin_options{
         
 
         }
-
 
         //user the function just for printing the user's table
         private function print_all_user_table($all_users)
@@ -437,7 +441,7 @@ class ajax_users_admin_options{
 
                             $output .= "
                                 <li class='user-list__page-item'>
-                                    <a class='user-list__page-link' href='{$this->config->domain("users/{$this->logged_user_info['user_name']}/dashboard?admin_options=users&page_no={$prev_page_no}")}'>
+                                    <a class='user-list__page-link' href='{$this->config->domain("users/{$this->user_info['user_name']}/dashboard?admin_options=users&page_no={$prev_page_no}")}'>
                                         <i class='fa fa-angle-left'></i>
                                     </a>
                                 </li>
@@ -450,7 +454,7 @@ class ajax_users_admin_options{
         
                             $output .= "
                                 <li class='user-list__page-item'>
-                                    <a class='user-list__page-link {$link_active}' href='{$this->config->domain("users/{$this->logged_user_info['user_name']}/dashboard?admin_options=users&page_no={$i}")}'>
+                                    <a class='user-list__page-link {$link_active}' href='{$this->config->domain("users/{$this->user_info['user_name']}/dashboard?admin_options=users&page_no={$i}")}'>
                                         {$i}
                                     </a>
                                 </li>
@@ -464,7 +468,7 @@ class ajax_users_admin_options{
 
                             $output .= "
                                 <li class='user-list__page-item'>
-                                    <a class='user-list__page-link' href='{$this->config->domain("users/{$this->logged_user_info['user_name']}/dashboard?admin_options=users&page_no={$next_page_no}")}'>
+                                    <a class='user-list__page-link' href='{$this->config->domain("users/{$this->user_info['user_name']}/dashboard?admin_options=users&page_no={$next_page_no}")}'>
                                         <i class='fa fa-angle-right'></i>
                                     </a>
                                 </li>
@@ -600,7 +604,7 @@ class ajax_users_admin_options{
                                 <br>
                                 Sincerely
                                 <br>
-                                <b>{$this->logged_user_info['user_fname']} {$this->logged_user_info['user_lname']}</b> (An admin of <a href='{$this->config->domain()}' target='_blank'>lobster</a>)
+                                <b>{$this->user_info['user_fname']} {$this->user_info['user_lname']}</b> (An admin of <a href='{$this->config->domain()}' target='_blank'>lobster</a>)
                             </p>
                         </div> 
                     ";
@@ -621,7 +625,7 @@ class ajax_users_admin_options{
                                 <br>
                                 Sincerely
                                 <br>
-                                <b>{$this->logged_user_info['user_fname']} {$this->logged_user_info['user_lname']}</b> (An admin of <a href='{$this->config->domain()}' target='_blank'>lobster</a>)
+                                <b>{$this->user_info['user_fname']} {$this->user_info['user_lname']}</b> (An admin of <a href='{$this->config->domain()}' target='_blank'>lobster</a>)
                             </p>
                         </div> 
                     ";

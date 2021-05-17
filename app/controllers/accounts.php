@@ -73,7 +73,7 @@
         public function login(){
             
             $this->data["title_tag"]="Lobster | Accounts | Login";
-
+            
             $this->view("accounts/login",$this->data);
         }
 

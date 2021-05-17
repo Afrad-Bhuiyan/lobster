@@ -116,35 +116,6 @@
         });
     }
 
-    //update the title tag
-    function update_title_tag_and_bell(param){
-
-        const to_user_id=param.to_user_id;
-
-        $.ajax({
-            url:`${domain()}ajax_pages/update_title_tag_and_bell`,
-            method:"POST",
-            data:{
-                to_user_id:to_user_id,
-                title_tag:$("title").text()
-            },
-            dataType:"json",
-            success:function(response){
-
-                if(response){
-                    //set the title tag
-                    $("title").text(response.title_tag);
-
-                    //romove the previous bell button with badge
-                    $(".ph-nav__btn--bell").remove(); 
-
-                    //set the bell button with new badge
-                    $(".ph-nav__dropdown-toggle--nf").append(response.bell_icon);
-                }
-            }
-        });
-    }
-
     //call the function when a popup message needs to be appeared
     function show_popup_msg(param){
         /*
@@ -202,9 +173,39 @@
 
     }
 
+    //use the function fetch unread notificatios in every 5 minitues
+    function get_unread_notifications(){
+
+        $.ajax({
+            url:`${domain()}ajax_pages/get_unread_notifications`,
+            method:"POST",
+            data:{
+                title_tag:$("title").text()
+            },
+            dataType:"json",
+            success:function(response){
+
+                if(response.error_status == 0){
+
+                    //set the title tag
+                    $("title").text(response.title_tag);
+
+                    //set the bell button with new badge
+                    $(".ph-nav__dropdown-toggle--nf").html(response.bell_btn);
+
+                }
+
+               // console.log(response);
+            }
+        })
+    }
+
+
     /*=========================
     Code for Header part starts
     ==========================*/
+
+    setInterval(get_unread_notifications,5000);
 
     //store the search form
     const search_form=$(".ph-nav__form--search");
@@ -261,6 +262,7 @@
         Jquery plugin for adding the autocomplet feture
         plugin link: https://github.com/devbridge/jQuery-Autocomplete 
     */
+
     $(".ph-nav__form-input--search").autocomplete({
 
         serviceUrl:`${domain()}result`,
@@ -288,127 +290,109 @@
 
 
 
-    const dropdown_toggle=$(".ph-nav__dropdown-toggle");
+    //store all the dropdown toggles
+    const dd_toggles=$(".ph-nav__dropdown-toggle");
 
-    dropdown_toggle.on("click",function(){
+    dd_toggles.on("click",function(){
 
-        if($(this).hasClass("ph-nav__dropdown-toggle--nf")){
+        //store the clicked dropdwon toggle
+        const dd_toggle = $(this);
 
-            const that=$(this);
+        //store clicked closest dropdwon content
+        const dd_content=dd_toggle.parent().find(".ph-nav__dropdown-content");
 
-            //Remove the previously opened dropdown content
-            if($(".ph-nav__dropdown-content--menu").hasClass("ph-nav__dropdown-content--block")){
+        //store dropdown content wrapper element
+        const dd_content_wrap=dd_toggle.parent().find(".ph-nav__dropdown-content-wrap");
 
-                $(".ph-nav__dropdown-content--menu").removeClass("ph-nav__dropdown-content--block");
+        //store options
+        const obj={
+            
+            open:function(){
 
-                $(".ph-nav__dropdown-content--menu").removeClass("ph-nav__dropdown-content--show");
-            }
-
-            const dropdown_content=$(".ph-nav__dropdown-content--nf");
-
-            if(!dropdown_content.hasClass("ph-nav__dropdown-content--block")){
+                //store the object
+                const that=this;
                 
-                //Appear the dropdown content
-                dropdown_content.addClass("ph-nav__dropdown-content--block");
-                
-                setTimeout(function(){
+                //remove any existing  .document-wrap elemenet
+                $(".document-wrap").remove();
 
-                    dropdown_content.addClass("ph-nav__dropdown-content--show");
+                //append a .document-wrap element into the body
+                $(".ph").append(`<div class="document-wrap"></div>`);
 
-                    $.ajax({
-                        url:`${domain()}ajax_pages/load_notifications`,
-                        method:"POST",
-                        data:{
-                            to_user_id:that.data("to_user_id")
-                        },
-                        beforeSend:function(){
+                if(!dd_content.hasClass("ph-nav__dropdown-content--block")){
 
-                            $(".loading-spinner").remove();
-
-                            $(".ph-nav__dropdown-content-wrap--nf").append(`
-                                <div class="loading-spinner loading-spinner--nf">
-                                    <div class="loading-spinner__circle loading-spinner__circle--nf">
-
-                                    </div>
-                                </div>
-                            `)
+                    //add the block class in dropdown options
+                    dd_content.addClass("ph-nav__dropdown-content--block");
+                    
+                    setTimeout(function(){
                         
-                        },
-                        success:function(response){
+                        //add the show class in dropdown options
+                        dd_content.addClass("ph-nav__dropdown-content--show");
 
-                            //remove the dropdown body
-                            $(".ph-nav__dropdown-content--nf").find(".ph-nav__dropdown-body--nf").remove();
-                            
-                            //remove the dropdown footer z=
-                            $(".ph-nav__dropdown-content--nf").find(".ph-nav__dropdown-footer").remove();
+                        //call the close function from object
+                        $(".document-wrap").on("click",that.close);
+                    
+                    },50);
+                }
+            },
 
-                            //remove the loading spinner
-                            $(".loading-spinner").remove();
+            close:function(){
 
-                            //append all notification in dropdown-content-wrap
-                            $(".ph-nav__dropdown-content-wrap--nf").append(response);
-
-                            //update title tag and notification badge
-                            update_title_tag_and_bell({
-                                to_user_id:that.data("to_user_id"),
-                            });
-
-                          // console.log(response);
-                        }
-                    })
-    
-                },50);
-
-            }else{
-
-                //Disappear the dropdown content
-                dropdown_content.removeClass("ph-nav__dropdown-content--show");
-
-                setTimeout(function(){
-
-                    dropdown_content.removeClass("ph-nav__dropdown-content--block");
+                //remove the .documen-wrap first
+                $(".document-wrap").remove();
                 
-                },155);
+                if(dd_content.hasClass("ph-nav__dropdown-content--show")){
+                    
+                    //remove the show from options
+                    dd_content.removeClass("ph-nav__dropdown-content--show");
+                    
+                    setTimeout(function(){
+                        
+                        //remove the block class from options
+                        dd_content.removeClass("ph-nav__dropdown-content--block");
 
-            }
-
-        }else if($(this).hasClass("ph-nav__dropdown-toggle--menu")){
-
-            //Remove the previously opened dropdown content
-            if($(".ph-nav__dropdown-content--nf").hasClass("ph-nav__dropdown-content--block")){
-
-                $(".ph-nav__dropdown-content--nf").removeClass("ph-nav__dropdown-content--block");
-
-                $(".ph-nav__dropdown-content--nf").removeClass("ph-nav__dropdown-content--show");
-            }
-
-            const dropdown_content=$(".ph-nav__dropdown-content--menu");
-
-            if(!dropdown_content.hasClass("ph-nav__dropdown-content--block")){
-
-                //Appear the dropdown content
-                dropdown_content.addClass("ph-nav__dropdown-content--block");
-                
-                setTimeout(function(){
-
-                    dropdown_content.addClass("ph-nav__dropdown-content--show");
-    
-                },50);
-
-            }else{
-
-                //Disappear the dropdown content
-                dropdown_content.removeClass("ph-nav__dropdown-content--show");
-
-                setTimeout(function(){
-
-                    dropdown_content.removeClass("ph-nav__dropdown-content--block");
-                
-                },155);
+                    },155);
+                }  
             }
         }
 
+        //call the open function to show the popup
+        obj.open();
+        
+        if(dd_toggle.hasClass("ph-nav__dropdown-toggle--nf")){
+
+            $.ajax({
+                url:`${domain()}/ajax_pages/fetch_notifications`,
+                method:"POST",
+                beforeSend:function(){
+
+                    dd_content_wrap.append(`
+                        <div class="loading-spinner loading-spinner--nf">
+                            <div class="loading-spinner__circle loading-spinner__circle--nf">
+
+                            </div>
+                        </div>
+                    `);
+
+                },
+                success:function(response){
+
+                    //dd_content_wrap.html(" ");
+
+                    dd_content_wrap.html(response);
+
+                    get_unread_notifications();
+                }
+            })
+
+           
+           
+        
+        }
+
+
     });
+
+
 
     /*======================
     Code for Header part ends
@@ -532,6 +516,435 @@
         
     }else if(script_type == "single_post"){
 
+        /**
+         * All Functions Starts
+         */
+
+            //use the funtion to add events after 
+            //loading comments part fully
+            function add_events_after_loading_comments(){
+                
+                $(document).on("focusin focusout keyup",".sp-comm__form-input--textarea",function(e){
+            
+                    //store all the form fields
+                    const form_fields = $(this).parents("form").find(".sp-comm__form-field");
+
+                    //store the current textarea's form field
+                    const current_field = $(this).parents(".sp-comm__form-field");
+
+                    //store the existing comment button from the current form
+                    const comment_btn = current_field.parents("form").find(".sp-comm__form-btn--comment");
+
+                    if(e.type == "focusin"){
+
+                        form_fields.each(function(index,form_field){
+                            
+                            if($(form_field).hasClass("sp-comm__form-field--textarea")){
+                                
+                                //add focused class in textarea's form field
+                                $(form_field).addClass('sp-comm__form-field--focused');
+                                
+                            }else if($(form_field).hasClass("sp-comm__form-field--actionBtns sp-comm__form-field--hide")){
+                                
+                                //remove hide class from actionBtns form fields
+                                $(form_field).removeClass('sp-comm__form-field--hide');
+                            }
+                        });
+                    }
+
+                    if(e.type == "focusout"){
+
+                        //remove focused class form field
+                        current_field.removeClass("sp-comm__form-field--focused");
+                    }
+
+                    if(e.type == "keyup"){
+                    
+                        if($(this).val() !== ""){
+                        
+                            //comment box is not empty, lets remove the disabled class from comment button
+                            comment_btn.removeClass("sp-comm__form-btn--disabled");
+                            
+                        }else{
+                            
+                            //comment box is empty Now add the disabled class in comment button
+                            comment_btn.addClass("sp-comm__form-btn--disabled");
+                        }
+                    }
+
+                });
+
+                $(document).on("click",".sp-comm__form-btn--comment",function(e){
+
+                    //prevent the default behaviour
+                    e.preventDefault();
+
+                    //store the comment form
+                    const comment_form = $(this).parents("form");
+
+                    //store the comment button
+                    const comment_btn = $(this)
+
+                    //convert all comment from's data into an array
+                    const comment_form_data = comment_form.serializeArray();
+
+                    //store all the data to send to the server side
+                    const data = {
+                        form_type:"",
+                        form_data:{}
+                    };
+                    
+                    if(comment_form.hasClass("sp-comm__form--primary")){
+
+                        //override the form_type in data variable
+                        data.form_type = "primary";
+                        
+                    }else if(comment_form.hasClass("sp-comm__form--secondary")){
+                        
+                        //override the form_type in data variable
+                        data.form_type = "secondary";
+                    }
+
+                    //conver the comment_form_data into an object
+                    for(let i=0; i < comment_form_data.length; i++){
+                            
+                        data.form_data[comment_form_data[i].name] = comment_form_data[i].value;
+                        
+                    }
+        
+                    $.ajax({
+                        
+                        url:`${domain()}ajax_pages?class=single&method=add_comment`,
+                        method:"POST",
+                        data:data,
+                        beforeSend:function(){
+                           comment_btn.addClass("sp-comm__form-btn--loading");
+                        },
+                        dataType:"json",
+                        success:function(response){
+
+                           comment_btn.removeClass("sp-comm__form-btn--loading");
+
+                            if(response.error_status == 1){
+                                
+                                comment_form.trigger("reset");
+                                
+                                alert("Please login first");
+                                
+                            }else if(response.error_status == 100){
+                                
+                                comment_form.trigger("reset");
+
+                                alert("something went wrong. please try again");
+                                
+                                console.log(response);
+
+                            }else if(response.error_status == 0){
+                                
+                                load_comments();
+
+                            }
+                        }
+                    });
+
+
+
+
+
+                    
+        
+
+                });
+
+                $(document).on("click",".sp-comm__form-btn--cancel",function(e){
+
+                    const form = $(this).parents("form");
+                    
+                    if(form.hasClass("sp-comm__form--primary")){
+
+                        const actionBtns_field = form.find(".sp-comm__form-field--actionBtns");
+
+                        if(!actionBtns_field.hasClass("sp-comm__form-field--hid")){
+
+                            actionBtns_field.addClass("sp-comm__form-field--hide");
+                        }
+                    
+                    }else if(form.hasClass("sp-comm__form--secondary")){
+
+                        form.remove();
+
+                    }
+                });
+
+                $(document).on("click",".sp-single-comm__btn--reply",function(e){
+
+                    const current_reply_btn = $(this);
+
+                    const data = {
+                        comment_id: $(this).data("comment_id"),
+                        reply_type:$(this).data("reply_type") 
+                    }
+
+                    if(current_reply_btn.data("reply_id")){
+
+                        //append reply_id while repling a comment reply
+                        data.reply_id = current_reply_btn.data("reply_id");
+                    }
+
+                    $.ajax({
+                        url:`${domain()}ajax_pages?class=single&method=append_reply_form`,
+                        method:"POST",
+                        data:data,
+                        dataType:"json",
+                        success:function(response){
+
+                            if(response.error_status == 1){
+
+                                alert("Please login first");
+
+                            }else if(response.error_status == 0){
+
+                                $(".sp-comm__form--secondary").remove();
+
+                                current_reply_btn.parents(".sp-single-comm__ratings").after(response.html);
+                            }
+
+                        // console.log(response);
+                    
+                        }
+                    });
+
+                
+
+                
+
+                });
+            
+                $(document).on("click",".sp-single-comm__btn--viewReply",function(e){
+
+                    //store the current view replise buttons
+                    const viewReply_btn=$(this);
+                    
+                    //store the container where all replise will be apended
+                    const replies_container = viewReply_btn.parent().find(".sp-single-comm__areplies");
+
+                    const obj = {
+
+                        init:function(){
+
+                            if(viewReply_btn.data("first_clicked")){
+                            
+                                $.ajax({
+                                    url:`${domain()}ajax_pages?class=single&method=fetch_comment_replies`,
+                                    method:"POST",
+                                    data:{
+                                        comment_id:viewReply_btn.data("comment_id")
+                                    },
+                                    beforeSend:function(){
+
+                                        $(".loading-spinner--viewReplies").remove();
+
+                                        viewReply_btn.after(`
+                                            <div class='loading-spinner loading-spinner--viewReplies'>
+                                                <div class='loading-spinner__circle loading-spinner__circle--viewReplies'>
+                                                </div>
+                                            </div>
+                                        `);
+                                    },
+                                    dataType:"json",
+                                    success:function(response){
+
+                                        if(response.error_status == 1){
+
+                                            alert("something went went wrong. Please try again");
+
+                                            console.log(response);
+
+                                        }else if(response.error_status == 0){   
+
+                                            $(".loading-spinner--viewReplies").remove();
+
+                                            replies_container.html(" ").append(response.html);
+
+                                            replies_container.data("total_replies",response.total_response);
+
+                                            replies_container.collapse("show").on("shown.bs.collapse",obj.show);
+
+                                            viewReply_btn.data("first_clicked", false);
+                                        }
+                                    }
+                                });
+                                
+                            }else{
+
+                                replies_container.collapse("toggle").on("shown.bs.collapse",obj.show).on("hidden.bs.collapse",obj.hide);
+                        
+                            }
+                        
+                        },
+
+                        show:function(e){
+
+                            const total_replies = replies_container.data("total_replies");
+
+                            const viewReply_btn_txt=(total_replies > 1) ? `Hide ${total_replies} replies` : `Hide ${total_replies} reply`;
+
+                            viewReply_btn.find("i").removeClass("fa-caret-down").addClass("fa-caret-up");
+
+                            viewReply_btn.find("span").text(viewReply_btn_txt);
+                        },
+                        hide:function(e){
+                            
+                            const total_replies = replies_container.data("total_replies");
+
+                            const viewReply_btn_txt=(total_replies > 1) ? `View ${total_replies} replies` : `View ${total_replies} reply`;
+                            
+                            viewReply_btn.find("i").removeClass("fa-caret-up").addClass("fa-caret-down");
+
+                            viewReply_btn.find("span").text(viewReply_btn_txt);
+                        }
+                    }
+
+                    //call the method1 to initialize
+                    obj.init();
+
+                });
+            
+            }
+
+            //load all the comments from server
+            function load_comments(){
+
+                $.ajax({
+                    url:`${domain()}ajax_pages?class=single&method=load_comments`,
+                    method:"POST",
+                    data:{
+                        post_link:post_link
+                    },
+                    dataType:"json",
+                    beforeSend:function(){
+                        
+                        $(".loading-spinner--comment").remove();
+
+                        $(".main-wrap__col-wrap--sp").append(`
+                            <div class="loading-spinner loading-spinner--comment">
+                                <div class="loading-spinner__circle loading-spinner__circle--comment">
+                                    
+                                </div>
+                            </div>
+                        `);
+                    },
+                    success:function(response){
+
+                        if(response.error_status == 1){
+
+                            alert("error found");
+                            console.log(response.errors)
+
+
+                        }else if(response.error_status == 0){
+
+                            $(".loading-spinner--comment").remove();
+
+                            $(".sp-comm").remove();
+
+                            $(".main-wrap__col-wrap--sp").append(response.html);
+
+                        //    console.log(response);
+                        }
+                    }
+                })
+            };
+        
+            //================================
+
+            //load post ratings such as `like` and `dislike` from server
+            function load_post_ratings(post_link){
+                
+                $.ajax({
+                    url:`${domain()}ajax_posts/load_post_rating`,
+                    method:"POST",
+                    data:{
+                        post_link:post_link
+                    },
+                    dataType:"json",
+                    success:function(response){
+
+                        if(response){
+
+                            $(".sp-content__meta-btn--rating").remove();
+                            
+                            $(".sp-content__meta-item--like").append(response.like_btn);
+
+                            $(".sp-content__meta-item--dislike").append(response.dislike_btn);
+
+                            //console.log(response);
+                        }
+                    
+                    }
+                })
+            }
+
+            //load the save post button with pressed class
+            function load_save_post_btn(post_link){
+
+                $.ajax({
+                    url:`${domain()}ajax_posts/load_save_post_btn`,
+                    method:"POST",
+                    data:{
+                        post_link:post_link
+                    },
+                    dataType:"json",
+                    success:function(response){
+                        
+                        if(response.error == 0){
+
+                            $(".sp-content__meta-btn--save").remove();
+
+                            $(".sp-content__meta-item--save").append(response.save_btn);
+
+                        }else if(response.error == 1){
+
+                            console.log(response);
+                        }
+
+                    // console.log(response);
+                    }
+                })
+            }   
+
+            //load total subscribers and subscribe button
+            function load_total_subs_and_btn(post_link){
+
+                $.ajax({
+                    url:`${domain()}ajax_posts/load_total_subs_and_btn`,
+                    method:"POST",
+                    data:{
+                        post_link:post_link
+                    },
+                    dataType:"json",
+                    success:function(response){
+
+                        if(response){
+
+                        $(".sp-content__auth-subs").text("").text(response.total_sub);
+                            
+                        $(".sp-content__btn--subscribe").remove();
+
+                        $(".sp-content__auth-side--right").append(response.sub_btn)
+                        }
+                
+                        //console.log(response);
+                    }
+                })
+                
+            }
+
+        /**
+         * All Functions Ends
+         */
+
+
         //Here you get an array of all the query string passed in URL
         const query_strings= new URLSearchParams(window.location.search);
         
@@ -545,140 +958,30 @@
             post_link=query_strings.get("v");
         }
     
-        //load all the comments from server
-        function load_comments(post_link){
 
-            $.ajax({
-                url:`${domain()}ajax_posts/load_comments`,
-                method:"POST",
-                data:{
-                    post_link:post_link
-                },
-                beforeSend:function(){
-                    
-                    $(".loading-spinner--comment").remove();
+       
+        // //load post ratings such as `like` and `dislike`
+        // load_post_ratings(post_link);
 
-                    $(".main-wrap__col-wrap--sp").append(`
-                        <div class="loading-spinner loading-spinner--comment">
-                            <div class="loading-spinner__circle loading-spinner__circle--comment">
-                                
-                            </div>
-                        </div>
-                    `);
-                },
-                success:function(response){
-    
-                    $(".sp-comm").remove();
+        // //load the save post button
+        // load_save_post_btn(post_link);
 
-                    $(".loading-spinner--comment").remove();
-
-                    $(".main-wrap__col-wrap--sp").append(response);
-                }
-            })
-        };
-
-        //load post ratings such as `like` and `dislike` from server
-        function load_post_ratings(post_link){
-            
-            $.ajax({
-                url:`${domain()}ajax_posts/load_post_rating`,
-                method:"POST",
-                data:{
-                    post_link:post_link
-                },
-                dataType:"json",
-                success:function(response){
-
-                    if(response){
-
-                        $(".sp-content__meta-btn--rating").remove();
-                        
-                        $(".sp-content__meta-item--like").append(response.like_btn);
-
-                        $(".sp-content__meta-item--dislike").append(response.dislike_btn);
-
-                        //console.log(response);
-                    }
-                
-                }
-            })
-        }
-
-        //load the save post button with pressed class
-        function load_save_post_btn(post_link){
-
-            $.ajax({
-                url:`${domain()}ajax_posts/load_save_post_btn`,
-                method:"POST",
-                data:{
-                    post_link:post_link
-                },
-                dataType:"json",
-                success:function(response){
-                    
-                    if(response.error == 0){
-
-                        $(".sp-content__meta-btn--save").remove();
-
-                        $(".sp-content__meta-item--save").append(response.save_btn);
-
-                    }else if(response.error == 1){
-
-                        console.log(response);
-                    }
-
-                   // console.log(response);
-                }
-            })
-        }   
-
-        //load total subscribers and subscribe button
-        function load_total_subs_and_btn(post_link){
-
-            $.ajax({
-                url:`${domain()}ajax_posts/load_total_subs_and_btn`,
-                method:"POST",
-                data:{
-                    post_link:post_link
-                },
-                dataType:"json",
-                success:function(response){
-
-                    if(response){
-
-                       $(".sp-content__auth-subs").text("").text(response.total_sub);
-                        
-                       $(".sp-content__btn--subscribe").remove();
-
-                       $(".sp-content__auth-side--right").append(response.sub_btn)
-                    }
-            
-                    //console.log(response);
-                }
-            })
-            
-        }
-
-        //load post ratings such as `like` and `dislike`
-        load_post_ratings(post_link);
-
-        //load the save post button
-        load_save_post_btn(post_link);
-
-        //load total subscribers and subscirbe button
-        load_total_subs_and_btn(post_link);
+        // //load total subscribers and subscirbe button
+        // load_total_subs_and_btn(post_link);
 
         //first load all the comments
-        load_comments(post_link);
+        load_comments();
+    
+        setTimeout(add_events_after_loading_comments,1000);
 
         //first load all posts in sidebar
-        load_posts({
-            catagory_id:0,
-            load_position:"sidebar",
-            post_link:post_link,
-        });
+        // load_posts({
+        //     catagory_id:0,
+        //     load_position:"sidebar",
+        //     post_link:post_link,
+        // });
 
-
+    
         /**
          * Adding functionality in
          * in post catagories filter
@@ -744,7 +1047,7 @@
         //moving the track when clicks on next/prev btn
         let a=0;
 
-        $(".sidebar-lg__filter-btn--action").click(function(){
+        $(".sidebar-lg__filter-btn--action").on("click",function(){
 
             const total_cat_btns = $(".sidebar-lg__filter-btn--cat").length;
             const track_width = $(".sidebar-lg__filter-track").outerWidth();
@@ -767,318 +1070,6 @@
             }
         });
 
-        //call the function while adding a comment
-        function add_comment(e){
-
-            const that=$(this);
-    
-            let form_data_ary=$(this).parents("form").serializeArray();
-    
-            let data={};
-    
-            for(let i=0; i < form_data_ary.length; i++){
-                
-                data[form_data_ary[i].name]= form_data_ary[i].value
-            }
-    
-            if($(this).parents("form").hasClass("sp-comm__form--primary")){
-    
-                data.comment_type="primary_comment";
-    
-            }else if($(this).parents("form").hasClass("sp-comm__form--secondary")){
-    
-                data.comment_type="secondary_comment";
-            }
-
-            $.ajax({
-                
-                url:`${domain()}ajax_posts/add_comment`,
-                method:"POST",
-                data:data,
-                beforeSend:function(){
-                    that.addClass("sp-comm__form-btn--loading");
-                },
-                success:function(response){
-
-                    if(response == 1){
-
-                        load_comments(post_link);
-
-                    }else if(response == 0){
-
-                        that.removeClass("sp-comm__form-btn--loading");
-
-                        alert("something went wrong. Please try again");
-
-                    }else if(response == 10){
-
-                        that.removeClass("sp-comm__form-btn--loading");
-
-                        alert("Please login first");
-                    }
-
-                    console.log(response);
-    
-                }
-            });
-    
-        }
-
-        //call the function when focusin & focusout on commment box
-        function function_for_textarea(e){
-        
-            if(e.type == "focusin"){
-
-                $(this).parents(".sp-comm__form-side--top").addClass("sp-comm__form-side--focused");
-                
-                if($(this).parents("form").hasClass("sp-comm__form--primary")){
-
-                    if($(".sp-comm__form-side--bottom").hasClass("sp-comm__form-side--hide")){
-
-                        $(".sp-comm__form-side--bottom").removeClass("sp-comm__form-side--hide")
-                    }
-                }
-            }
-            
-            if(e.type == "focusout"){
-                
-                $(this).parents(".sp-comm__form-side--top").removeClass("sp-comm__form-side--focused");
-            }
-
-            if(e.type == "keyup"){
-
-                if($(this).val() !== ""){
-
-                    if($(this).parents("form").find(".sp-comm__form-btn--comment").hasClass("sp-comm__form-btn--disabled")){
-                        
-                        $(this).parents("form").find(".sp-comm__form-btn--comment").removeClass("sp-comm__form-btn--disabled")
-                    }
-
-                }else{
-                    
-                    if(!$(this).parents("form").find(".sp-comm__form-btn--comment").hasClass("sp-comm__form-btn--disabled")){
-                        
-                        $(this).parents("form").find(".sp-comm__form-btn--comment").addClass("sp-comm__form-btn--disabled")
-                    }
-
-                }
-            }
-            
-        }
-
-        //call the function when clicks on form's cancel button
-        function function_for_cancel_btn(e) {
-
-            if($(this).parents("form").hasClass("sp-comm__form--primary")){
-
-                if(!$(this).parents(".sp-comm__form-side--bottom").hasClass("sp-comm__form-side--hide")){
-
-                    //Remove the buttons if we clicked on primary form's cancel button
-                    $(this).parents(".sp-comm__form-side--bottom").addClass("sp-comm__form-side--hide")
-                }
-
-            }else if($(this).parents("form").hasClass("sp-comm__form--secondary")){
-                
-                //remove the entire secondary form
-                $(this).parents(".sp-comm__form--secondary").remove();
-
-            }
-        }
-
-        function function_for_reply_btn() {
-
-            const that=$(this);
-
-            $.ajax({
-                url:`${domain()}ajax_posts/append_reply_form`,
-                method:"POST",
-                data:{
-                    comment_id:that.data("comment_id")
-                },
-                dataType:"json",
-                success:function(response){
-
-                    if(response.error == 1){
-
-                        //first remove any existing secondary form
-                        $(".sp-comm__form--secondary").remove();
-                        
-                        //append the form in reply button's parent element
-                        that.parent().append(response.form)
-                    }
-
-                    if(response.error == 0){
-
-                        alert("Please login first");
-                        
-                    }
-        
-                }
-            });
-        }
-
-        //call the function when clicks on dropdown delete button
-        function show_comment_delete_popup(e){
-
-            const that=$(this);
-
-            let data_attr="";
-
-            if(that.data("comment_type") == "primary_comment"){
-
-                data_attr=`data-comment_id="${that.data("comment_id")}"`
-
-            }else if(that.data("comment_type") == "secondary_comment"){
-
-                data_attr=`data-cr_id="${that.data("cr_id")}"`
-
-            }
-        
-            const output=`
-                <div class="modal fade modal--delete modal--comment-delete">
-                    <div class="modal-dialog modal-dialog-centered modal__dialog">
-                        <div class="modal-content modal__content">
-                            <div class="modal__content-wrap">
-                                <div class="modal__head">
-                                    <div class="modal__icon modal__icon--warning">
-                                        <i class="fa fa-exclamation"></i>
-                                    </div>
-                                    <h3 class="modal__title">Delete Warning</h3>
-                                </div>
-            
-                                <div class="modal__body">
-                                    <p>
-                                        You are about to delete a public comment from your post. Are you sure to proceed with the action? This action can't be undone
-                                    </p>
-                                </div>
-            
-                                <div class="modal__footer">
-                                    <button class="modal__btn modal__btn--cancel" type="button">
-                                        <span class="">Cancel</span>
-                                    </button>
-            
-                                    <button class="modal__btn modal__btn--proceed" type="button" data-comment_type="${that.data("comment_type")}" ${data_attr}>
-                                        <span>Yes. Procced</span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            //first delete any existing modal
-            $(".modal").remove();
-            
-            //append the modal
-            $("body").append(output);
-
-            //show the modal
-            $(".modal--comment-delete").modal("show");
-        }
-
-
-        //comment form's textarea
-        $(document).on("focusin focusout keyup",".sp-comm__form-input-textarea", function_for_textarea)
-
-        //comment form's cancel button
-        $(document).on("click",".sp-comm__form-btn--cancel", function_for_cancel_btn)
-
-        //Appear the form when clicks on reply button
-        $(document).on("click",".sp-single-comm__btn--reply",function_for_reply_btn);
-
-        //comment form's comment button
-        $(document).on("click",".sp-comm__form-btn--comment", add_comment);
-
-        //comment form's delete button
-        $(document).on("click",".sp-single-comm__dropdown-link--delete",show_comment_delete_popup);
-
-        //Disappear the comment delete popup when click's on cancel button
-        $(document).on("click",".modal--comment-delete .modal__btn--cancel",function(e){
-            
-            $(".modal--comment-delete").modal("hide");
-
-            //`hidden.bs.modal` is an event which will be called when the modal will hide properly
-            $(".modal--comment-delete").on("hidden.bs.modal",function(e){
-                
-                //remove the html when modal is hide properly
-                $(".modal--comment-delete").remove();
-            });
-            
-        });
-        
-        //Send a request to server to delete the comment when click's on proceed button
-        $(document).on("click",".modal--comment-delete .modal__btn--proceed",function(e){
-
-            const that=$(this);
-        
-            //store the data-comment_type attr's value
-            const comment_type = that.data("comment_type");
-
-            //store the data which will be sent to server side
-            const data={
-                comment_type:comment_type
-            };
-
-            if(comment_type == "primary_comment"){
-
-                data.comment_id=that.data("comment_id");
-                
-            }else if(comment_type == "secondary_comment"){
-                
-                data.cr_id=that.data("cr_id");
-            }
-                
-            $.ajax({
-                url:`${domain()}ajax_posts/delete_comment_and_replies`,
-                method:"POST",
-                data:data,
-                beforeSend:function(){
-
-                    that.find("span").text("Proceeding...")
-
-                },
-                success:function(response){
-
-                    if(response == 1){
-
-                        that.find("span").text("Got it...!"); 
-
-                        setTimeout(function(){
-
-                            that.find("span").text("Yes. Proceed"); 
-
-                            $(".modal--comment-delete").modal("hide");
-
-                            load_comments(post_link);
-
-                        },1000);
-                        
-                    }else if(response == 0){
-
-                        that.find("span").text("Error. Try again"); 
-
-                        setTimeout(function(){
-
-                            that.find("span").text("Yes. Proceed"); 
-
-                            $(".modal--comment-delete").modal("hide");
-
-                            load_comments(post_link);
-
-                        },1000);
-
-                    }else{
-
-                        console.log(response);
-                    }
-
-                }
-            })
-           
-            
-            
-        });
 
         //send a request to server to rate (`like` or `dislike`) the post 
         $(document).on("click",".sp-content__meta-btn--rating",function(){

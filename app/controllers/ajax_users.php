@@ -21,425 +21,625 @@ class ajax_users extends ajax_controller {
     //Here we will store all the required model's object
     private $model_objs=array();
 
-    //Here we will store class parameter from URL
-    private $class;
+    //store logged user's information
+    private $user_info = array();
+
+
     
-    //Here we will store method parameter from URL
-    private $method;
+    /**
+     * =============================
+     * All magic functions  starts 
+     * =============================
+     */
+    
+        public function __construct($user_name = null, $method = null)
+        {
 
+            //validate the $_GET variable
+            $_GET = filter_var_array($_GET, FILTER_SANITIZE_STRING);
 
-    public function __construct($user_name)
-    {
+            if($_SERVER["REQUEST_METHOD"] !== "POST"){
 
-        //validate the $_GET variable
-        $_GET = filter_var_array($_GET, FILTER_SANITIZE_STRING);
-
-        if($_SERVER["REQUEST_METHOD"] !== "POST"){
-
-            //store the funcitons obj
-            $this->functions=new functions;
+                //store the funcitons obj
+                $this->functions=new functions;
             
-            //call the not_found method
-            $this->functions->not_found();
-            
-            die();
-            
-        }else{
-            
-            //store the config obj
-            $this->config=new config;
-
-            //store the funcitons obj
-            $this->functions=new functions;
-
-            //store the PHPMailer class object
-            $this->mail= new PHPMailer;
-
-            //set the $this->class's value to $_GET["class"]
-            $this->class=isset($_GET["class"]) ? $_GET["class"] : null;
-            
-            //set the $this->method's value to $_GET["method"]
-            $this->method=isset($_GET["class"]) ? $_GET["method"] : null;
-
-            //store all the models
-            $this->model_objs=array(
-                "user_obj"=>$this->model("user"),
-                "ufile_obj"=>$this->model("user_files"),
-                "nf_obj"=>$this->model("notification"),
-                "post_obj"=>$this->model("post"),
-                "post_files"=>$this->model("post_files"),
-                "pr_obj"=>$this->model("post_rating"),
-                "comment_obj"=>$this->model("comment"),
-                "cr_obj"=>$this->model("comment_replies"),
-                "sp_obj"=>$this->model("saved_post"),
-                "token_obj"=>$this->model("token")
-            );
-
-            //check if user name exists and user is logged in
-            if($this->if_exist_username($user_name) == false || $this->if_user_logged_in() == false){
-
-                echo "You can't request to this URL {$user_name}";
+              
+                //if method doesn't exist, show the 404 error page
+                $this->functions->error_pages()->error_404();
+                
                 die();
+                
+            }else{
+                
+                //store the config obj
+                $this->config=new config;
 
-            }elseif($this->class == null || $this->method == null){
-            
-                echo "class and method query strings are required";
-                die();
+                //store the funcitons obj
+                $this->functions=new functions;
 
-            }else{  
+                //store the PHPMailer class object
+                $this->mail= new PHPMailer;
 
-                /**
-                 * Now, we are going to include class 
-                 * for diffrent dashboard methods
-                 */
-
-                //store the options to pass while including the class
-                $class_options=array(
-                    "model_objs"=>$this->model_objs,
-                    "config"=>$this->config,
-                    "functions"=>$this->functions,
-                    "mail"=>$this->mail
+                //store all the models
+                $this->model_objs=array(
+                    "user_obj"=>$this->model("user"),
+                    "ufile_obj"=>$this->model("user_files"),
+                    "nf_obj"=>$this->model("notification"),
+                    "post_obj"=>$this->model("post"),
+                    "pfile_obj"=>$this->model("post_files"),
+                    "pr_obj"=>$this->model("post_rating"),
+                    "comment_obj"=>$this->model("comment"),
+                    "cr_obj"=>$this->model("comment_replies"),
+                    "sp_obj"=>$this->model("saved_post"),
+                    "token_obj"=>$this->model("token")
                 );
 
-                //store the sub class object
-                 $class_obj=$this->load_class(__CLASS__."_{$this->class}", $class_options);
 
-                //check wheather method exists or not 
-                if(!method_exists($class_obj,$this->method)){
-                    
-                    //stop the code and return an error 
-                    echo "method '{$this->method}' doesn't exist";
+                //check if user name exists and user is logged in
+                if($this->if_exist_username($user_name) == false || $this->if_user_logged_in() == false){
+
+                    echo "You can't request to this URL {$user_name}";
                     die();
 
                 }else{
+
+                    //store the logged user' info in $this->user_info variable
+                    $this->user_info=$this->logged_user_info($_SESSION["user_id"]);
+
+                }
                 
-                    //call the method
-                   $class_obj->{$this->method}();
+                if($method == "index"){
+
+                    /**
+                     * Now, we are going to include class 
+                     * for diffrent dashboard methods
+                     */
+                
+                    //set the $this->class's value to $_GET["class"]
+                    $class=isset($_GET["class"]) ? $_GET["class"] : null;
+                    
+                    //set the $this->method's value to $_GET["method"]
+                    $method=isset($_GET["method"]) ? $_GET["method"] : null;
+
+                    if($class == null || $method == null){
+                
+                        echo "To request to the index method `<strong>class</strong>` and `<strong>method</strong>` query strings are required";
+
+                        die();
+                    }
+                
+                    //store the options to pass while including the class
+                    $class_options=array(
+                        "model_objs"=>$this->model_objs,
+                        "config"=>$this->config,
+                        "functions"=>$this->functions,
+                        "mail"=>$this->mail,
+                        "user_info"=>$this->user_info
+                    );
+
+                    //store the sub class object
+                    $class_obj=$this->load_class(__CLASS__."_{$class}", $class_options);
+
+                    //check wheather method exists or not 
+                    if(!method_exists($class_obj,$method)){
+                        
+                        //stop the code and return an error 
+                        echo "method '{$method}' doesn't exist";
+                        die();
+
+                    }else{
+                    
+                        //call the method
+                        $class_obj->$method();
+                    }
+
                 }
             }
-        }
-    }  
+        }  
 
-    //check if the username is existing
-    private function if_exist_username($username)
-    {
+    /**
+     * =============================
+     * All magic functions  ends 
+     * =============================
+     */
 
-        $user_obj=$this->model_objs['user_obj'];
 
-        $output=$user_obj->select(array(
-            "where"=>"users.user_name='{$username}'"
-        ));
+    /**
+     * =============================
+     * All private functions  starts 
+     * =============================
+     */
 
-        if($output["status"] == 1){
+        //check if the username is existing
+        private function if_exist_username($username)
+        {
 
-            if($output["num_rows"] == 1 && $output["fetch_all"][0]["user_name"] == $username){
-                
-                return true;
-                
-            }else{
-                
-                return false;
-            }
-        
-        }else{
+            $user_obj=$this->model_objs['user_obj'];
 
-            return $output["error"];
-        }
+            $output=$user_obj->select(array(
+                "where"=>"users.user_name='{$username}'"
+            ));
 
-    }
+            if($output["status"] == 1){
 
-    //check if the username is logged in
-    private function if_user_logged_in()
-    {
+                if($output["num_rows"] == 1 && $output["fetch_all"][0]["user_name"] == $username){
+                    
+                    return true;
+                    
+                }else{
+                    
+                    return false;
+                }
             
-        session_start();
-
-        if(!empty($_SESSION)){
-
-            if(isset($_SESSION["user_id"]) && isset($_SESSION["user_type"])){
-                
-                return true;
-
             }else{
 
+                return $output["error"];
+            }
+
+        }
+    
+
+        //check if the username is logged in
+        private function if_user_logged_in()
+        {
+                
+            session_start();
+
+            if(!empty($_SESSION)){
+
+                if(isset($_SESSION["user_id"]) && isset($_SESSION["user_type"])){
+                    
+                    return true;
+
+                }else{
+
+                    return false;
+                }
+
+            }else{
+
                 return false;
             }
-
-        }else{
-
-            return false;
         }
-    }
 
+        //use the function for fetching 'profile' and `bg` image of a single user
+        private function fetch_user_files($user_id,$ufile_usage)
+        {
 
-    //index method is the default method
-    public function index($user_name)
-    {
+            $output = array();
 
-       
+            //store the user_files's model from $this->model_objs variable
+            $ufile_obj=$this->model_objs["ufile_obj"];
 
+            $fetch_file=$ufile_obj->select(array(
+                "where"=>"user_files.user_id={$user_id} AND user_files.ufile_usage='{$ufile_usage}'"
+            ));
 
-    }
+            if($fetch_file["status"] == 1 && $fetch_file["num_rows"] == 1){
 
-
-    //use the function to load notification of a user
-    public function load_notifications()
-    {
-
-        //first validate the $_POST variable
-        $_POST=filter_var_array($_POST, FILTER_SANITIZE_STRING);
-
-        //Store the final output
-        $output="";
-
-        //store the to_user_id index from $_POST variable
-        $to_user_id=$_POST["to_user_id"];
-        
-        //Here we will store all the notifications which will be fetched based on $to_user_id
-        $notifications=[];
-
-        //include the notification model
-        $nf_obj=$this->model_objs['nf_obj'];
-
-        //First update notification nf_status to read
-        $nf_obj->update(array(
-            "fields"=>array(
-                "nf_status"=>"read"
-            ),
-            "where"=>"to_user_id={$to_user_id}"
-        ));
-
-        //Here we will store total notifications number
-        $total_notifications=0;
-        
-        //fetch all notification number
-        $fetch_all_nf=$nf_obj->select(array(
-            "where"=>"notifications.to_user_id={$to_user_id}"
-        )); 
-
-        if($fetch_all_nf["status"] == 1  && $fetch_all_nf["num_rows"] > 0){
-
-            //set $total_notifications  value to fetch num_rows value
-            $total_notifications = $fetch_all_nf["num_rows"];
-        }
-        
-
-        //fetch all notifications
-        $fetch_notifications=$nf_obj->select(array(
-            "column_name"=>"
-                notifications.nf_id,
-                notifications.nf_title,
-                notifications.nf_date,
-                notifications.from_user_id,
-                notifications.to_user_id,
-                notifications.nf_status,
-                users.user_name,
-                user_files.ufile_name,
-                user_files.ufile_ext,
-                posts.post_id,
-                posts.post_title,
-                posts.post_link,
-                post_files.pfile_name,
-                post_files.pfile_ext
+                $fetched_file=$fetch_file["fetch_all"][0];
                 
-            ",
-            "join"=>array(
-                "users"=>"users.user_id = notifications.from_user_id",
-                "user_files"=>"user_files.user_id = notifications.from_user_id",
-                "posts"=>"posts.post_id = notifications.post_id",
-                "post_files"=>"post_files.post_id = notifications.post_id"
-
-            ),
-            "order"=>array(
-                "column"=>"nf_id",
-                "type"=>"DESC",
-            ),
-            "limit"=>"20",
-            "where"=>"to_user_id={$to_user_id}"
-        ));
-
-        if($fetch_notifications["status"] == 1 && $fetch_notifications["num_rows"] > 0){
-            
-            //create a new index and store existing notifications
-            $notifications["existing_notification"]= $total_notifications - $fetch_notifications["num_rows"];
-            
-            foreach($fetch_notifications["fetch_all"] as $index=>$value){
-
-                //create a new index name  `notifications` and store all the fetched result
-                $notifications["notifications"][$index]=$value;
-                
-                //create a new index inside `notification` array and store from_user_info
-                $notifications["notifications"][$index]["from_user_info"]=array(
-                    "user_id"=>$notifications["notifications"][$index]["from_user_id"],
-                    "user_name"=>$notifications["notifications"][$index]["user_name"],
-                    "ufile_name"=>$notifications["notifications"][$index]["ufile_name"],
-                    "ufile_ext"=>$notifications["notifications"][$index]["ufile_ext"]
-                );
-                
-                //create a new index inside `notification` array and store post_info
-                $notifications["notifications"][$index]["post_info"]=array(
-                    "post_id"=>$notifications["notifications"][$index]["post_id"],
-                    "post_title"=>$notifications["notifications"][$index]["post_title"],
-                    "post_link"=>$notifications["notifications"][$index]["post_link"],
-                    "pfile_name"=>$notifications["notifications"][$index]["pfile_name"],
-                    "pfile_ext"=>$notifications["notifications"][$index]["pfile_ext"]
+                $output=array(
+                    "name"=>$fetched_file["ufile_name"],
+                    "ext"=>$fetched_file["ufile_ext"],
+                    "status"=>$fetched_file["ufile_status"],
+                    "dimension"=>unserialize($fetched_file["ufile_dimension"])
                 );
             }
+
+            return $output;
+        }
+        
+        //use the function for fetching 'profile' and `bg` image of a single user
+        private function fetch_post_files($post_id,$pfile_usage)
+        {
+
+            $output = array();
+
+            //store the user_files's model from $this->model_objs variable
+            $pfile_obj=$this->model_objs["pfile_obj"];
+
+            $fetch_file=$pfile_obj->select(array(
+                "where"=>"post_files.post_id={$post_id} AND post_files.pfile_usage='{$pfile_usage}'"
+            ));
+
+            if($fetch_file["status"] == 1 && $fetch_file["num_rows"] == 1){
+
+                $fetched_file=$fetch_file["fetch_all"][0];
+                
+                $output=array(
+                    "name"=>$fetched_file["pfile_name"],
+                    "ext"=>$fetched_file["pfile_ext"],
+                    "status"=>$fetched_file["pfile_status"],
+                    "dimension"=>unserialize($fetched_file["pfile_dimension"])
+                );
+            }
+
+            return $output;
+        }
+        
+        //user the function to fetch logged user's information
+        private function logged_user_info($user_id)
+        {
+
+
+            //store store the final output
+            $output = array();
+
+            //store the user's model from $this->model_objs variable
+            $user_obj=$this->model_objs["user_obj"];
+
+            //fetched logged user's other information
+            $fetch_user_info=$user_obj->select(array(
+                "column_name"=>"
+                    users.user_id,
+                    users.user_name,
+                    users.user_email,
+                    users.user_email_status,
+                    users.user_role
+                ",
+                "where"=>"users.user_id={$_SESSION["user_id"]}"
+            ));
+
+            if($fetch_user_info["status"] == 1 && $fetch_user_info["num_rows"] == 1){
+
+                $output = $fetch_user_info["fetch_all"][0];
+
+                $output["user_type"] = $_SESSION["user_type"];
+
+                $output["ufile_info"] =array(
+                    "profile_img"=>$this->fetch_user_files($_SESSION["user_id"],"profile_img"),
+                    "bg_img"=>$this->fetch_user_files($_SESSION["user_id"],"bg_img")
+                );
+            }
+
+            return $output;
         }
 
+        //use the function to fetch logged user's notification related information
+        private function fetch_nf_info($user_id = null)
+        {
 
-        if(!empty($notifications)){
+            //Default outout
+            $output = array(
+                "total"=>0,
+                "read"=>0,
+                "unread"=>0
+            );
 
+            //include the notification model
+            $nf_obj=$this->model_objs['nf_obj'];
 
-            $output .="
+            //fetch total notifications
+            $fetch_total_nf=$nf_obj->select(array(
+                "column_name"=>"COUNT(*) AS unread",
+                "where"=>"notifications.to_user_id={$user_id}"
+            ));
+
+            if($fetch_total_nf["status"] == 1 && $fetch_total_nf["num_rows"] == 1){
+
+                //set the `total` index value to fetched total notifications
+                $output["total"] = $fetch_total_nf["fetch_all"][0]["unread"];
+            }
+                
+            //fetch read notifications
+            $fetch_read_nf=$nf_obj->select(array(
+                //`READ` is keyword in SQL Query. so we useed `aread` instead of using read
+                "column_name"=>"COUNT(*) AS aread",
+                "where"=>"notifications.to_user_id={$user_id} AND notifications.nf_status='read'"
+            ));
+        
+            if($fetch_read_nf["status"] == 1 && $fetch_read_nf["num_rows"] == 1){
+            
+                //set the `unread` index value to fetched unread notifications
+                $output["read"] = $fetch_read_nf["fetch_all"][0]["aread"];
+
+            }
+
+            //fetch unread notifications
+            $fetch_unread_nf=$nf_obj->select(array(
+                "column_name"=>"COUNT(*) AS unread",
+                "where"=>"notifications.to_user_id={$user_id} AND notifications.nf_status='unread'"
+            ));
+        
+            if($fetch_unread_nf["status"] == 1 && $fetch_unread_nf["num_rows"] == 1){
+                
+                //set the `unread` index value to fetched unread notifications
+                $output["unread"] = $fetch_unread_nf["fetch_all"][0]["unread"];
+            }
+
+            
+            return $output;
+
+        }
+    
+    /**
+     * =============================
+     * All private functions  ends 
+     * =============================
+     */
+    
+
+    /**
+     * ===========================
+     * All Public functions starts
+     * ===========================
+     */
+    
+        //index method is the default method
+        public function index($user_name){
+
+        }
+
+        //use the funtion to fetch notifications when clicked on bell icon
+        public function fetch_notifications()
+        {
+
+            $output = "
                 <div class='navbar__dropdown-header navbar__dropdown-header--nf'>
                     <h5>Notifications</h5>
                 </div>
-
-                <div class='navbar__dropdown-body navbar__dropdown-body--nf'>
             ";
 
+            //logged users's user_id will be to_user_id
+            $to_user_id=$this->user_info["user_id"];
+          
+            //include the notification model
+            $nf_obj=$this->model_objs['nf_obj'];
 
-            foreach($notifications["notifications"] as $notifications_index=>$notification):
+            //fetch notification related info such as total `read`, `unread`, 'total_nf' number
+            $nf_info=$this->fetch_nf_info($this->user_info['user_id']);
+
+            $notifications = array(
+                "total_nf"=>$nf_info["total"],
+                "existing_nf"=>0,
+                "all"=>array()
+            );
+
+            //First update notification nf_status to read
+            $nf_obj->update(array(
+                "fields"=>array(
+                    "nf_status"=>"read"
+                ),
+                "where"=>"notifications.to_user_id={$to_user_id} AND notifications.nf_status='unread'"
+            ));
+        
+            //limit to show notification 
+            $limit=20;
+
+            //fetch all notifications
+            $fetch_notifications=$nf_obj->select(array(
+                "column_name"=>"
+                    notifications.nf_id,
+                    notifications.nf_title,
+                    notifications.nf_date,
+                    notifications.from_user_id,
+                    notifications.to_user_id,
+                    notifications.nf_status,
+                    users.user_name,
+                    posts.post_id,
+                    posts.post_title,
+                    posts.post_link
+                ",
+                "order"=>array(
+                    "column"=>"notifications.nf_id",
+                    "type"=>"DESC",
+                ),
+                "limit"=>"{$limit}",
+                "join"=>array(
+                    "users"=>"users.user_id = notifications.from_user_id",
+                    "posts"=>"posts.post_id = notifications.post_id"
+                ),
                 
-                $from_user_info=$notification["from_user_info"];
-                $post_info=$notification["post_info"];
+                "where"=>"notifications.to_user_id={$to_user_id}"
+            ));
 
-                $nf_date=str_replace(", ", "-", $notification['nf_date']);
-                $nf_date=str_replace(" ","-",$nf_date);
-                $nf_date_formated=str_replace("_"," ",$nf_date);
 
-                $output .="
-                    <a class='navbar__dropdown-snf' href='{$this->config->domain("posts?v={$post_info['post_link']}")}' target='_blank'>
-                        <img class='navbar__img navbar__img--user' src='{$this->config->domain("app/uploads/users/{$from_user_info['ufile_name']}-sm.{$from_user_info['ufile_ext']}")}' alt=\"{$from_user_info['user_name']}'s profile picture on lobster\">
-                        
-                        <div class='navbar__dropdown-snf-text'>
-                            <h6 class='navbar__dropdown-snf-title'>
-                                {$notification['nf_title']}
-                            </h6>
-                            <span class='navbar__dropdown-snf-time'>{$this->functions->get_time_in_ago($nf_date_formated)}</span>
-                        </div>
+            if($fetch_notifications["status"] == 1 && $fetch_notifications["num_rows"] > 0){
 
-                        <img class='navbar__img navbar__img--postimg' src='{$this->config->domain("app/uploads/posts/{$post_info['pfile_name']}-sm.{$post_info['pfile_ext']}")}' alt='{$post_info['post_title']}'>
-                    </a>
-                ";
+                //calculate existing notifications 
+                $notifications["existing_nf"]  = $notifications["total_nf"] - $fetch_notifications["num_rows"];
+                
 
-            endforeach;
+                foreach($fetch_notifications["fetch_all"] as $nf_index=>$notification){
+
+                    $notifications["all"][]=array(
+                        "nf_id"=>$notification["nf_id"],
+                        "nf_title"=>$notification["nf_title"],
+                        "nf_date"=>$notification["nf_date"],
+                        "nf_status"=>$notification["nf_status"],
+                        "from_user"=>array(
+                            "id"=>$notification["from_user_id"],
+                            "user_name"=>$notification["user_name"],
+                            "profile_img"=>$this->fetch_user_files($notification["from_user_id"],"profile_img")
+                        ),
+                        "post_info"=>array(
+                            "id"=>1,
+                            "title"=>$notification["post_title"],
+                            "link"=>$notification["post_link"],
+                            "thumb"=>$this->fetch_post_files($notification["post_id"],"post_thumb")
+                        )
+                    );
+                }
+            }
+
             
-            $output .="
-                </div>
-            ";
-            
-            if($notifications["existing_notification"] > 0){
+            if(!empty($notifications["all"])){
 
                 $output .= "
-                    <div class='navbar__dropdown-footer'>
-                        <a class='navbar__link navbar__link--dfl' href='{$this->config->domain("users/{$_SESSION['user_name']}/notifications")}' target='_blank'>View more({$notifications["existing_notification"]})</a>
-                    </div>
+                    <div class='navbar__dropdown-body navbar__dropdown-body--nf'>
+                ";
+
+                foreach($notifications["all"]  as $nf_index=>$notification){
+
+                    $notification["nf_title"] = html_entity_decode($notification["nf_title"]);
+
+                    $notification["nf_date"] = str_replace(", "," ",$notification["nf_date"]);
+                    $notification["nf_date"] = str_replace(" ","-",$notification["nf_date"]);
+                    $notification["nf_date"] = str_replace("_"," ",$notification["nf_date"]);
+                    $notification["nf_date"] = $this->functions->get_time_in_ago($notification["nf_date"]);
+
+                    //store the from user's profile image
+                    $from_user = $notification["from_user"];
+
+                    //store the from user's profile image
+                    $post_info = $notification["post_info"];
+
+                    //store the from user's profile image
+                    $profile_img = $from_user["profile_img"];
+
+                    //store the from user's profile image
+                    $post_thumb = $post_info["thumb"];
             
+                    $output .= "
+                        <a class='navbar__dropdown-snf' href='{$this->config->domain("posts?v={$post_info['link']}")}' target='_blank'>
+                            <img class='navbar__img navbar__img--fromUser' src='{$this->config->domain("app/uploads/users/profile/{$profile_img['name']}-sm.{$profile_img['ext']}")}' alt='{$from_user['user_name']}' width='{$profile_img['dimension']['sm']['width']}' height='{$profile_img['dimension']['sm']['height']}'>
+                            
+                            <div class='navbar__dropdown-snf-text'>
+                                <h6 class='navbar__dropdown-snf-title'>
+                                 {$notification['nf_title']}
+                                </h6>
+                                
+                                <span class='navbar__dropdown-snf-time'>
+                                    {$notification['nf_date']}
+                                </span>
+                            </div>
+
+                            <img class='navbar_img navbar__img--post' src='{$this->config->domain("app/uploads/posts/{$post_thumb['name']}-sm.{$post_thumb['ext']}")}' alt='{$post_info['title']}' width='{$post_thumb['dimension']['md']['width']}' height='{$post_thumb['dimension']['md']['height']}'>
+                        </a>
+                    ";
+                }
+
+                $output .= "
+                    </div><!--dropwdown-body-->
+                ";
+
+                if($notifications["total_nf"] > $limit){
+
+                    
+                    $output .= "
+                        <div class='navbar__dropdown-footer'>
+                            <a class='navbar__link navbar__link--dfl' href='{$this->config->domain("users/{$this->user_info['user_name']}/notifications")}' target='_blank'>
+                                View more ({$notifications["existing_nf"]})
+                            </a>
+                        </div> 
+                    ";
+
+
+                }
+
+
+            }else{
+
+                $output .= "
+                    <div class='navbar__dropdown-body navbar__dropdown-body--nf'>
+                        <div class='navbar__dropdown-msg navbar__dropdown-msg--notfound'>
+                            <p>
+                                <i class='fa fa-info-circle'></i>
+                                <span>All Notifications Will appear here.</span>
+                            </p>
+                        </div>
+                    </div>
                 ";
             }
 
 
-        }else{
 
-            $output .="
-                <div class='navbar__dropdown-header navbar__dropdown-header--nf'>
-                    <h5>Notifications</h5>
-                </div>
+            echo $output;
+            // print_r($notifications);
 
-                <div class='navbar__dropdown-body navbar__dropdown-body--nf'>
-                    <div class='navbar__dropdown-msg navbar__dropdown-msg--notfound'>
-                        <p>
-                            <i class='fa fa-info-circle'></i>
-                            <span>All Notifications Will appear here.</span>
-                        </p>
-                    </div>
-                </div>
-            "; 
+
+
+       
+
+    
         }
+        
+        //use the function to load unread notifications
+        public function get_unread_notifications()
+        {
 
-        echo $output;
+            $output = array();
 
-    }
+            if(!empty($this->user_info)){
 
-     //use the function to update the page title & notification badge when clicks on notification bell button
-    public function update_title_tag_and_bell()
-    {
-
-        //first validate the post variable
-        $_POST=filter_var_array($_POST, FILTER_SANITIZE_STRING);
+                //first validate the post variable
+                $_POST=filter_var_array($_POST, FILTER_SANITIZE_STRING);
            
-        //store the to_user_id
-        $to_user_id=$_POST['to_user_id'];
-        
-        //store the title tag text
-        $title_tag=$_POST['title_tag'];
-        
-        //first find `(0-9)*` pattern from $title_tag
-        preg_match_all("/\([0-9]*\)/i",$title_tag,$nf_num);
+                //store the title tag text
+                $title_tag=$_POST['title_tag'];
+                
+                //first find `(0-9)*` pattern from $title_tag
+                preg_match_all("/\([0-9]*\)/i",$title_tag,$nf_num);
 
-        if(isset($nf_num[0][0])){
+                if(isset($nf_num[0][0])){
+                    
+                    //replace the `(0-9)*` pattern with an empty string
+                    $title_tag=str_replace("{$nf_num[0][0]}","",$title_tag);
+
+                    //remove space from left and right sides
+                    $title_tag=trim($title_tag);
+                }
+        
+                //logged users's user_id will be to_user_id
+                $to_user_id=$this->user_info["user_id"];
+
+                //store notificaton related information such as `unread`, `read`, `total`
+                $nf_info=$this->fetch_nf_info($to_user_id);
+
+                //update the error status
+                $output["error_status"] = 0;
+
+                if($nf_info["unread"] > 0){
+
+                    $badge_txt=($nf_info["unread"] > 9) ? "9+" : $nf_info["unread"];
+
+                    $output["title_tag"]="({$nf_info["unread"]}) $title_tag";
+                    
+                    $output["bell_btn"]="
+                        <button class='navbar__btn navbar__btn--bell' type='button'>
+                            <i class='fa fa-bell navbar__btn-icon'></i>
+                            <span class='navbar__badge navbar__badge--nf'>
+                                {$badge_txt}
+                            </span>
+                        </button>
+                    ";
+
+                }else{
+
+                    $output["title_tag"]=$title_tag;
+
+                    $output["bell_btn"]="
+                        <button class='navbar__btn navbar__btn--bell' type='button'>
+                            <i class='fa fa-bell navbar__btn-icon'></i>
+                        </button>
+                    ";
+                }
+
+
+            }else{
+
+                //update the error status
+                $output["error_status"] = 1;
+            }
+
+
             
-            //replace the `(0-9)*` pattern with an empty string
-            $title_tag=str_replace("{$nf_num[0][0]}","",$title_tag);
+            echo json_encode($output);
+         
+    
 
-            //remove space from left and right sides
-            $title_tag=trim($title_tag);
         }
-        
-       //store the notification's model object
-       $nf_obj=$this->model_objs["nf_obj"];
+
+
        
-       //store the final output 
-       $output=[];
 
-       /*First fetch all unread notfication with bell button*/
-       $nf_obj_output=$nf_obj->select(array(
-           "where"=>"to_user_id={$to_user_id} AND nf_status='unread'"
-       ));
+    /**
+     * ===========================
+     * All Public functions ends
+     * ===========================
+     */
 
-       if($nf_obj_output["status"] == 1){
-           
-           if($nf_obj_output["num_rows"] > 0){
-       
-               $nf_badge_num=($nf_obj_output["num_rows"] > 9) ? "9+" : $nf_obj_output["num_rows"];
-
-               $output["bell_icon"]="
-                   <a class='navbar__link navbar__link--bell' role='button'>
-                       <i class='fa fa-bell ph-nav__btn-icon'></i>
-                       <span class='ph-nav__btn-badge ph-nav__btn-badg--nf'>{$nf_badge_num}</span>
-                   </a>
-               ";
-
-               $output["title_tag"]="({$nf_obj_output['num_rows']}) $title_tag";
-           
-
-           }else{
-
-               $output["bell_icon"]="
-                    <a class='navbar__link navbar__link--bell' role='button'>
-                        <i class='fa fa-bell ph-nav__btn-icon'></i>
-                    </a>
-               ";
-
-               $output["title_tag"]="$title_tag";
-           }
-
-          
-           
-       }else{
-
-           echo $nf_obj_output["error"];
-           die();
-       }
-
-       echo json_encode($output);
-
-    }
-
-
- 
 }
 
 ?>

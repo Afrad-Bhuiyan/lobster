@@ -1,8 +1,6 @@
             </div><!--elements-->
         </section>
     </main>
-
-
     <script>
         /*=====Global Functions=====*/
     
@@ -17,6 +15,22 @@
 
             }else{
                 output=`${location.origin}/lobster/<?php echo "ajax_users/{$user_info['user_name']}"; ?>`;
+            }
+
+            return output;
+        }
+
+        //get the user's profile link
+        function user_profile_link(){
+
+            let output;
+
+            if(location.hostname !== "projects.afradbhuiyan.com"){
+
+                output=`${location.origin}/lobster/<?php echo "users/{$user_info['user_name']}/"; ?>`;
+
+            }else{
+                output=`${location.origin}/lobster/<?php echo "users/{$user_info['user_name']}/"; ?>`;
             }
 
             return output;
@@ -127,36 +141,32 @@
         }
 
     
-        //use function to update the title and bell button
-        function update_title_tag_and_bell(to_user_id){
-
+        //use the function fetch unread notificatios in every 5 minitues
+        function get_unread_notifications(){
 
             $.ajax({
-                url:`${post_request_url()}update_title_tag_and_bell`,
+                url:`${post_request_url()}/get_unread_notifications`,
                 method:"POST",
                 data:{
-                    to_user_id:to_user_id,
                     title_tag:$("title").text()
                 },
                 dataType:"json",
                 success:function(response){
 
-                    if(response){
+                    if(response.error_status == 0){
+
                         //set the title tag
                         $("title").text(response.title_tag);
 
-                        //romove the previous bell button with badge
-                        $(".navbar__link--bell").remove(); 
-
                         //set the bell button with new badge
-                        $(".navbar__dropdown-toggle--nf").append(response.bell_icon);
+                        $(".navbar__dropdown-toggle--nf").html(response.bell_btn);
+
                     }
 
                     //console.log(response);
                 }
-            });
+            })
         }
-    
 
         //use the function to add a modal
         function show_popup_modal(modal_name = null){
@@ -255,11 +265,11 @@
                 post_delete:{
                     modal_class:"modal--postDelete",
                     modal_title:"Delete Warning",
-                    modal_text:`
-                        You are about to delete a public comment from your post. Are you sure to proceed with the action? This action can't be undone
-                    `,
+                    modal_text:``,
                     modal_false_btn_text:`Cancel`,
-                    modal_true_btn_text:`Yes. Procced`
+                    modal_true_btn_text:`Yes. Procced`,
+                    onTrue:function(){},
+                    onFalse:function(){}
                     
                 },
             },
@@ -397,118 +407,108 @@
 
             /*===JS for Header starts===*/
 
-            const dropdown_toggle=$(".navbar__dropdown-toggle");
+            //store all the dropdown toggles
+            const dropdown_toggles=$(".navbar__dropdown-toggle");
 
-            dropdown_toggle.on("click",function(){
+        
+            dropdown_toggles.on("click",function(){
 
-                if($(this).hasClass("navbar__dropdown-toggle--nf")){
+                //store the clicked dropdwon toggle
+                const dd_toggle = $(this);
 
-                    const that=$(this);
+                //store clicked closest dropdwon content
+                const dd_content=dd_toggle.parent().find(".navbar__dropdown-content");
 
-                    //Remove the previously opened dropdown content
-                    if($(".navbar__dropdown-content--menu").hasClass("navbar__dropdown-content--block")){
+                //store dropdown content wrapper element
+                const dd_content_wrap=dd_toggle.parent().find(".navbar__dropdown-content-wrap");
 
-                        $(".navbar__dropdown-content--menu").removeClass("navbar__dropdown-content--block");
+                //store options
+                const obj={
+                    
+                    open:function(){
 
-                        $(".navbar__dropdown-content--menu").removeClass("navbar__dropdown-content--show");
-                    }
-
-                    const dropdown_content=$(".navbar__dropdown-content--nf");
-
-                    if(!dropdown_content.hasClass("navbar__dropdown-content--block")){
+                        //store the object
+                        const that=this;
                         
-                        //Appear the dropdown content
-                        dropdown_content.addClass("navbar__dropdown-content--block");
-                        
-                        setTimeout(function(){
+                        //remove any existing  .document-wrap elemenet
+                        $(".document-wrap").remove();
 
-                            dropdown_content.addClass("navbar__dropdown-content--show");
+                        //append a .document-wrap element into the body
+                        $(".navbar").append(`<div class="document-wrap"></div>`);
 
-                            $.ajax({
-                                url:`${post_request_url()}load_notifications`,
-                                method:"POST",
-                                data:{
-                                    
-                                    to_user_id:that.data("to_user_id")
-                                },
-                                beforeSend:function(){
+                        if(!dd_content.hasClass("navbar__dropdown-content--block")){
 
-                                    $(".loading-spinner--nf").remove();
-
-                                    $(".navbar__dropdown-content-wrap--nf").append(`
-                                        <div class="loading-spinner loading-spinner--nf">
-                                            <div class="loading-spinner__circle loading-spinner__circle--nf">
-
-                                            </div>
-                                        </div>
-                                    `)
+                            //add the block class in dropdown options
+                            dd_content.addClass("navbar__dropdown-content--block");
+                            
+                            setTimeout(function(){
                                 
-                                },
-                                success:function(response){
+                                //add the show class in dropdown options
+                                dd_content.addClass("navbar__dropdown-content--show");
 
-                                    //append all notification in dropdown-content-wrap
-                                    $(".navbar__dropdown-content-wrap--nf").html("");
+                                //call the close function from object
+                                $(".document-wrap").on("click",that.close);
+                            
+                            },50);
+                        }
+                    },
 
-                                    //append all notification in dropdown-content-wrap
-                                    $(".navbar__dropdown-content-wrap--nf").append(response);
+                    close:function(){
 
-                                    //update title tag and notification badge
-                                    update_title_tag_and_bell(that.data("to_user_id"));
-
-                                    console.log(response);
-                                }
-                            })
-
-                        },50);
-
-                    }else{
-
-                        //Disappear the dropdown content
-                        dropdown_content.removeClass("navbar__dropdown-content--show");
-
-                        setTimeout(function(){
-
-                            dropdown_content.removeClass("navbar__dropdown-content--block");
+                        //remove the .documen-wrap first
+                        $(".document-wrap").remove();
                         
-                        },155);
-                    }
+                        if(dd_content.hasClass("navbar__dropdown-content--show")){
+                            
+                            //remove the show from options
+                            dd_content.removeClass("navbar__dropdown-content--show");
+                            
+                            setTimeout(function(){
+                                
+                                //remove the block class from options
+                                dd_content.removeClass("navbar__dropdown-content--block");
 
-                }else if($(this).hasClass("navbar__dropdown-toggle--menu")){
-
-                    //Remove the previously opened dropdown content
-                    if($(".navbar__dropdown-content--nf").hasClass("navbar__dropdown-content--block")){
-
-                        $(".navbar__dropdown-content--nf").removeClass("navbar__dropdown-content--block");
-
-                        $(".navbar__dropdown-content--nf").removeClass("navbar__dropdown-content--show");
-                    }
-
-                    const dropdown_content=$(".navbar__dropdown-content--menu");
-
-                    if(!dropdown_content.hasClass("navbar__dropdown-content--block")){
-
-                        //Appear the dropdown content
-                        dropdown_content.addClass("navbar__dropdown-content--block");
-                        
-                        setTimeout(function(){
-
-                            dropdown_content.addClass("navbar__dropdown-content--show");
-
-                        },50);
-
-                    }else{
-
-                        //Disappear the dropdown content
-                        dropdown_content.removeClass("navbar__dropdown-content--show");
-
-                        setTimeout(function(){
-
-                            dropdown_content.removeClass("navbar__dropdown-content--block");
-                        
-                        },155);
+                            },155);
+                        }  
                     }
                 }
+
+                //call the open function to show the popup
+               obj.open();
+
+                if(dd_toggle.hasClass("navbar__dropdown-toggle--nf")){
+
+
+
+                    $.ajax({
+                        url:`${post_request_url()}/fetch_notifications`,
+                        method:"POST",
+                        beforeSend:function(){
+
+                            dd_content_wrap.append(`
+                                <div class="loading-spinner loading-spinner--nf">
+                                    <div class="loading-spinner__circle loading-spinner__circle--nf">
+
+                                    </div>
+                                </div>
+                            `);
+
+                        },
+                        success:function(response){
+
+                            dd_content_wrap.html(response);
+
+                            get_unread_notifications();
+
+                            console.log(response);
+                        }
+                    });
+                }
+                
+        
             });
+
+            setInterval(get_unread_notifications, 5000);
 
             /*===JS for Header ends===*/
     
@@ -533,7 +533,7 @@
                    }
                 })
             })
-        })
+        });
 
     </script>
 
@@ -542,74 +542,78 @@
     
     <?php 
 
-        if(isset($_GET["posts"]) && !empty($_GET["posts"])){
+        if(isset($_GET["option"])){
 
-            $post_type="";
+            if($_GET["option"] == "posts"){
+                 
+                $post_type="";
 
-            if($_GET["posts"] == "publish"){ 
+                if($_GET["sub_option"] == "my_posts"){
 
-                $post_type = "publish";
+                    $post_type = "myposts";
 
-                echo '<script src="https://cdn.ckeditor.com/ckeditor5/25.0.0/classic/ckeditor.js"></script>'."\r\n";
+
+                }elseif($_GET["sub_option"] == "publish"){
+
+                    $post_type = "publish";
+
+                    echo '<script src="https://cdn.ckeditor.com/ckeditor5/25.0.0/classic/ckeditor.js"></script>'."\r\n";
+
                 
-            }elseif($_GET["posts"] == "edit"){
+                }elseif($_GET["sub_option"] == "edit"){
 
-                $post_type = "edit";
+                    $post_type = "edit";
+
+                    echo '<script src="https://cdn.ckeditor.com/ckeditor5/25.0.0/classic/ckeditor.js"></script>'."\r\n";
+
                 
-                echo '<script src="https://cdn.ckeditor.com/ckeditor5/25.0.0/classic/ckeditor.js"></script>'."\r\n";
+                }elseif($_GET["sub_option"] == "saved"){
 
+                    $post_type = "saved";
 
-            }elseif($_GET["posts"] == "myposts"){
+                }
 
-                $post_type = "myposts";
-            
-            }elseif($_GET["posts"] == "saved"){
+                echo "
+                    <script id='post-js' src='{$config->domain('assets/js/dashboard/posts.js')}' data-post_type='{$post_type}'></script>\r\n
+                ";
 
-                $post_type = "saved";
+            }elseif($_GET["option"] == "settings"){
+
+                $setting_type="";
+
+                if($_GET["sub_option"] == "account"){
+                    
+                    $setting_type="account";
+    
+                }elseif($_GET["sub_option"] == "security"){
+                    
+                    $setting_type="security";
+                }
+
+                echo "
+                    <script id='settings-js' src='{$config->domain('assets/js/dashboard/settings.js')}' data-setting_type='{$setting_type}'></script>\r\n
+                ";  
+                
+            }elseif($_GET["option"] == "admin_options"){
+
+                $option_type="";
+
+                if($_GET["sub_option"] == "users"){
+
+                    $option_type = "users";
+
+                }elseif($_GET["sub_option"] == "catagories"){
+
+                    $option_type = "catagories";
+                }
+
+                echo "
+                    <script id='admin-opt-js' src='{$config->domain('assets/js/dashboard/admin_options.js')}' data-option_type='{$option_type}'></script>\r\n
+                ";
             }
-
-            echo "
-                <script id='post-js' src='{$config->domain('assets/js/dashboard/posts.js')}' data-post_type='{$post_type}'></script>\r\n
-            ";
-
-            
-        }elseif(isset($_GET["settings"]) && !empty($_GET["settings"])){
-
-            $setting_type="";
-
-            if($_GET["settings"] == "account"){
-                
-                $setting_type="account";
-
-            }elseif($_GET["settings"] == "security"){
-                
-                $setting_type="security";
-            }
-
-            echo "
-                <script id='settings-js' src='{$config->domain('assets/js/dashboard/settings.js')}' data-setting_type='{$setting_type}'></script>\r\n
-            ";
-
-
-        }elseif(isset($_GET["admin_options"]) && !empty($_GET["admin_options"])){
-
-            $option_type="";
-
-            if($_GET["admin_options"] == "users"){
-
-                $option_type = "users";
-
-            }elseif($_GET["admin_options"] == "catagories"){
-
-                $option_type = "catagories";
-            }
-
-            echo "
-                <script id='admin-opt-js' src='{$config->domain('assets/js/dashboard/admin_options.js')}' data-option_type='{$option_type}'></script>\r\n
-            ";
-
-
         }
+
+       
     ?>
 
 </body>

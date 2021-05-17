@@ -134,9 +134,6 @@ class ajax_accounts extends controller{
             $fetch_options=array(
                 "column_name"=>"
                     users.user_id,
-                    users.user_name,
-                    users.user_email,
-                    users.user_role,
                     users.user_password
                 "
             );
@@ -149,13 +146,13 @@ class ajax_accounts extends controller{
                 //set the message
                 $exists_msg="Username doesn't exist";
 
-                $fetch_options["where"]="users.user_name='$uname_email'";
+                $fetch_options["where"]=" BINARY users.user_name='$uname_email'";
                 
             }elseif($login_type =="email"){
 
                 $exists_msg="E-mail address doesn't exist";
 
-                $fetch_options["where"]="users.user_email='$uname_email'";
+                $fetch_options["where"]=" BINARY users.user_email='$uname_email'";
         
             }
 
@@ -167,31 +164,15 @@ class ajax_accounts extends controller{
             
             if($fetch_user["status"] == 1 && $fetch_user["num_rows"] == 1){
 
-                //store the fatched user_id
-                $user_id=$fetch_user["fetch_all"][0]["user_id"];
-                
-                //store the fatched user_name
-                $user_name=$fetch_user["fetch_all"][0]["user_name"];
-                
-                //store the fatched user_email
-                $user_email=$fetch_user["fetch_all"][0]["user_email"];
-                
-                //store the fatched user_role
-                $user_role=$fetch_user["fetch_all"][0]["user_role"];
+                //store user information
+                $user_info=$fetch_user["fetch_all"][0];
 
-                //store the fetched  password
-                $user_password=$fetch_user["fetch_all"][0]["user_password"];
-
-                if(password_verify($password,$user_password)){
+                if(password_verify($password,$user_info["user_password"])){
 
                     session_start();
 
-                    //login user by using email
-                    $_SESSION["user_id"]=$user_id;
+                    $_SESSION["user_id"]=$user_info["user_id"];
                     $_SESSION["user_type"]="old";
-                    // $_SESSION["user_name"]=$user_name;
-                    // $_SESSION["user_email"]=$user_email;
-                    // $_SESSION["user_role"]=$user_role;
 
                     $output = true;
 
@@ -593,6 +574,7 @@ class ajax_accounts extends controller{
                     "height"=>100
                 )
             );
+            
             //convert the array into a string to store it into the database
             $profile_img_dimension=serialize($profile_img_dimension);
 
@@ -819,7 +801,7 @@ class ajax_accounts extends controller{
             $_POST=filter_var_array($_POST, FILTER_SANITIZE_STRING);
 
             //store the `uname_email` index from $_POST variable
-            $uname_email=trim(strtolower($_POST['uname-email']));
+            $uname_email=$_POST['uname-email'];
 
             //store the `password` index from $_POST variable
             $password=$_POST['password'];

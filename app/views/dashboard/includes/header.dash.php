@@ -4,6 +4,8 @@
     $functions=new functions;
 
     $user_info=(isset($data["common_info"]["user_info"])) ? $data["common_info"]["user_info"] : null;
+
+    $nf_info=(isset($data["common_info"]["nf_info"])) ? $data["common_info"]["nf_info"] : array();
                 
     $profile_img=($user_info !== null) ? $user_info["ufile_info"]["profile_img"] : null;
 
@@ -32,28 +34,30 @@
 
         $stylesheet_url="";
         
-        if(isset($_GET["posts"]) && !empty($_GET["posts"])){
+        if(isset($_GET["option"])){
 
-            $stylesheet_url = $config->domain("assets/css/posts.min.css");
-            
-        }elseif(isset($_GET["settings"]) && !empty($_GET["settings"])){
+            if($_GET["option"]  == "posts"){
 
-            $stylesheet_url = $config->domain("assets/css/settings.min.css");
-            
-        }elseif(isset($_GET["admin_options"]) && !empty($_GET["admin_options"])){
+                $stylesheet_url = $config->domain("assets/css/posts.min.css");
 
-            $stylesheet_url= $config->domain("assets/css/admin_opt.min.css");
+            }elseif($_GET["option"]  == "settings"){
 
+
+                $stylesheet_url = $config->domain("assets/css/settings.min.css");
+
+
+            }elseif($_GET["option"]  == "admin_options"){
+
+                $stylesheet_url= $config->domain("assets/css/admin_opt.min.css");
+            }
 
         }else{
 
             $stylesheet_url = $config->domain("assets/css/dashboard.min.css");
-
         }
         
         echo ' <link rel="stylesheet" href="'. $stylesheet_url.'" type="text/css" media="all">'. "\r\n";
- 
-    
+
     ?>
     
     
@@ -116,17 +120,17 @@
 
                             <ul class="sidebar__option-list">
                                 <li class="sidebar__option-item">
-                                    <a class="sidebar__link sidebar__link--option" href="<?php echo $config->domain("users/{$user_info['user_name']}/dashboard?posts=myposts&filter=all") ?>">
+                                    <a class="sidebar__link sidebar__link--option" href="<?php echo $config->domain("users/{$user_info['user_name']}/dashboard/posts?sub_option=my_posts&filter=all") ?>">
                                         My Posts
                                     </a>
                                 </li>
                                 <li class="sidebar__option-item">
-                                    <a class="sidebar__link sidebar__link--option" href="<?php echo $config->domain("users/{$user_info['user_name']}/dashboard?posts=publish") ?>">
+                                    <a class="sidebar__link sidebar__link--option" href="<?php echo $config->domain("users/{$user_info['user_name']}/dashboard/posts?sub_option=publish") ?>">
                                         Publish a post
                                     </a>
                                 </li>
                                 <li class="sidebar__option-item">
-                                    <a class="sidebar__link sidebar__link--option" href="<?php echo $config->domain("users/{$user_info['user_name']}/dashboard?posts=saved") ?>">
+                                    <a class="sidebar__link sidebar__link--option" href="<?php echo $config->domain("users/{$user_info['user_name']}/dashboard/posts?sub_option=saved_posts") ?>">
                                         Saved Posts
                                     </a>
                                 </li>
@@ -141,12 +145,12 @@
 
                             <ul class="sidebar__option-list">
                                 <li class="sidebar__option-item">
-                                    <a class="sidebar__link sidebar__link--option" href="<?php echo $config->domain("users/{$user_info['user_name']}/dashboard?settings=account") ?>">
+                                    <a class="sidebar__link sidebar__link--option" href="<?php echo $config->domain("users/{$user_info['user_name']}/dashboard/settings?sub_option=account") ?>">
                                         Account
                                     </a>
                                 </li>
                                 <li class="sidebar__option-item">
-                                    <a class="sidebar__link sidebar__link--option" href="<?php echo $config->domain("users/{$user_info['user_name']}/dashboard?settings=security") ?>">
+                                    <a class="sidebar__link sidebar__link--option" href="<?php echo $config->domain("users/{$user_info['user_name']}/dashboard/settings?sub_option=security") ?>">
                                         Security
                                     </a>
                                 </li>
@@ -162,12 +166,12 @@
 
                             <ul class="sidebar__option-list">
                                 <li class="sidebar__option-item">
-                                    <a class="sidebar__link sidebar__link--option" href="<?php echo $config->domain("users/{$user_info['user_name']}/dashboard?admin_options=users") ?>">
+                                    <a class="sidebar__link sidebar__link--option" href="<?php echo $config->domain("users/{$user_info['user_name']}/dashboard/admin_options?sub_option=users") ?>">
                                         Users
                                     </a>
                                 </li>
                                 <li class="sidebar__option-item">
-                                    <a class="sidebar__link sidebar__link--option" href="<?php echo $config->domain("users/{$user_info['user_name']}/dashboard?admin_options=catagories") ?>">
+                                    <a class="sidebar__link sidebar__link--option" href="<?php echo $config->domain("users/{$user_info['user_name']}/dashboard/admin_options?sub_option=catagories") ?>">
                                        Catagories
                                     </a>
                                 </li>
@@ -212,11 +216,11 @@
 
                     <div class="navbar__action">
                         <div class="navbar__action-part navbar__action-part--1">
-                            <a class="navbar__link navbar__link--home" role="button">
+                            <a class="navbar__link navbar__link--home"  href="<?php echo $config->domain(); ?>">
                                 <i class="fa fa-home"></i>
                             </a>
 
-                            <a class="navbar__link navbar__link--plus" role="button">
+                            <a class="navbar__link navbar__link--plus" href="<?php echo $config->domain("users/{$user_info['user_name']}/dashboard/posts?sub_option=publish"); ?>">
                                 <i class="fa fa-plus"></i>
                             </a>
                         </div>
@@ -224,21 +228,29 @@
                         <div class="navbar__action-part navbar__action-part--2">
                             <div class="navbar__dropdown navbar__dropdown--nf">
                                 <div class="navbar__dropdown-toggle navbar__dropdown-toggle--nf" data-to_user_id="<?php echo $user_info["user_id"]; ?>">
-                                    <a class="navbar__link navbar__link--bell" role="button">
-                                        <i class="fa fa-bell"></i>
+                                    <button type="button" class="navbar__btn navbar__btn--bell">
+                                        <i class="fa fa-bell navbar__btn-icon"></i>
                                         <?php 
-                                            if($total_unread_nf !== null){
+                                            if($nf_info["unread"] > 0){
 
-                                                echo ($total_unread_nf > 9) ? "<span>9+</span>" : "<span>{$total_unread_nf}</span>";
+                                                //store the badge text according t unread status
+                                                $badge_txt=($nf_info["unread"] > 9) ? "9+" : $nf_info["unread"]; 
+                
+                                                echo "
+                                                    <span class='navbar__badge navbar__badge--nf'>
+                                                        {$badge_txt}
+                                                    </span>
+                                                ";
                                             }
+                                            
                                         ?>
-                                    </a>
+                                    </button>
                                 </div>
 
                                 <div class="navbar__dropdown-content navbar__dropdown-content--nf">
                                     <div class="navbar__dropdown-content-wrap navbar__dropdown-content-wrap--nf">
-                                    
-                                    </div>
+                                        
+                                     </div>
                                 </div>
                             </div>
 
@@ -286,6 +298,13 @@
                         </div>
                     </div>
                 </nav>
+                
+                <?php 
+                    
+                    // echo "<pre>";
+                    // print_r($data);
+                    // echo "</pre>";
+                ?>
      
 
 

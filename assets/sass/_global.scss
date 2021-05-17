@@ -123,6 +123,7 @@ input.btn{
    
     
 }
+
 .btn.disabled{
     background-color: #bfb4b473 !important;
     pointer-events: none;
@@ -199,6 +200,19 @@ input.btn{
         padding-right: 15px;
     }
 }
+
+.document-wrap{
+    width:100%;
+    height:100vh;
+    background-color:transparent;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 350;
+}
+
+
 
 .popup-msg{
     width: 40rem;
@@ -373,7 +387,7 @@ input.btn{
 
 
 .loading-spinner{
-   // border: 1px solid black;
+//    border: 1px solid black;
 
     &--comment{
         padding: 0 1.5rem;
@@ -391,6 +405,7 @@ input.btn{
         bottom: 0;
         left: 0;
         right: 0;
+        // border: 1px solid black;
     }
 
     &--sidebar{
@@ -419,6 +434,12 @@ input.btn{
         z-index: 100;
     }
 
+    &--viewReplies{
+        width: 100%;
+        // border: 1px solid black;
+        margin: 1.5rem 0 0 0;
+    }
+
     &--signup,
     &--login,
     &--fpw,
@@ -435,9 +456,11 @@ input.btn{
         display: flex;
     }
 
+
     &__circle{
         border-radius: 50%;
         position: relative;
+
         &::after{
             content: "";
             position: absolute;
@@ -457,122 +480,147 @@ input.btn{
 
             }
         }
+
+        &--comment{
+            width: 3.5rem;
+            height: 3.5rem;
+            border: .5rem solid #a4a4a494;
+            margin: 0 auto; 
+    
+            &::after{
+                top: -.5rem;
+                bottom: -.5rem;
+                left: -.5rem;
+                right: -.5rem;
+                border-width: .5rem;
+                border-top-color: $primary;                    
+                border-left-color: $primary;
+            }
+    
+        }
+
+        &--nf{
+            width: 5rem;
+            height: 5rem;
+            border: .5rem solid #d5d0d0;
+            margin: auto;
+            &::after{
+                top: -.5rem;
+                bottom: -.5rem;
+                left: -.5rem;
+                right: -.5rem;
+                border-width: .5rem;
+                border-top-color: $primary;                    
+                border-left-color: $primary;
+            }
+        }
+
+        &--sidebar{
+            width: 3.5rem;
+            height: 3.5rem;
+            border: .5rem solid #d5d0d0;
+            margin: auto;
+            &::after{
+                top: -.5rem;
+                bottom: -.5rem;
+                left: -.5rem;
+                right: -.5rem;
+                border-width: .5rem;
+                border-top-color: $primary;                    
+                border-left-color: $primary;
+            }
+        }
+
+        &--home{
+            width: 4rem;
+            height: 4rem;
+            border: .5rem solid #959595;
+            margin: 3% auto 0 auto;
+            &::after{
+                top: -.5rem;
+                bottom: -.5rem;
+                left: -.5rem;
+                right: -.5rem;
+                border-width: .5rem;
+                border-top-color: $primary;                    
+                border-left-color: $primary;
+            }
+        }
+
+        
+        &--signup{
+            width: 15rem;
+            height: 15rem;
+            border: 1.2rem solid #e6e1e194;
+            margin: auto;
+            &::after{
+                top: -1.2rem;
+                bottom: -1.2rem;
+                left: -1.2rem;
+                right: -1.2rem;
+                border-width: 1.2rem;
+                border-top-color: $primary;                    
+                border-left-color: $primary;
+            }
+        }
+
+        &--login{
+            width: 10rem;
+            height: 10rem;
+            border: 1rem solid #e6e1e194;
+            margin: auto;
+            &::after{
+                top: -1rem;
+                bottom: -1rem;
+                left: -1rem;
+                right: -1rem;
+                border-width: 1rem;
+                border-top-color: $primary;                    
+                border-left-color: $primary;
+            }
+        }
+    
+        &--fpw,
+        &--resetpwd{
+            width: 8rem;
+            height: 8rem;
+            border: .8rem solid #e6e1e194;
+            margin: auto;
+            &::after{
+                top:  -.8rem;
+                bottom:  -.8rem;
+                left:  -.8rem;
+                right:  -.8rem;
+                border-width: .8rem;
+                border-top-color: $primary;                    
+                border-left-color: $primary;
+            }
+        }
+
+        &--viewReplies{
+            width: 2.5rem;
+            height: 2.5rem;
+            border: .4rem solid #e6e1e194;
+            margin: 0 0 0 2rem;
+            &::after{
+                top: -.4rem;
+                bottom: -.4rem;
+                left: -.4rem;
+                right: -.4rem;
+                border-width: .4rem;
+                border-top-color: $primary;                    
+                border-left-color: $primary;
+            }
+        }
+
+
+
+
     }
     
-    &__circle--comment{
-        width: 3.5rem;
-        height: 3.5rem;
-        border: .5rem solid #a4a4a494;
-        margin: 0 auto; 
+   
 
-        &::after{
-            top: -.5rem;
-            bottom: -.5rem;
-            left: -.5rem;
-            right: -.5rem;
-            border-width: .5rem;
-            border-top-color: $primary;                    
-            border-left-color: $primary;
-        }
-
-    }
     
-    &__circle--nf{
-        width: 5rem;
-        height: 5rem;
-        border: .5rem solid #d5d0d0;
-        margin: auto;
-        &::after{
-            top: -.5rem;
-            bottom: -.5rem;
-            left: -.5rem;
-            right: -.5rem;
-            border-width: .5rem;
-            border-top-color: $primary;                    
-            border-left-color: $primary;
-        }
-    }
-
-    &__circle--sidebar{
-        width: 3.5rem;
-        height: 3.5rem;
-        border: .5rem solid #d5d0d0;
-        margin: auto;
-        &::after{
-            top: -.5rem;
-            bottom: -.5rem;
-            left: -.5rem;
-            right: -.5rem;
-            border-width: .5rem;
-            border-top-color: $primary;                    
-            border-left-color: $primary;
-        }
-    }
-
-    &__circle--home{
-        width: 4rem;
-        height: 4rem;
-        border: .5rem solid #959595;
-        margin: 3% auto 0 auto;
-        &::after{
-            top: -.5rem;
-            bottom: -.5rem;
-            left: -.5rem;
-            right: -.5rem;
-            border-width: .5rem;
-            border-top-color: $primary;                    
-            border-left-color: $primary;
-        }
-    }
-
-    &__circle--signup{
-        width: 15rem;
-        height: 15rem;
-        border: 1.2rem solid #e6e1e194;
-        margin: auto;
-        &::after{
-            top: -1.2rem;
-            bottom: -1.2rem;
-            left: -1.2rem;
-            right: -1.2rem;
-            border-width: 1.2rem;
-            border-top-color: $primary;                    
-            border-left-color: $primary;
-        }
-    }
-
-    &__circle--login{
-        width: 10rem;
-        height: 10rem;
-        border: 1rem solid #e6e1e194;
-        margin: auto;
-        &::after{
-            top: -1rem;
-            bottom: -1rem;
-            left: -1rem;
-            right: -1rem;
-            border-width: 1rem;
-            border-top-color: $primary;                    
-            border-left-color: $primary;
-        }
-    }
-
-    &__circle--fpw,
-    &__circle--resetpwd{
-        width: 8rem;
-        height: 8rem;
-        border: .8rem solid #e6e1e194;
-        margin: auto;
-        &::after{
-            top:  -.8rem;
-            bottom:  -.8rem;
-            left:  -.8rem;
-            right:  -.8rem;
-            border-width: .8rem;
-            border-top-color: $primary;                    
-            border-left-color: $primary;
-        }
-    }
 
  
 
@@ -623,6 +671,15 @@ input.btn{
 
     &--roleChange &__icon::after{
         content: "\f12a";
+        color: #e8411b;
+    }
+
+    &--postDelete &__icon{
+        border-color: #e8411b;
+    }
+
+    &--postDelete &__icon::after{
+        content: "\f071";
         color: #e8411b;
     }
     

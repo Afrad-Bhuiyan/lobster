@@ -21,6 +21,9 @@ class ajax_users_posts{
     //Here we will store all the required model's object
     private $model_objs=array();
 
+    //store logged user's information
+    private $user_info;
+
     /**
      * =============================
      * All magic functions  starts 
@@ -43,6 +46,10 @@ class ajax_users_posts{
             
             //store the `mail class from $thie variable
             $this->mail=$objs["mail"];
+
+        
+            //store the `mail class from $thie variable
+            $this->user_info=$objs["user_info"];
         }
     }
 
@@ -144,176 +151,194 @@ class ajax_users_posts{
         private function print_my_posts_table(array $posts)
         {
 
-            $output = "";
-
-            $output .="
-                <table  class='my-posts__table my-posts__table--post'>
-                    <thead class='my-posts__thead'>
-                        <tr class='my-posts__tr my-posts__tr-thead'>
-                            <th class='my-posts__th my-posts__th--60'>
-                                <div class='my-posts__th-wrap my-posts__th-wrap--60'>
-                                    <div class='my-posts__checkbox'>
-                                        <input class='my-posts__checkinput my-posts__checkinput--single' type='checkbox' name='checkinput_all' id='checkinput_all'>
-                                        <label class='my-posts__label my-posts__label--all' for='checkinput_all'></label>
+            $output = "
+                <div class='my-posts__tbl-wrap'>
+                    <table class='my-posts__tbl'>
+                        <thead class='my-posts__thead'>
+                            <tr class='my-posts__tr my-posts__tr--thead'>
+                                <th class='my-posts__th my-posts__th--title'>
+                                    <div class='my-posts__th-wrap'>
+                                        <div class='my-posts__checkbox'>
+                                            <input class='my-posts__input my-posts__input--checkbox my-posts__input--checkAll' type='checkbox' name='all_posts'>
+                                            <div class='my-posts__label my-posts__label--checkAll'></div>
+                                        </div>
+                                        
+                                        <h4 class='my-posts__title my-posts__title--tbl'>
+                                            {$posts['tbl_title']}
+                                        </h4>
                                     </div>
-                                    <h4 class='my-posts__tbl-title'>
-                                        {$posts["tbl_title"]}
-                                    </h4>
-                                </div>
-                            </th>
+                                </th>
+                                <th class='my-posts__th my-posts__th--read'>
+                                    <div class='my-posts__th-wrap'>
+                                        <div class='my-posts__th-text'>
+                                            <i class='fa fa-eye'></i>
+                                            <br>
+                                            <span>Read</span>
+                                        </div>
+                                    </div>
+                                </th>
 
-                            <th class='my-posts__th my-posts__th--10 my-posts__th--read'>
-                                <div class='my-posts__th-wrap my-posts__th-wrap--10'>
-                                    <i class='fa fa-eye'></i>
-                                    <br>
-                                    <span>Read</span>
-                                </div>
-                            </th>
+                                <th class='my-posts__th my-posts__th--likes'>
+                                    <div class='my-posts__th-wrap'>
+                                       <div class='my-posts__th-text'>
+                                            <i class='fa fa-thumbs-up'></i>
+                                            <br>
+                                            <span>Likes</span>
+                                       </div>
+                                    </div>
+                                </th>
 
-                            <th class='my-posts__th my-posts__th--10 my-posts__th--likes'>
-                                <div class='my-posts__th-wrap my-posts__th-wrap--10'>
-                                    <i class='fa fa-thumbs-up'></i>
-                                    <br>
-                                    <span>Likes</span>
-                                </div>
-                            </th>
+                                <th class='my-posts__th my-posts__th--dislikes'>
+                                    <div class='my-posts__th-wrap'>
+                                        <div  class='my-posts__th-text'>
+                                            <i class='fa fa-thumbs-down'></i>
+                                            <br>
+                                            <span>Dislikes</span>
+                                        </div>
+                                    </div>
+                                </th>
 
-                            <th class='my-posts__th my-posts__th--10 my-posts__th--dislikes'>
-                                <div class='my-posts__th-wrap my-posts__th-wrap--10'>
-                                    <i class='fa fa-thumbs-down'></i>
-                                    <br>
-                                    <span>Dislikes</span>
-                                </div>
-                            </th>
-
-                            <th class='my-posts__th my-posts__th--10 my-posts__th--comments'>
-                                <div class='my-posts__th-wrap my-posts__th-wrap--10'>
-                                    <i class='fa fa-comment'></i>
-                                    <br>
-                                    <span>Comments</span>
-                                </div>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
+                                <th class='my-posts__th my-posts__th--comments'>
+                                    <div class='my-posts__th-wrap'>
+                                        <div class='my-posts__th-text'>
+                                            <i class='fa fa-comment'></i>
+                                            <br>
+                                            <span>Comments</span>
+                                        <div>
+                                    </div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class='my-posts__tbody'>
+                           
+            
             ";
 
-            foreach($posts["all"] as $post_index=>$post){
+                    foreach($posts["all"] as $post_index=>$post):
 
-                $badge_class = ($post["post_status"] == "published") ? "my-posts__status-badge--published" : "my-posts__status-badge--draft";
-                $post_date=explode("_", $post["post_date"]);
-                $post_date= $post_date[0];
+                        $badge_class = ($post["post_status"] == "published") ? "my-posts__badge--published" : "my-posts__badge--draft";
+                        $post_date=explode("_", $post["post_date"]);
+                        $post_date= $post_date[0];
+                        $pfile_info= $post["pfile_info"];
+                        $post_ratings= $post["post_ratings"];
 
-                $output .="
-                    <tr class='my-posts__tr my-posts__tr-tbody'>
-                        <td class='my-posts__td my-posts__td--60'>
-                            <div class='my-posts__td-wrap my-posts__td-wrap--60'>
-                                
-                                <div class='my-posts__checkbox'>
-                                    <input class='my-posts__checkinput my-posts__checkinput--single' type='checkbox' name='checkinput_single' id='checkinput_single_{$post['post_id']}'>
-                                    <label class='my-posts__label my-posts__label--single' for='checkinput_single_{$post['post_id']}'></label>
-                                </div>
+                        $output .= "
+                            <tr class='my-posts__tr my-posts__tr--tbody'>
+                                <td class='my-posts__td my-posts__td--title'>
+                                    <div class='my-posts__td-wrap'>
+                                        <div class='my-posts__checkbox my-posts__checkbox--single'>
+                                            <input class='my-posts__input my-posts__input--checkbox my-posts__input--single' type='checkbox' name='single_post' value='{$post['post_id']}'>
+                                            <div class='my-posts__label my-posts__label--single'></div>
+                                        </div>
 
-                                <img class='my-posts__img my-posts__img--post' src='{$this->config->domain("app/uploads/posts/{$post['pfile_name']}-sm.{$post['pfile_ext']}")}' alt='{$post['post_title']}'>
-                            
-                                <div class='my-posts__text-content'>
-                                    <h5 class='my-posts__post-title'>
-                                        {$post['post_title']}
-                                    </h5>
+                                        <img class='my-posts__img my-posts__img--post' src='{$this->config->domain("app/uploads/posts/{$pfile_info['name']}-sm.{$pfile_info['ext']}")}' alt='{$post['post_title']}'>
+                                       
+                                        <div class='my-posts__tbl-content'>
+                                        
+                                            <h5 class='my-posts__title my-posts__title--post'>
+                                                {$post["post_title"]}
+                                            </h5>
+                                            
+                                            <ul class='my-posts__meta'>
+                                                <li class='my-posts__meta-item'>
+                                                    <i class='fa fa-calendar my-posts__meta-icon'></i>
+                                                    <span class='my-posts__meta-text'>
+                                                        {$post_date}
+                                                    </span>
+                                                </li>
 
-                                    <div class='my-posts__post-info'>
-                                        <span class='my-posts__post-date'>
-                                            {$post_date}
-                                        </span>
+                                                <li class='my-posts__meta-item'>
+                                                    <i class='fa fa-cube my-posts__meta-icon'></i>
+                                                    <span class='my-posts__meta-text'>
+                                                        {$post["cat_name"]}
+                                                    </span>
+                                                </li>
 
-                                        <span class='my-posts__status-badge {$badge_class}'>
-                                            {$post['post_status']}
-                                        </span>
+                                                <li class='my-posts__meta-item'>
+                                                    <span class='my-posts__badge my-posts__badge--status {$badge_class}'>
+                                                        {$post["post_status"]}
+                                                    </span>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        
+                                        <div class='my-posts__dropdown'>
+                                            <button class='my-posts__btn my-posts__btn--ddToggle' type='button'>
+                                                <svg height='1.3rem' viewBox='-192 0 512 512' width='1.3rem' xmlns='http://www.w3.org/2000/svg'>
+                                                    <path d='m128 256c0 35.347656-28.652344 64-64 64s-64-28.652344-64-64 28.652344-64 64-64 64 28.652344 64 64zm0 0'></path>
+                                                    <path d='m128 64c0 35.347656-28.652344 64-64 64s-64-28.652344-64-64 28.652344-64 64-64 64 28.652344 64 64zm0 0'></path>
+                                                    <path d='m128 448c0 35.347656-28.652344 64-64 64s-64-28.652344-64-64 28.652344-64 64-64 64 28.652344 64 64zm0 0'></path>
+                                                </svg>
+                                            </button>
+
+                                            <div class='my-posts__dropdown-opts'>
+                                                <ul class='my-posts__dropdown-list'>
+                                                    <li class='my-posts__dropdown-item'>
+                                                        <a class='my-posts__dropdown-link' href='{$this->config->domain("users/{$this->user_info['user_name']}/dashboard/posts?sub_option=edit&link={$post['post_link']}")}'>
+                                                            <i class='fa fa-edit my-posts__dropdown-icon'></i>
+                                                            <span class='my-posts__dropdown-text'>Edit</span>
+                                                        </a>
+                                                    </li>
+                                                    <li class='my-posts__dropdown-item'>
+                                                        <a class='my-posts__dropdown-link' href='{$this->config->domain("posts?v={$post['post_link']}")}' target='_blank'>
+                                                            <i class='fa fa-eye-slash my-posts__dropdown-icon'></i>
+                                                            <span class='my-posts__dropdown-text'>View</span>
+                                                        </a>
+                                                    </li>
+                                                    <li class='my-posts__dropdown-item'>
+                                                        <a class='my-posts__dropdown-link' role='button'>
+                                                            <i class='fa fa-clipboard my-posts__dropdown-icon'></i>
+                                                            <span class='my-posts__dropdown-text'>Copy link</span>
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
                                     </div>
+                                </td>
 
-                                    <ul class='my-posts__meta-list'>
-                                        <li class='my-posts__meta-item my-posts__meta-item--read'>
-                                            <i class='fa fa-eye'></i>
-                                            <span>{$post['post_ratings']['read']}</span>
-                                        </li>
-
-                                        <li class='my-posts__meta-item my-posts__meta-item--likes'>
-                                            <i class='fa fa-thumbs-up'></i>
-                                            <span>{$post['post_ratings']['likes']}</span>
-
-                                        </li>
-
-                                        <li class='my-posts__meta-item my-posts__meta-item--dislikes'>
-                                            <i class='fa fa-thumbs-down'></i>
-                                            <span>{$post['post_ratings']['dislikes']}</span>
-                                        </li>
-
-                                        <li class='my-posts__meta-item my-posts__meta-item--comments'>
-                                            <i class='fa fa-comment'></i>
-                                            <span>{$post['post_ratings']['comments']}</span>
-                                        </li>
-                                    </ul>
-                                </div>
-
-                                <div class='dropdown dropleft my-posts__option my-posts__option--single'>
-                                    <button class='my-posts__btn my-posts__btn--option-single' type='button' data-toggle='dropdown' id='single_post_opt' type='button' data-offset='25,0'>
-                                        <i class='fa fa-ellipsis-v'></i>
-                                    </button>
-
-                                    <div class='dropdown-menu my-posts__option-dropdown' aria-labelledby='#single_post_opt'>
-                                        <ul class='my-posts__dropdown-list'>
-                                            <li class='my-posts__dropdown-item'>
-                                                <a class='my-posts__dropdown-link my-posts__dropdown-link--edit' href='{$this->config->domain("users/{$_SESSION['user_name']}/dashboard?posts=edit&post_link={$post['post_link']}")}'>
-                                                    Edit
-                                                </a>
-                                            </li>
-
-                                            <li class='my-posts__dropdown-item'>
-                                                <a class='my-posts__dropdown-link my-posts__dropdown-link--view' href='{$this->config->domain("posts?v={$post['post_link']}")}' target='_blank'>
-                                                    View Live
-                                                </a>
-                                            </li>
-
-                                            <li class='my-posts__dropdown-item'>
-                                                <a class='my-posts__dropdown-link my-posts__dropdown-link--copy' role='button' data-copy='{$this->config->domain("posts?v={$post['post_link']}")}'>Copy link</a>
-                                            </li>
-                                        </ul>
+                                <td class='my-posts__td my-posts__td--read'>
+                                    <div class='my-posts__td-wrap'>
+                                        <div class='my-posts__td-text'>
+                                            {$post_ratings["read"]}
+                                        <div>
                                     </div>
-                                </div>
-                            </div>
-                        </td>
-                        
-                        <td class='my-posts__td my-posts__td--10 my-posts__td--read'>
-                            <div class='my-posts__td-wrap my-posts__td-wrap--10'>
-                                <span>{$post['post_ratings']['read']}</span>
-                            </div>
-                        </td>
+                                </td>
 
-                        <td class='my-posts__td my-posts__td--10 my-posts__td--likes'>
-                            <div class='my-posts__td-wrap my-posts__td-wrap--10'>
-                                <span>{$post['post_ratings']['likes']}</span>
-                            </div>
-                        </td>
+                                <td class='my-posts__td my-posts__td--likes'>
+                                    <div class='my-posts__td-wrap'>
+                                        <div class='my-posts__td-text'>
+                                            {$post_ratings["likes"]}
+                                        <div>
+                                    </div>
+                                </td>
 
-                        <td class='my-posts__td my-posts__td--10 my-posts__td--dislikes'>
-                            <div class='my-posts__td-wrap my-posts__td-wrap--10'>
-                                <span>{$post['post_ratings']['dislikes']}</span>
-                            </div>
-                        </td>
+                                <td class='my-posts__td my-posts__td--dislikes'>
+                                    <div class='my-posts__td-wrap'>
+                                        <div class='my-posts__td-text'>
+                                            {$post_ratings["dislikes"]}
+                                        <div>
+                                    </div>
+                                </td>
 
-                        <td class='my-posts__td my-posts__td--10 my-posts__td--comments'>
-                            <div class='my-posts__td-wrap my-posts__td-wrap--10'>
-                                <span>{$post['post_ratings']['comments']}</span>
-                            </div>
-                        </td>
-                    </tr>
-                ";
-            }
+                                <td class='my-posts__td my-posts__td--comments'>
+                                    <div class='my-posts__td-wrap'>
+                                        <div class='my-posts__td-text'>
+                                            {$post_ratings["comments"]}
+                                        <div>
+                                    </div>
+                                </td>
+                            </tr>
+                        ";
+                
+                    endforeach;
 
             $output .= "
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>   
+                </div>
             ";
+
             
             return $output;
 
@@ -351,176 +376,216 @@ class ajax_users_posts{
             return $output;
         }
 
-    
-        //use the function to validate the publish 
-        private function publish_post_form_validate($post_variable, $files)
+        //use the function for fetching 'profile' and `bg` image of a single user
+        private function fetch_post_files($post_id,$pfile_usage)
         {
-            $post_title=htmlspecialchars(trim($post_variable["post_title"]));
-            $post_category=htmlspecialchars(trim($post_variable["post_category"]));
-            $post_visibility=htmlspecialchars(trim($post_variable["post_visibility"]));
-            $post_desc=htmlspecialchars(trim($post_variable["post_desc"]));
 
-            $errors=[];
+            $output = array();
 
-            if($files["post_img"]["error"] > 0){
+            //store the user_files's model from $this->model_objs variable
+            $pfile_obj=$this->model_objs["pfile_obj"];
 
-                $errors["file_error"]=array(
+            $fetch_file=$pfile_obj->select(array(
+                "where"=>"post_files.post_id={$post_id} AND post_files.pfile_usage='{$pfile_usage}'"
+            ));
 
-                    "target"=>".pp-sec__form-row--dropzone .pp-sec__form-col--1",
-                    "error_msg"=>'
-                            <div class="pp-sec__form-msg pp-sec__form-msg--error">
-                                <p>
-                                    <i class="fa fa-exclamation-circle"></i> 
-                                    <span>Please choose a thumbnail for your post</span>
-                                </p>
-                            </div>
-                    '
+            if($fetch_file["status"] == 1 && $fetch_file["num_rows"] == 1){
+
+                $fetched_file=$fetch_file["fetch_all"][0];
+                
+                $output=array(
+                    "name"=>$fetched_file["pfile_name"],
+                    "ext"=>$fetched_file["pfile_ext"],
+                    "status"=>$fetched_file["pfile_status"],
+                    "dimension"=>unserialize($fetched_file["pfile_dimension"])
                 );
             }
 
-            if(empty($post_title)){
+            return $output;
+        }
 
-                $errors["post_title_error"]=array(
+        //use the function to validate the publish post form
+        private function validate_the_publish_form($validation_type)
+        {
+            
+            //store all the errors
+            $errors=[];
 
-                    "target"=>".pp-sec__form-row--title .pp-sec__form-col--1",
-                    "error_msg"=>'
+            if($validation_type == "post_img"){
+
+                //store total uploaded image number
+                $uploaded_img_num=count($_FILES["post_img"]["name"]);
+
+                //store uploaded image's extension
+                $uploaded_img_ext=pathinfo($_FILES["post_img"]["name"][0],PATHINFO_EXTENSION);
+                
+                //store the size of uploaded image
+                $uploaded_img_size=$_FILES["post_img"]["size"][0];
+                
+                //all the valid extension
+                $valid_ext=["jpg","jpeg","png"];
+
+        
+                if($uploaded_img_num > 1){
+
+                    $errors["length_error"]=array(
+
+                        "target"=>".pp-sec__form-row--dropzone .pp-sec__form-col--1",
+                        "error_msg"=>'
+                            <div class="pp-sec__form-msg pp-sec__form-msg--error">
+                                <p>
+                                    <i class="fa fa-exclamation-circle"></i> 
+                                    <span>You can upload only 1 File</span>
+                                </p>
+                            </div>
+                        '
+                    );
+
+                }elseif(!in_array($uploaded_img_ext,$valid_ext)){
+
+                    $errors["format_error"]=array(
+                        "target"=>".pp-sec__form-row--dropzone .pp-sec__form-col--1",
+                        "error_msg"=>'
+                            <div class="pp-sec__form-msg pp-sec__form-msg--error">
+                                <p>
+                                    <i class="fa fa-exclamation-circle"></i> 
+                                    <span>.jpg, .jpeg or.png is supported format</span>
+                                </p>
+                            </div>
+                        '
+                    );
+
+                }elseif(intval($uploaded_img_size) > 1048576){
+
+                    $errors["size_error"]=array(
+                        "target"=>".pp-sec__form-row--dropzone .pp-sec__form-col--1",
+                        "error_msg"=>'
+                            <div class="pp-sec__form-msg pp-sec__form-msg--error">
+                                <p>
+                                    <i class="fa fa-exclamation-circle"></i> 
+                                    <span>File size must be less than 1MB</span>
+                                </p>
+                            </div>
+                        '
+                        
+                    );
+                }
+
+            }elseif($validation_type == "post_form"){
+            
+                //store the `post_title` index from $_POST variable
+                $post_title=htmlspecialchars(trim($_POST["post_title"]));
+                
+                //store the `post_catagory` index from $_POST variable
+                $post_category=htmlspecialchars(trim($_POST["post_category"]));
+                
+                //store the `post_visibilty` index from $_POST variable
+                $post_visibility=htmlspecialchars(trim($_POST["post_visibility"]));
+                
+                //store the `post_desc` index from $_POST variable
+                $post_desc=htmlspecialchars(trim($_POST["post_desc"]));
+
+    
+                if($_FILES["post_img"]["error"] > 0){
+    
+                    $errors["file_error"]=array(
+
+                        "target"=>".pp-sec__form-row--dropzone .pp-sec__form-col--1",
+                        "error_msg"=>'
+                                <div class="pp-sec__form-msg pp-sec__form-msg--error">
+                                    <p>
+                                        <i class="fa fa-exclamation-circle"></i> 
+                                        <span>Please choose a thumbnail for your post</span>
+                                    </p>
+                                </div>
+                        '
+                    );
+                }
+    
+                if(empty($post_title)){
+    
+                    $errors["post_title_error"]=array(
+    
+                        "target"=>".pp-sec__form-row--title .pp-sec__form-col--1",
+                        "error_msg"=>'
                             <div class="pp-sec__form-msg pp-sec__form-msg--error">
                                 <p>
                                     <i class="fa fa-exclamation-circle"></i> 
                                     <span>Please choose a title</span>
                                 </p>
                             </div>
-                    '
-                );
-
-            }elseif(strlen($post_title) > 100){
-
-                $errors["post_title_error"]=array(
-
-                    "target"=>".pp-sec__form-row--title .pp-sec__form-col--1",
-                    "error_msg"=>'
+                        '
+                    );
+    
+                }elseif(strlen($post_title) > 100){
+    
+                    $errors["post_title_error"]=array(
+    
+                        "target"=>".pp-sec__form-row--title .pp-sec__form-col--1",
+                        "error_msg"=>'
                             <div class="pp-sec__form-msg pp-sec__form-msg--error">
                                 <p>
                                     <i class="fa fa-exclamation-circle"></i> 
                                     <span>Title length must be less than 100 character</span>
                                 </p>
                             </div>
-                    '
-                );
-            }
-
-
-            if(empty($post_category)){
-
-                $errors["post_category_error"]=array(
-
-                    "target"=>".pp-sec__form-row--catagory .pp-sec__form-col--1",
-                    "error_msg"=>'
+                        '
+                    );
+                }
+    
+    
+                if(empty($post_category)){
+    
+                    $errors["post_category_error"]=array(
+    
+                        "target"=>".pp-sec__form-row--catagory .pp-sec__form-col--1",
+                        "error_msg"=>'
                             <div class="pp-sec__form-msg pp-sec__form-msg--error">
                                 <p>
                                     <i class="fa fa-exclamation-circle"></i> 
                                     <span>Please select a category</span>
                                 </p>
                             </div>
-                    '
-                );
-            }
-
-            if(empty($post_visibility)){
-
-                $errors["post_visibility_error"]=array(
-
-                    "target"=>".pp-sec__form-row--visibility .pp-sec__form-col--1",
-                    "error_msg"=>'
-                        <div class="pp-sec__form-msg pp-sec__form-msg--error">
-                            <p>
-                                <i class="fa fa-exclamation-circle"></i> 
-                                <span>Choose your post status</span>
-                            </p>
-                        </div>
-                    '
-                );
-            }
-
-            if(empty($post_desc)){
-                
-                $errors["post_desc_error"]=array(
-
-                    "target"=>".pp-sec__form-row--editor .pp-sec__form-col--1",
-                    "error_msg"=>'
-                        <div class="pp-sec__form-msg pp-sec__form-msg--error">
-                            <p>
-                                <i class="fa fa-exclamation-circle"></i> 
-                                <span>Description can\'t be empty</span>
-                            </p>
-                        </div>
-                    '
-                );
-            }
-
-            return $errors;
-        }
-
-
-        //use the function to validate the publish post image field
-        private function publish_post_img_validate($files)
-        {
-            //validate the post_img
-            $uploaded_img_num=count($files["post_img"]["name"]);
-            $uploaded_img_ext=pathinfo($files["post_img"]["name"][0],PATHINFO_EXTENSION);
-            $uploaded_img_size=$files["post_img"]["size"][0];
-            $valid_ext=["jpg","jpeg","png"];
-
-            $errors=[];
-
-            if($uploaded_img_num > 1){
-
-                $errors["length_error"]=array(
-
-                    "target"=>".pp-sec__form-row--dropzone .pp-sec__form-col--1",
-                    "error_msg"=>'
-                        <div class="pp-sec__form-msg pp-sec__form-msg--error">
-                            <p>
-                                <i class="fa fa-exclamation-circle"></i> 
-                                <span>You can upload only 1 File</span>
-                            </p>
-                        </div>
-                    '
-                );
-
-            }elseif(!in_array($uploaded_img_ext,$valid_ext)){
-
-                $errors["format_error"]=array(
-                    "target"=>".pp-sec__form-row--dropzone .pp-sec__form-col--1",
-                    "error_msg"=>'
-                        <div class="pp-sec__form-msg pp-sec__form-msg--error">
-                            <p>
-                                <i class="fa fa-exclamation-circle"></i> 
-                                <span>.jpg, .jpeg or.png is supported format</span>
-                            </p>
-                        </div>
-                    '
-                );
-
-            }elseif(intval($uploaded_img_size) > 1048576){
-
-                $errors["size_error"]=array(
-                    "target"=>".pp-sec__form-row--dropzone .pp-sec__form-col--1",
-                    "error_msg"=>'
-                        <div class="pp-sec__form-msg pp-sec__form-msg--error">
-                            <p>
-                                <i class="fa fa-exclamation-circle"></i> 
-                                <span>File size must be less than 1MB</span>
-                            </p>
-                        </div>
-                    '
+                        '
+                    );
+                }
+    
+                if(empty($post_visibility)){
+    
+                    $errors["post_visibility_error"]=array(
+    
+                        "target"=>".pp-sec__form-row--visibility .pp-sec__form-col--1",
+                        "error_msg"=>'
+                            <div class="pp-sec__form-msg pp-sec__form-msg--error">
+                                <p>
+                                    <i class="fa fa-exclamation-circle"></i> 
+                                    <span>Choose your post status</span>
+                                </p>
+                            </div>
+                        '
+                    );
+                }
+    
+                if(empty($post_desc)){
                     
-                );
+                    $errors["post_desc_error"]=array(
+    
+                        "target"=>".pp-sec__form-row--editor .pp-sec__form-col--1",
+                        "error_msg"=>'
+                            <div class="pp-sec__form-msg pp-sec__form-msg--error">
+                                <p>
+                                    <i class="fa fa-exclamation-circle"></i> 
+                                    <span>Description can\'t be empty</span>
+                                </p>
+                            </div>
+                        '
+                    );
+                }
             }
 
+            
             return $errors;
         }
-
 
         //use the function to validate the edit form
         private function edit_form_validate($validation_type)
@@ -724,7 +789,6 @@ class ajax_users_posts{
         //use the function to load all posts of a user
         public function load_my_posts()
         {
-
             //validate $_POST variable
             $_POST=filter_var_array($_POST,FILTER_SANITIZE_STRING);
 
@@ -750,13 +814,12 @@ class ajax_users_posts{
                     posts.post_date,
                     posts.post_status,
                     posts.post_link,
-                    post_files.pfile_name,
-                    post_files.pfile_ext
+                    catagories.cat_name
+                 
                 ",
                 "join"=>array(
-                    "post_files"=>"post_files.post_id = posts.post_id"
+                    "catagories"=>"catagories.cat_id = posts.post_cat"
                 ),
-
                 "order"=>array(
                     "column"=>"posts.post_id",
                     "type"=>"DESC"
@@ -810,6 +873,7 @@ class ajax_users_posts{
                 "tbl_title"=>"$filter Posts",
             );
 
+    
             if($fetch_my_posts["status"] == 1 && $fetch_my_posts["num_rows"] > 0){
                 
                 //store all the fetched posts
@@ -819,6 +883,8 @@ class ajax_users_posts{
                 foreach($my_posts["all"] as $post_index=>$post){
 
                     $my_posts["all"][$post_index]["post_ratings"]=$this->fetch_post_rating($post['post_id']);
+
+                    $my_posts["all"][$post_index]["pfile_info"]=$this->fetch_post_files($post["post_id"],"post_thumb");
                 }
             }
 
@@ -837,10 +903,10 @@ class ajax_users_posts{
 
                 die();
             }
-
+        
             if(isset($my_posts["all"])){
 
-                ///finally return the output in a table format
+                //finally return the output in a table format
                 $output .= $this->print_my_posts_table($my_posts);
 
             }else{
@@ -860,15 +926,15 @@ class ajax_users_posts{
                 
                 $output .= "
                     <div class='my-posts__pagination'>
-                        <ul class='my-posts__pagination-list'>
+                        <ul class='my-posts__page-list'>
                 ";
                         if($page_no > 1){
 
                             $prev_page_no = $page_no - 1;
 
                             $output .= "
-                                <li class='my-posts__pagination-item'>
-                                    <a class='my-posts__pagination-link my-posts__pagination-link--prev' href='{$this->config->domain("users/{$_SESSION['user_name']}/dashboard?posts=myposts&filter=$filter&page=$prev_page_no")}'>
+                                <li class='my-posts__page-item'>
+                                    <a class='my-posts__page-link my-posts__page-link--prev' href='{$this->config->domain("users/{$this->user_info['user_name']}/dashboard/posts?sub_option=my_posts&filter=$filter&page=$prev_page_no")}'>
                                         <i class='fa fa-angle-left'></i>
                                     </a>
                                 </li>
@@ -877,11 +943,11 @@ class ajax_users_posts{
 
                         for($a=1; $a <= $total_pages; $a++){
                             
-                            $active_link=($page_no == $a) ? "my-posts__pagination-link--active" : "";
+                            $active_link=($page_no == $a) ? "my-posts__page-link--active" : "";
 
                             $output .= "
                                 <li class='my-posts__pagination-item'>
-                                    <a class='my-posts__pagination-link my-posts__pagination-link--num {$active_link}' href='{$this->config->domain("users/{$_SESSION['user_name']}/dashboard?posts=myposts&filter=$filter&page=$a")}'>
+                                    <a class='my-posts__page-link my-posts__page-link--num {$active_link}' href='{$this->config->domain("users/{$this->user_info['user_name']}/dashboard/posts?sub_option=my_posts&filter=$filter&page=$a")}'>
                                         {$a}
                                     </a>
                                 </li>
@@ -894,8 +960,8 @@ class ajax_users_posts{
                             $next_page_no = $page_no + 1;
 
                             $output .= "
-                                <li class='my-posts__pagination-item'>
-                                    <a class='my-posts__pagination-link my-posts__pagination-link--next' href='{$this->config->domain("users/{$_SESSION['user_name']}/dashboard?posts=myposts&filter=$filter&page=$next_page_no")}'>
+                                <li class='my-posts__page-item'>
+                                    <a class='my-posts__page-link my-posts__page-link--next' href='{$this->config->domain("users/{$this->user_info['user_name']}/dashboard/posts?sub_option=my_posts&filter=$filter&page=$next_page_no")}'>
                                         <i class='fa fa-angle-right'></i>
                                     </a>
                                 </li>
@@ -914,30 +980,52 @@ class ajax_users_posts{
         }
 
         //use the function for add a post into the database
-        public function add_the_post($username)
+        public function add_the_post()
         {
-        
-            //First validate the form
-            if(isset($_POST["request"]) && $_POST["request"] == "post_img"){
 
-                $errors=$this->publish_post_img_validate($_FILES);
+            //validate the $_POST variable
+            $_POST = filter_var_array($_POST,FILTER_SANITIZE_STRING);
+            
+            //validate the $_FILES variable
+            $_FILES = filter_var_array($_FILES,FILTER_SANITIZE_STRING);
+
+            //store the `request` index from $_POST variable
+            $request = isset($_POST["request"]) ? $_POST["request"] : null;
+
+            //store the final output
+            $output = array();
+    
+            //First validate the form
+            if($request == "post_img"){
+
+                //store all the errors after calling the function
+                $errors = $this->validate_the_publish_form("post_img");
 
                 if(!empty($errors)){
 
-                    echo json_encode($errors);
+                    $output = array(
+                        "error_status"=>1,
+                        "errors"=>$errors
+                    );
 
                 }else{
 
-                    echo 1;
+                    $output = array(
+                        "error_status"=>0
+                    );
                 }
 
-            }elseif(isset($_POST["request"]) && $_POST["request"] == "post_form"){
+            }elseif($request == "post_form"){
 
-                $errors=$this->publish_post_form_validate($_POST, $_FILES);
-        
+                //store all the errors after calling the function
+                $errors = $this->validate_the_publish_form("post_form");
+
                 if(!empty($errors)){
 
-                    echo json_encode($errors);
+                    $output = array(
+                        "error_status"=>1,
+                        "errors"=>$errors
+                    );
 
                 }else{
 
@@ -945,118 +1033,155 @@ class ajax_users_posts{
                     $post_obj=$this->model_objs["post_obj"];
 
                     //store post_files model's object from $this->model_objss
-                    $post_files_obj=$this->model_objs["post_files"];
-                
-
-                    //Genrate a random string for post link
-                    $post_link=$this->functions->generate_random_str(array(
+                    $pfile_obj=$this->model_objs["pfile_obj"];
+            
+                    //genrate a random string for post link
+                    $random_str_link=$this->functions->generate_random_str(array(
                         "model_obj"=>$post_obj,
                         "column"=>"post_link",
                         "length"=>11
                     ));
-
-                    $uploaded_post_img_tmp_name=$_FILES["post_img"]["tmp_name"];
-
-                    $uploaded_post_img_name=$_FILES["post_img"]["name"];
-
-                    $uploaded_post_img_new_name=$this->functions->generate_random_str(array(
-                        "model_obj"=>$post_files_obj,
+                    
+                    //genrate a random string for post image
+                    $random_str_name=$this->functions->generate_random_str(array(
+                        "model_obj"=>$pfile_obj,
                         "column"=>"pfile_name",
                         "length"=>11
-                    ));;
+                    ));
 
-                    $uploaded_post_img_ext=pathinfo($uploaded_post_img_name,PATHINFO_EXTENSION);
+                    //store the tmp name of uploaded post image 
+                    $post_img_tmpName=$_FILES["post_img"]["tmp_name"];
+                    
+                    //store the upload post image name 
+                    $post_img_name=$_FILES["post_img"]["name"];
 
+                    //cut out extension from the $post_img_name
+                    $post_img_ext=pathinfo($post_img_name,PATHINFO_EXTENSION);
+
+                    $post_img_name=array(
+                        "original"=> "{$random_str_name}.{$post_img_ext}",
+                        "sm"=> "{$random_str_name}-sm.{$post_img_ext}",
+                        "md"=> "{$random_str_name}-md.{$post_img_ext}",
+                        "lg"=> "{$random_str_name}-lg.{$post_img_ext}",
+                    );
+
+                
+                    //set the timezone to `Dhaka/Asia`
                     date_default_timezone_set("Asia/Dhaka");
-                            
-                    $post_title=htmlspecialchars(trim($_POST["post_title"]));
-                    $post_content=$_POST["post_desc"];
-                    $post_author=$_SESSION["user_id"];
-                    $post_date=date("d F, Y_h:i:sA");
-                    $post_cat=htmlspecialchars(trim($_POST["post_category"]));
-                    $post_link=$post_link;
-                    $post_status=htmlspecialchars(trim($_POST["post_visibility"]));
 
-                    $post_obj_output=$post_obj->insert(array(
+                    //insert the post to the database
+                    $insert_post=$post_obj->insert(array(
                         "fields"=>array(
-                            "post_title"=>$post_title,
-                            "post_content"=>$post_content,
-                            "post_author"=>$post_author,
-                            "post_date"=>$post_date,
-                            "post_cat"=>$post_cat,
-                            "post_link"=>$post_link,
-                            "post_status"=>$post_status,
+                            "post_title"=>htmlspecialchars(trim($_POST["post_title"])),
+                            "post_content"=>$_POST["post_desc"],
+                            "post_author"=>$this->user_info["user_id"],
+                            "post_date"=>date("d F, Y_h:i:sA"),
+                            "post_cat"=>htmlspecialchars(trim($_POST["post_category"])),
+                            "post_link"=>$random_str_link,
+                            "post_status"=>htmlspecialchars(trim($_POST["post_visibility"])),
+                            "post_read"=>0
                         )
                     ));
 
-                    if($post_obj_output["status"] == 1){
+                    if($insert_post["status"] !== 1 && !isset($insert_post["insert_id"])){
 
-                        if(!file_exists("app/uploads/posts/{$uploaded_post_img_new_name}.{$uploaded_post_img_ext}")){
+                        $output = array(
+                            "error_status"=>100,
+                            "errors"=>$insert_post
+                        );
 
-                            if(move_uploaded_file($uploaded_post_img_tmp_name,"app/uploads/posts/{$uploaded_post_img_new_name}.{$uploaded_post_img_ext}")){
-                                /*
-                                    sm=150x80
-                                    md=370x250
-                                    lg=870x580
-                                */
+                    }else{
+
+                        if(!file_exists("app/uploads/posts/{$post_img_name["original"]}")){
+
+                            if(move_uploaded_file($post_img_tmpName,"app/uploads/posts/{$post_img_name["original"]}")){
+
+                                //store the dimension for post image
+                                $post_img_dimension = array(
+                                    "sm"=>array(
+                                        "width"=>150,
+                                        "height"=>100
+                                    ),
+                                    "md"=>array(
+                                        "width"=>370,
+                                        "height"=>250
+                                    ),
+                                    "lg"=>array(
+                                        "width"=>870,
+                                        "height"=>580
+                                    )
+                                );
 
                                 //Resize the original Image into 150x100 and upload it
                                 $img_sm_output=$this->functions->resize_upload_img(array(
-                                    "width"=>150,
-                                    "height"=>100,
-                                    "img_url"=>"app/uploads/posts/{$uploaded_post_img_new_name}.{$uploaded_post_img_ext}",
-                                    "img_upload_location"=>"app/uploads/posts/{$uploaded_post_img_new_name}-sm.{$uploaded_post_img_ext}"
+                                    "width"=>$post_img_dimension["sm"]["width"],
+                                    "height"=>$post_img_dimension["sm"]["height"],
+                                    "img_url"=>"app/uploads/posts/{$post_img_name["original"]}",
+                                    "img_upload_location"=>"app/uploads/posts/{$post_img_name["sm"]}"
                                 ));
 
-                                //Resize the original Image into 100x100 and upload it
+                                //Resize the original Image into 150x100 and upload it
                                 $img_md_output=$this->functions->resize_upload_img(array(
-                                    "width"=>370,
-                                    "height"=>250,
-                                    "img_url"=>"app/uploads/posts/{$uploaded_post_img_new_name}.{$uploaded_post_img_ext}",
-                                    "img_upload_location"=>"app/uploads/posts/{$uploaded_post_img_new_name}-md.{$uploaded_post_img_ext}"
+                                    "width"=>$post_img_dimension["md"]["width"],
+                                    "height"=>$post_img_dimension["md"]["height"],
+                                    "img_url"=>"app/uploads/posts/{$post_img_name["original"]}",
+                                    "img_upload_location"=>"app/uploads/posts/{$post_img_name["md"]}"
                                 ));
 
-                                //Resize the original Image into 100x100 and upload it
+                                //Resize the original Image into 150x100 and upload it
                                 $img_lg_output=$this->functions->resize_upload_img(array(
-                                    "width"=>870,
-                                    "height"=>580,
-                                    "img_url"=>"app/uploads/posts/{$uploaded_post_img_new_name}.{$uploaded_post_img_ext}",
-                                    "img_upload_location"=>"app/uploads/posts/{$uploaded_post_img_new_name}-lg.{$uploaded_post_img_ext}"
+                                    "width"=>$post_img_dimension["lg"]["width"],
+                                    "height"=>$post_img_dimension["lg"]["height"],
+                                    "img_url"=>"app/uploads/posts/{$post_img_name["original"]}",
+                                    "img_upload_location"=>"app/uploads/posts/{$post_img_name["lg"]}"
                                 ));
+
+                                //convert the array into a string to store it into the database
+                                $post_img_dimension=serialize($post_img_dimension);
+
+                                //add `\` before the `""` double quotation mark
+                                $post_img_dimension=str_replace('"','\"',$post_img_dimension);
 
                                 if($img_sm_output && $img_md_output && $img_lg_output){
 
-                                    $output=$post_files_obj->insert(array(
+                                    $insert_pfile=$pfile_obj->insert(array(
                                         "fields"=>array(
-                                            "pfile_name"=>"{$uploaded_post_img_new_name}",
-                                            "pfile_ext"=>"{$uploaded_post_img_ext}",
-                                            "post_id"=>"{$post_obj_output["insert_id"]}"
+                                            "pfile_name"=>"{$random_str_name}",
+                                            "pfile_ext"=>"{$post_img_ext}",
+                                            "pfile_usage"=>"post_thumb",
+                                            "pfile_dimension"=>$post_img_dimension,
+                                            "pfile_status"=>1,
+                                            "post_id"=>$insert_post["insert_id"]
                                         )
                                     ));
 
-                                    if($output["status"] == 1){
+                                    if($insert_pfile["status"] == 1 && isset($insert_pfile)){
 
-                                        echo 1;
-
+                                        $output = array(
+                                            "error_status"=>0,
+                                        );
+                                
                                     }else{
 
-                                        echo 0;
+                                        $output = array(
+                                            "error_status"=>100,
+                                            "errors"=>$insert_pfile
+                                        );
                                     }
                                 }
                             }
                         }
-
-                    }else{
-
-                        echo 0;
                     }
                 }
             }
-        
+            
+
+            echo json_encode($output);
+
         }
             
         //use the function to edit any post
-        public function edit_the_post($username)
+        public function edit_the_post()
         {
 
             if(isset($_POST["request"])  && $_POST["request"] == "post_img_new"){
@@ -1232,8 +1357,23 @@ class ajax_users_posts{
         }
 
 
+        //use the function to delete my_post from dashboard
+        public function delete_my_posts()
+        {
+
+            //validate the $_POST variable
+            $_POST=filter_var_array($_POST,FILTER_SANITIZE_STRING);
+
+            $post_ids = $_POST["post_ids"];
+
+
+            print_r($_POST);
+
+        }
+
+
         //user the function to filter my posts from the topbar's select input
-        public function filter_my_posts($user_name)
+        public function filter_my_posts()
         {
 
             //validate the $_POST variable
@@ -1327,7 +1467,7 @@ class ajax_users_posts{
                         }
                     }
                     
-                    //sorting the array according to indexes
+                    //sorting the array in DESC format according to indexes
                     krsort($all_info);
 
                     if(!empty($all_info)){
@@ -1347,11 +1487,10 @@ class ajax_users_posts{
                                     posts.post_status,
                                     posts.post_link,
                                     posts.post_date,
-                                    post_files.pfile_name,
-                                    post_files.pfile_ext
+                                    catagories.cat_name
                                 ",
                                 "join"=>array(
-                                    "post_files"=>"post_files.post_id = posts.post_id"
+                                    "catagories"=>"catagories.cat_id = posts.post_cat"
                                 ),
                                 "where"=>"posts.post_id={$post_id}"
                             ));
@@ -1361,6 +1500,8 @@ class ajax_users_posts{
                             foreach($posts["all"] as $post_index=>$post){
 
                                 $posts["all"][$post_index]["post_ratings"]=$this->fetch_post_rating($post['post_id']);
+                                
+                                $posts["all"][$post_index]["pfile_info"]=$this->fetch_post_files($post['post_id'],"post_thumb");
                             }
                         }
 
@@ -1403,12 +1544,10 @@ class ajax_users_posts{
                         posts.post_link,
                         posts.post_date,
                         posts.post_status,
-                        post_files.pfile_name,
-                        post_files.pfile_ext
-
+                        catagories.cat_name
                     ",
                     "join"=>array(
-                        "post_files"=>"post_files.post_id = posts.post_id"
+                        "catagories"=>"catagories.cat_id = posts.post_cat"
                     ),
 
                     "order"=>array(
@@ -1447,9 +1586,11 @@ class ajax_users_posts{
                     foreach($posts["all"] as $post_index=>$post){
                         
                         $posts["all"][$post_index]["post_ratings"]=$this->fetch_post_rating($post['post_id']);
+                        $posts["all"][$post_index]["pfile_info"]=$this->fetch_post_files($post['post_id'],"post_thumb");
                     }
                     
-                    $output .= $this->print_my_posts_table($posts);
+
+                   $output .= $this->print_my_posts_table($posts);
 
 
                 }else{
@@ -1507,12 +1648,11 @@ class ajax_users_posts{
                     posts.post_status,
                     posts.post_link,
                     posts.post_date,
-                    post_files.pfile_name,
-                    post_files.pfile_ext
+                    catagories.cat_name
                 ",
 
                 "join"=>array(
-                    "post_files"=>"post_files.post_id = posts.post_id"
+                    "catagories"=>"catagories.cat_id = posts.post_cat"
                 )
             );
 
@@ -1549,6 +1689,8 @@ class ajax_users_posts{
                     
                     //store all ratings in $posts["all"]
                     $posts["all"][$post_index]["post_ratings"]=$this->fetch_post_rating($post['post_id']);
+
+                    $posts["all"][$post_index]["pfile_info"]=$this->fetch_post_files($post['post_id'],"post_thumb");
                 }
 
                 //store the HTML table with fetch posts

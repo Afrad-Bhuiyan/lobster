@@ -97,9 +97,9 @@
                 <div class="row saved-posts__row saved-posts__row--noposts">
                     <div class="col-12 col-lg-6 saved-posts__col saved-posts__col--noposts">
                         <div class="saved-posts__noposts">
-                            <h5 class="saved-posts__title saved-posts__title--noposts">
+                            <h4 class="saved-posts__title saved-posts__title--noposts">
                                 All Saved post will appear here
-                            </h5>
+                            </h4>
                             
                             <a class="saved-posts__btn saved-posts__btn--browse" href="<?php echo $config->domain(); ?>" target="_blank" role="button">
                                 Browse Posts

@@ -42,17 +42,22 @@
                 <link rel='stylesheet' href='{$config->domain('assets/css/result.min.css')}' type='text/css' media='all'>\r\n
             ";
 
-        }else if(
-            $_GET["url"] == "accounts/login" || 
-            $_GET["url"] == "accounts/signup"|| 
-            $_GET["url"] == "accounts/forgot_password"||
-            $_GET["url"] == "accounts/reset_password"
-        ){
+        }else if(isset($_GET["url1"])){
 
-            echo "
-                <!--Acount css-->
-                <link rel='stylesheet' href='{$config->domain('assets/css/accounts.min.css')}' type='text/css' media='all'>\r\n
-            ";
+            if(
+                $_GET["url1"] == "accounts/login" || 
+                $_GET["url1"] == "accounts/signup"|| 
+                $_GET["url1"] == "accounts/forgot_password"||
+                $_GET["url1"] == "accounts/reset_password"
+            ){
+
+                echo "
+                    <!--Acount css-->
+                    <link rel='stylesheet' href='{$config->domain('assets/css/accounts.min.css')}' type='text/css' media='all'>\r\n
+                ";
+            }
+        
+        
         }else if(isset($_GET["url2"])){
 
             echo "
@@ -75,8 +80,11 @@
 </head>
 <body>
 
+
         
         <?php
+
+
             $total_unread_nf=(isset($data["common_info"]["total_unread_nf"])) ? $data["common_info"]["total_unread_nf"] : null;
 
             if(
@@ -90,8 +98,9 @@
             /**
              * [a-zA-Z0-9.]
              */
-        
                 $user_info=(isset($data["common_info"]["user_info"])) ? $data["common_info"]["user_info"] : null;
+
+                $nf_info=(isset($data["common_info"]["nf_info"])) ? $data["common_info"]["nf_info"] : null;
                 
                 $profile_img=($user_info !== null) ? $user_info["ufile_info"]["profile_img"] : null;
         
@@ -130,6 +139,7 @@
                         </div>
                     ";
                 }
+
         ?>
     
             <header class="ph">
@@ -146,24 +156,24 @@
                                     <div class="ph-nav__form-wrap">
                                         <div class="ph-nav__form-close d-block d-md-none">
                                             <button class="ph-nav__btn ph-nav__btn--form-close"  type="button">
-                                            <i class="fa fa-arrow-left"></i>
-                                        </button>
-                                    </div>
-
-                                    <div class="ph-nav__form-field-wrap">
-                                        <div class="ph-nav__form-field ph-nav__form-field--search">
-                                            <input class="ph-nav__form-input ph-nav__form-input--search" type="text" name="search_query" placeholder="Search..." autocomplete="off">
-                                        </div>
-
-                                        <div class="ph-nav__form-field ph-nav__form-field--submit">
-                                            <button class="ph-nav__btn ph-nav__btn--form-submit" type="submit">
-                                                    <i class="fa fa-search"></i>
+                                                <i class="fa fa-arrow-left"></i>
                                             </button>
                                         </div>
+
+                                        <div class="ph-nav__form-field-wrap">
+                                            <div class="ph-nav__form-field ph-nav__form-field--search">
+                                                <input class="ph-nav__form-input ph-nav__form-input--search" type="text" name="search_query" placeholder="Search..." autocomplete="off">
+                                            </div>
+
+                                            <div class="ph-nav__form-field ph-nav__form-field--submit">
+                                                <button class="ph-nav__btn ph-nav__btn--form-submit" type="submit">
+                                                        <i class="fa fa-search"></i>
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                            </form>
-                        </div>
+                                </form>
+                            </div>
 
 
                         <div class="ph-nav__acts">
@@ -176,24 +186,29 @@
                             <?php if($user_info !== null): ?>
                             <div class="ph-nav__act ph-nav__act--2">
                                 <div class="ph-nav__dropdown ph-nav__dropdown--nf">
-                                    <div class="ph-nav__dropdown-toggle ph-nav__dropdown-toggle--nf"  data-to_user_id="<?php echo $user_info['user_id'] ?>">
+                                    <div class="ph-nav__dropdown-toggle ph-nav__dropdown-toggle--nf">
                                         <button class="ph-nav__btn ph-nav__btn--bell" type="button">
                                             <i class="fa fa-bell ph-nav__btn-icon"></i>
                                             <?php 
-                                                if($total_unread_nf !== null){
+                                                if($nf_info["unread"] > 0){
 
-                                                    echo ($total_unread_nf > 9) ? " <span class='ph-nav__btn-badge ph-nav__btn-badg--nf'>9+</span>" : " <span class='ph-nav__btn-badge ph-nav__btn-badg--nf'>{$total_unread_nf}</span>";
+                                                    //store the badge text according t unread status
+                                                    $badge_txt=($nf_info["unread"] > 9) ? "9+" : $nf_info["unread"]; 
+                    
+                                                    echo "
+                                                        <span class='ph-nav__badge ph-nav__badge--nf'>
+                                                            {$badge_txt}
+                                                        </span>
+                                                    ";
                                                 }
                                             
                                             ?>
                                         </button>
                                     </div>
 
-                                    <div class="ph-nav__dropdown-content ph-nav__dropdown-content--nf">
-                                        <div class="ph-nav__dropdown-content-wrap ph-nav__dropdown-content-wrap--nf">
-                                            <div class="ph-nav__dropdown-header ph-nav__dropdown-header--nf">
-                                                <h5>Notifications</h5>
-                                            </div>
+                                    <div class='ph-nav__dropdown-content ph-nav__dropdown-content--nf'>
+                                        <div class='ph-nav__dropdown-content-wrap ph-nav__dropdown-content-wrap--nf'>
+                                         
                                         </div>
                                     </div>
                                 </div>
@@ -300,4 +315,9 @@
             </header>
         <?php
             endif;
+        
+
+            // echo "<pre>";
+            // print_r($data);
+            // echo "</pre>";
         ?>
