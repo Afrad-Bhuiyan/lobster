@@ -450,13 +450,18 @@
 
                 if($fetch_post["status"] == 1 && $fetch_post["num_rows"] == 1){
 
+                    //store all the info of a single post
                     $single_post = $fetch_post["fetch_all"][0];
+
+                    //convert entities to HTML tag
+                    $single_post["post_title"] = html_entity_decode($single_post["post_title"]);
+
+                    $single_post["post_content"] = html_entity_decode($single_post["post_content"]);
                     
                     //fetch post image
                     $single_post["pfile_info"] = $this->fetch_post_files($single_post["post_id"],"post_thumb");
                     
                     //fetch post author's profile image
-                    
                     $single_post["post_auth_info"] = array(
                         "id"=>$single_post["post_author"],
                         "user_name"=>$single_post["user_name"],
@@ -464,10 +469,13 @@
                             "profile_img"=>$this->fetch_user_files($single_post["post_author"],"profile_img")  
                         )
                     );
-               
-                }
+                }else{
 
-                
+                    //call the error_404 to show the 404 error
+                    $this->functions->error_pages()->error_404();  
+                    
+                    die();
+                }
             
                 //fetch a catagories
                 $fetch_catagories = $cat_obj->select();

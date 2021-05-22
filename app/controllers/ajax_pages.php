@@ -68,11 +68,11 @@ class ajax_pages extends ajax_controller
                     "post_obj"=>$this->model("post"),
                     "pfile_obj"=>$this->model("post_files"),
                     "comment_obj"=>$this->model("comment"),
-                    "cr_obj"=>$this->model("comment_replies"),
                     "reply_obj"=>$this->model("reply"),
                     "rate_obj"=>$this->model("rate"),
                     "cat_obj"=>$this->model("catagory"),
-                    "nf_obj"=>$this->model("notification")
+                    "nf_obj"=>$this->model("notification"),
+                    "sp_obj"=>$this->model("saved_post")
                 );
 
                 if($this->if_user_logged_in()){
@@ -263,86 +263,7 @@ class ajax_pages extends ajax_controller
             }
         }
 
-        //use the function to fetch ratings of `post`, `comment`, `comment reply`
-        private function fetch_rates($rate_for, $rate_for_id){
-
-            //Default output 
-            $output = array(
-                "likes"=>array(
-                    "total"=>0,
-                    "users"=>array()
-                ),
-
-                "dislikes"=>array(
-                    "total"=>0,
-                    "users"=>array()
-                )
-            );
-
-            //store catagory rate's object from $this->model_obj variable
-            $rate_obj = $this->model_objs["rate_obj"];
-
-            //fetch like ratings
-            $fetch_like_rate=$rate_obj->select(array(
-            "where"=>"rates.rate_for='{$rate_for}' AND rates.rate_for_id={$rate_for_id} AND rates.rate_action='like'"
-            ));
-
-            //fetch dislike rating
-            $fetch_dislike_rate=$rate_obj->select(array(
-            "where"=>"rates.rate_for='{$rate_for}' AND rates.rate_for_id={$rate_for_id} AND rates.rate_action='dislike'"
-            ));
-
-            if($fetch_like_rate["status"] == 1 && $fetch_like_rate["num_rows"] > 0){
-
-                $output["likes"]["total"] = $fetch_like_rate["num_rows"];
-
-                foreach($fetch_like_rate["fetch_all"] as $rate_index=>$single_rate){
-
-                    $output["likes"]["users"][] = $single_rate["user_id"]; 
-                }
-            }
-            
-            if($fetch_dislike_rate["status"] == 1 && $fetch_dislike_rate["num_rows"] > 0){
-
-                $output["dislikes"]["total"] = $fetch_dislike_rate["num_rows"];
-
-                foreach($fetch_dislike_rate["fetch_all"] as $rate_index=>$single_rate){
-
-                    $output["dislikes"]["users"][] = $single_rate["user_id"]; 
-                }
-            }
-
-            return $output;
-        }
-
-        //cuse the function to check logged user rated any thing  
-        //such as `post`, `comment`, `comment_replies`
-        private function if_user_rated($rate_for,$rate_for_id){
-
-            $output = null;
-
-            if(!empty($this->user_info)){
-
-                //store catagory rate's object from $this->model_obj variable
-                $rate_obj = $this->model_objs["rate_obj"];
-
-                $fetch_user_rating=$rate_obj->select(array(
-                    "where"=>"rates.rate_for='{$rate_for}' AND rates.rate_for_id={$rate_for_id} AND rates.user_id={$this->user_info['user_id']}"
-                ));
-
-                if($fetch_user_rating["status"] == 1 && $fetch_user_rating["num_rows"] == 1){
-
-                    $output = $fetch_user_rating["fetch_all"][0]["rate_action"];
-                    
-                }
-            }
-
-            
-            return $output;
-
-        }
     
-        
         //use the function to fetch logged user's notification related information
         private function fetch_nf_info($user_id = null)
         {
@@ -643,52 +564,7 @@ class ajax_pages extends ajax_controller
 
         }
 
-        //(2.Single Post page)
-        public function fetch_post_rating($param)
-        {
-
-            //store the final output which will be returned
-            $output=[];
-    
-            //store post_rating model object
-            $pr_obj=$param["pr_obj"];   
-            
-            //store the post_id
-            $post_id=$param["post_id"];
-            
-            //store the pr_action `like` or `dislike`
-            $pr_action=$param["pr_action"];
-    
-            //fetch post_ratings
-            $fetch_post_rating=$pr_obj->select(array(
-                "where"=>"post_ratings.post_id={$post_id} AND post_ratings.pr_action='{$pr_action}'"
-            ));
-    
-            if($fetch_post_rating["status"] == 1){
-                
-                if( $fetch_post_rating["num_rows"] > 0){
-    
-                    //store the total rating in $output with an index named `total_rating`
-                    $output["total_rating"]=$fetch_post_rating["num_rows"];
-                                
-                    //store the user_ids who rated the post
-                    $output["user_id"]=array();
-    
-                    foreach($fetch_post_rating["fetch_all"] as $pr_index=>$pr){
-    
-                        //push all the user_ids in $output["user_id"]
-                        $output["user_id"][]=$pr["user_id"];
-                    }
-    
-                }else{
-    
-                    //did not find any rating. so,set rating to 0
-                    $output["total_rating"]=0;
-                }
-            }
-    
-            return $output;
-        }
+     
     
         //(2.Single Post page)
         public function fetch_subscribers($param){
@@ -812,503 +688,10 @@ class ajax_pages extends ajax_controller
             
         }
         
-        //(2.Single Post page) load post rating `like`  & `dislike`
-        public function load_post_rating()
-        {
-            
-            //first validate the post variable
-            $_POST=filter_var_array($_POST, FILTER_SANITIZE_STRING);
 
-            //Here we will store the final output
-            $output=[];
-
-            //store the post_link index from $_POST variable
-            $post_link=$_POST["post_link"];
-
-            //Here will store the post_id
-            $post_id="";
-
-            //include the post model
-            $post_obj=$this->model("post");
-
-            //include the post_rating model
-            $pr_obj=$this->model("post_rating");
-
-            //fetch post_id based on $post_link
-            $fetch_post_id=$post_obj->select(array(
-                "column_name"=>"posts.post_id,posts.post_author",
-                "where"=>"posts.post_link='{$post_link}'"
-            ));
-
-            if($fetch_post_id["status"] == 1 && $fetch_post_id["num_rows"] == 1){
-
-                //set the $post_id with fetched post_id
-                $post_id=$fetch_post_id["fetch_all"][0]["post_id"];
-                
-                //set the $post_author with fetched post_author
-                $post_author=$fetch_post_id["fetch_all"][0]["post_author"];
-
-            }else{
-
-                echo (isset($fetch_post_id["error"])) ? $fetch_post_id["error"] : "something went wrong in ajax_posts on line 191";
-                
-                die();
-            }
-
-            //Post Ratingh all the information will be stored
-            $pr_info=[];
-            
-            //this variable will be used for printing the sp-content__meta-btn--pressed class for like button
-            $meta_btn_pressed_like="";
-            
-            //this variable will be used for printing the sp-content__meta-btn--pressed class for dislike button
-            $meta_btn_pressed_dislike="";
-
-            //call the $this->fetch_post_rating function for getting like details of this post
-            $pr_info["like"]=$this->fetch_post_rating(array(
-                "pr_obj"=>$pr_obj,
-                "post_id"=>$post_id,
-                "pr_action"=>"like"
-            ));
-            
-            //call the $this->fetch_post_rating function for getting dislike details of this post
-            $pr_info["dislike"]=$this->fetch_post_rating(array(
-                "pr_obj"=>$pr_obj,
-                "post_id"=>$post_id,
-                "pr_action"=>"dislike"
-            ));
-
-            if($this->functions->if_user_logged_in()){
-            
-                //store the logged in user_id from $_SESSION variable
-                $logged_in_user_id=$_SESSION["user_id"];
-                
-                //check if logged in user's user_id exists in $pr_info["like"]["user_id"] array
-                if(isset($pr_info["like"]["user_id"]) &&  in_array($logged_in_user_id, $pr_info["like"]["user_id"])){
-                    
-                    //if the user_id exists the set the class name
-                    $meta_btn_pressed_like="sp-content__meta-btn--pressed";
-
-                //check if logged in user's user_id exists in $pr_info["dislike"]["user_id"] array
-                }elseif(isset($pr_info["dislike"]["user_id"]) &&  in_array($logged_in_user_id, $pr_info["dislike"]["user_id"])){
-                    
-                    //if the user_id exists the set the class name
-                    $meta_btn_pressed_dislike="sp-content__meta-btn--pressed";
-                }
-            }
-        
-            //store the like button in `like_btn` index
-            $output["like_btn"]="
-                <button class='sp-content__meta-btn {$meta_btn_pressed_like} sp-content__meta-btn--rating sp-content__meta-btn--like' type='button' data-post_id='{$post_id}'>
-                    <i class='fa fa-thumbs-up'></i>
-                    <span class='sp-content__meta-btn-text'>{$pr_info['like']['total_rating']}</span>
-                </button>
-            ";
-
-            //store the like button in `dislike_btn` index
-            $output["dislike_btn"]="
-                <button class='sp-content__meta-btn {$meta_btn_pressed_dislike} sp-content__meta-btn--rating sp-content__meta-btn--dislike' type='button' data-post_id='{$post_id}'>
-                    <i class='fa fa-thumbs-down'></i>
-                    <span class='sp-content__meta-btn-text'>{$pr_info['dislike']['total_rating']}</span>
-                </button>
-            ";
-
-            // // //finally echo the $output to the client side
-            echo json_encode($output);
-
-        }
-
-        //(2.Single Post page) load save post button
-        public function load_save_post_btn()
-        {
-
-            $output = [];
-
-            //first validate the $_POST variable
-            $_POST=filter_var_array($_POST, FILTER_SANITIZE_STRING);
-
-            //store the post_link from $_POST variable
-            $post_link=$_POST["post_link"];
-
-            //Here we will store post_id based on $post_link
-            $post_id="";
-
-            //include all required models
-            $post_obj=$this->model("post");
-            $sp_obj=$this->model("saved_post");
-
-            //fetch  post_id based on post_link
-            $fetch_post_id=$post_obj->select(array(
-                "column_name"=>"posts.post_id",
-                "where"=>"posts.post_link='{$post_link}'"
-            ));
-
-            if($fetch_post_id["status"] == 1 && $fetch_post_id["num_rows"] == 1){
-
-                //set $post_id value to fetched post_id
-                $post_id = $fetch_post_id["fetch_all"][0]["post_id"];
-            }
-
-            if($this->functions->if_user_logged_in()){
-        
-                //Here we will store post_id based on $post_link
-                $logged_in_user_id=$_SESSION["user_id"];
-
-                $fetch_saved_posts=$sp_obj->select(array(
-                    "where"=>"saved_posts.post_id={$post_id} AND user_id={$logged_in_user_id}"
-                ));
-
-                if($fetch_saved_posts["status"] == 1){
-                
-                    $output["error"]=0;
-
-                    if($fetch_saved_posts["num_rows"] == 1){
-
-                        $output["save_btn"]="
-                            <button class='sp-content__meta-btn sp-content__meta-btn--pressed sp-content__meta-btn--save' type='button' title='Add to save list' data-post_id='{$post_id}'>
-                                <i class='fa fa-floppy-o'></i>
-                                <span>Saved</span>
-                            </button>
-                        ";
-
-                    }else{
-
-                        $output["save_btn"]="
-                            <button class='sp-content__meta-btn sp-content__meta-btn--save' type='button' title='Add to save list' data-post_id='{$post_id}'>
-                                <i class='fa fa-floppy-o'></i>
-                                <span>Save</span>
-                            </button>
-                        ";
-                    }
-
-                }else{
-                    
-                    $output["error"]=1;
-
-                    $output["error_msg"]=$fetch_saved_posts["error"];
-                }
-
-            }else{
-
-                $output["error"]=0;
-
-                $output["save_btn"]="
-                    <button class='sp-content__meta-btn sp-content__meta-btn--save' type='button' title='Add to save list' data-post_id='{$post_id}'>
-                        <i class='fa fa-floppy-o'></i>
-                        <span>Save</span>
-                    </button>
-                ";
-            }
-
-            echo json_encode($output);
-
-
-        }
+        //========================================
 
     
-        //(2.Single Post page) delete comment and replies
-        public function delete_comment_and_replies()
-        {
-
-            //first validate the $_POST variable
-            $_POST=filter_var_array($_POST, FILTER_SANITIZE_STRING);
-
-            $commnet_type = $_POST["comment_type"];
-
-            if($commnet_type == "primary_comment"){
-                
-                //store the comment_id for deleting the primary comment
-                $comment_id=$_POST["comment_id"];
-
-                /**
-                 * before deleting the comments 
-                 * we have to delete all the replies of that comment
-                 */
-                
-                //include the comment_replies model
-                $cr_obj=$this->model("comment_replies");
-                
-                $cr_all_id=[];
-
-                //fetch all comment_replies based on $comment_id
-                $fetch_comment_replies=$cr_obj->select(array(
-                    "where"=>"comment_replies.comment_id={$comment_id}"
-                ));
-
-                if($fetch_comment_replies["status"] == 1 && $fetch_comment_replies["num_rows"] > 0){
-
-                    //store all the cr_id in $cr_all_id variable
-                    foreach($fetch_comment_replies["fetch_all"] as $cr_index=>$cr){
-
-                        $cr_all_id[]=$cr["cr_id"];
-                    }
-                }
-
-                if(!empty($cr_all_id)){
-
-                    $cr_all_id=implode("', '", $cr_all_id);
-
-                    $delete_cr=$cr_obj->delete(array(
-                        "where"=>"comment_replies.cr_id IN ('$cr_all_id')"
-                    ));
-
-                    if($delete_cr["status"] == 0 && $delete_cr["affected_rows"] == 0){
-                    
-                        echo (isset($delete_cr["error"])) ? $fetch_post_id["error"] : "somehting went wrong in ajax_request on line 1067";
-                        die();
-                    }
-                }
-
-                //include the comment model
-                $comment_obj=$this->model("comment");
-
-                $delete_comment=$comment_obj->delete(array(
-                    "where"=>"comment_id={$comment_id}"
-                ));
-
-                if($delete_comment["status"] == 1 &&  $delete_comment["affected_rows"] > 0){
-
-                    echo 1;
-
-                }else{
-
-                    echo 0;
-                }
-                
-
-            }elseif($commnet_type == "secondary_comment"){
-
-                //store the comment_id for deleting the primary comment
-                $cr_id=$_POST["cr_id"];
-
-                //include the comment model
-                $cr_obj=$this->model("comment_replies");
-
-                $delete_cr=$cr_obj->delete(array(
-                    "where"=>"cr_id={$cr_id}"
-                ));
-    
-                if($delete_cr["status"] == 1 &&  $delete_cr["affected_rows"] > 0){
-    
-                    echo 1;
-    
-                }else{
-    
-                    echo 0;
-                }
-            }
-                    
-        }
-
-        //(2.Single Post page) add post rating `like` or `dislike`
-        public function post_rating()
-        {
-    
-            //store the final output
-            $output=[];
-
-            if($this->functions->if_user_logged_in()){
-
-                //first validate the $_POST variable
-                $_POST=filter_var_array($_POST, FILTER_SANITIZE_STRING);
-            
-
-                //include all required models
-                $post_obj=$this->model("post");
-                $pr_obj=$this->model("post_rating");
-                $nf_obj=$this->model("notification");
-
-                //store the post_id from $_POST variable
-                $post_id=$_POST["post_id"];
-
-                //Here we will store post author's id based on $post_id
-                $post_author="";
-
-                //title will be need for sending notification
-                $post_title="";
-
-                //fetch post_author usering the $post_id
-                $fetch_post_author=$post_obj->select(array(
-                    "column_name"=>"posts.post_author,posts.post_title",
-                    "where"=>"posts.post_id={$post_id}"
-                ));
-
-                if($fetch_post_author["status"] == 1 && $fetch_post_author["num_rows"] == 1){
-
-                    //set the post_author to fetched post_author
-                    $post_author = $fetch_post_author["fetch_all"][0]["post_author"];
-                    
-                    //set the post_title to fetched post_title
-                    $post_title = $fetch_post_author["fetch_all"][0]["post_title"];
-                }
-
-                //store the recent post rating action from $_POST variable
-                $pr_action=$_POST["pr_action"];
-
-                //store the loggedin user's user_id $_SESSION variable
-                $logged_in_user_id=$_SESSION["user_id"];
-                
-                //store the loggedin user's user_name $_SESSION variable 
-                $logged_in_user_name=$_SESSION["user_name"];
-
-
-                $fetch_post_rating=$pr_obj->select(array(   
-                    "where"=>"post_ratings.post_id={$post_id} AND post_ratings.user_id={$logged_in_user_id}"
-                ));
-
-                if($fetch_post_rating["status"] == 1 && $fetch_post_rating["num_rows"] > 0){
-
-                    /**
-                     * user previously rated our post 
-                     * now we need to update the rating
-                     */
-
-                    $prev_pr_action=$fetch_post_rating["fetch_all"][0]["pr_action"];
-
-                    //user tries to remove the previous rating
-                    if($prev_pr_action == $pr_action){
-
-                        //delete the previou rating based on user_id & post_id
-                        $delete_prev_rating=$pr_obj->delete(array(
-                            "where"=>"post_ratings.post_id={$post_id} AND post_ratings.user_id={$logged_in_user_id}"
-                        ));
-
-                        if($delete_prev_rating["status"] == 1 && $delete_prev_rating["affected_rows"] > 0){
-                            
-                            $output["error"]=0;
-
-                        }else{
-
-                            $output["error"]=1;
-                        }
-                    
-                    }else{
-                        
-                        $update_pr_aciton=$pr_obj->update(array(
-                            "fields"=>array(
-                                "pr_action"=>$pr_action
-                            ),
-                            "where"=>"post_ratings.post_id={$post_id} AND post_ratings.user_id={$logged_in_user_id}"
-                        ));
-                        
-                        if($update_pr_aciton["status"] == 1 && $update_pr_aciton["affected_rows"] > 0){
-
-                            /**
-                             * Don't send notification if post_author
-                             * liked or disliked his/her post
-                             */
-                            if($post_author !== $logged_in_user_id){
-
-                                $pr_action=($pr_action == "like") ? "liked" : "disliked";
-
-                                $nf_param=array(
-                                    "nf_obj"=>$nf_obj,
-                                    "nf_title"=>"<strong>{$logged_in_user_name} {$pr_action} on your post:</strong> <span>{$post_title}</span>",
-                                    "from_user_id"=>$logged_in_user_id,
-                                    "to_user_id"=>$post_author,
-                                    "post_id"=>$post_id
-                                );
-
-                                if($this->functions->add_notification($nf_param)){
-
-                                    $output["error"]=0;
-
-                                    $output["pr_action"]=$pr_action;
-                            
-                                }else{
-                                    
-                                    $output["error"]=1;
-
-                                    $output["pr_action"]=$pr_action;
-                                }
-
-                            }else{
-
-                                $output["error"]=0;
-
-                                $output["pr_action"]=$pr_action;
-
-                            }
-                    
-                        }else{
-
-                            echo 0;
-                        }
-                    }
-
-                }else{
-
-                    /**
-                     * User did not rated the post previously. 
-                     * Now, we have to insert a new record
-                     */
-
-                    $insert_pr=$pr_obj->insert(array(
-                        "fields"=>array(
-                            "post_id"=>$post_id,
-                            "pr_action"=>$pr_action,
-                            "user_id"=>$logged_in_user_id
-                        )
-                    ));
-                    
-                    if($insert_pr["status"] == 1 && isset($insert_pr["insert_id"])){
-                    
-                        /**
-                         * Don't send notification if post_author
-                         * liked or disliked his post
-                         */
-                        if($post_author !== $logged_in_user_id){
-
-                            $pr_action=($pr_action == "like") ? "liked" : "disliked";
-
-                            $nf_param=array(
-                                "nf_obj"=>$nf_obj,
-                                "nf_title"=>"<strong>{$logged_in_user_name} {$pr_action} on your post:</strong>\r\n<span>{$post_title}</span>",
-                                "from_user_id"=>$logged_in_user_id,
-                                "to_user_id"=>$post_author,
-                                "post_id"=>$post_id
-                            );
-
-                            if($this->functions->add_notification($nf_param)){
-
-                                $output["error"]=0;
-
-                                $output["pr_action"]=$pr_action;
-                                
-                                
-                            }else{
-                                
-                                $output["error"]=1;
-
-                                $output["pr_action"]=$pr_action;
-                            }
-
-                        }else{
-
-                            $output["error"]=0;
-
-                        }
-
-                    }else{
-
-                        $output["error"]=1;
-                    }
-                }
-                
-                echo json_encode($output);
-
-
-            }else{
-            
-                $output["error"]=100;
-
-                echo json_encode($output);
-
-            }
-
-        }
-    
-
         //(2.Single Post page) save a post in saved list
         public function save_posts(){
 
@@ -1395,6 +778,9 @@ class ajax_pages extends ajax_controller
 
             echo json_encode($output);
         }
+
+        //========================================
+
 
 
         //(2.Single Post page) add a subscriber into the database
@@ -1499,6 +885,7 @@ class ajax_pages extends ajax_controller
         public function index(){}
 
 
+        
         //use the funtion to fetch notifications when clicked on bell icon
         public function fetch_notifications()
         {
@@ -1683,17 +1070,15 @@ class ajax_pages extends ajax_controller
         }
         
         //use the function to load unread notifications
-        public function get_unread_notifications(){
+        public function get_unread_notifications()
+        {
 
             $output = array();
 
             if(!empty($this->user_info)){
 
-                //first validate the post variable
-                $_POST=filter_var_array($_POST, FILTER_SANITIZE_STRING);
-           
                 //store the title tag text
-                $title_tag=$_POST['title_tag'];
+                $title_tag=html_entity_decode($_POST['title_tag']);
                 
                 //first find `(0-9)*` pattern from $title_tag
                 preg_match_all("/\([0-9]*\)/i",$title_tag,$nf_num);
@@ -1733,7 +1118,7 @@ class ajax_pages extends ajax_controller
 
                 }else{
 
-                    $output["title_tag"]=$title_tag;
+                    $output["title_tag"] = $title_tag;
 
                     $output["bell_btn"]="
                         <button class='ph-nav__btn ph-nav__btn--bell' type='button'>

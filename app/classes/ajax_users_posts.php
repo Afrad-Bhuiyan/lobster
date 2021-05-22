@@ -76,7 +76,7 @@ class ajax_users_posts{
             $pr_obj=$this->model_objs["pr_obj"];
 
             //store comemnt_replies model's object
-            $cr_obj=$this->model_objs["cr_obj"];
+            $reply_obj=$this->model_objs["reply_obj"];
 
             //Return the final output
             $output=[];
@@ -130,8 +130,8 @@ class ajax_users_posts{
                     foreach($fetch_post_comments["fetch_all"] as $comment_index=>$comment){
 
                         //fetch comment replies based on $comment["comment_id"]
-                        $fetch_comment_replies=$cr_obj->select(array(
-                            "where"=>"comment_replies.comment_id={$comment['comment_id']}"
+                        $fetch_comment_replies=$reply_obj->select(array(
+                            "where"=>"replies.replies_for='comment_reply' AND replies.replies_for_id={$comment['comment_id']}"
                         ));
 
                         if($fetch_comment_replies["status"]  == 1 && $fetch_comment_replies["num_rows"] > 0){
@@ -217,8 +217,14 @@ class ajax_users_posts{
                     foreach($posts["all"] as $post_index=>$post):
 
                         $badge_class = ($post["post_status"] == "published") ? "my-posts__badge--published" : "my-posts__badge--draft";
+                    
+                        //convert html entities to HTML tag
+                        $post["post_title"] = html_entity_decode($post["post_title"]);
+
+                        //remove the underscore from data string
                         $post_date=explode("_", $post["post_date"]);
                         $post_date= $post_date[0];
+
                         $pfile_info= $post["pfile_info"];
                         $post_ratings= $post["post_ratings"];
 
@@ -983,9 +989,6 @@ class ajax_users_posts{
         public function add_the_post()
         {
 
-            //validate the $_POST variable
-            $_POST = filter_var_array($_POST,FILTER_SANITIZE_STRING);
-            
             //validate the $_FILES variable
             $_FILES = filter_var_array($_FILES,FILTER_SANITIZE_STRING);
 
@@ -1029,6 +1032,8 @@ class ajax_users_posts{
 
                 }else{
 
+         
+
                     //store post model's object from $this->model_objs
                     $post_obj=$this->model_objs["post_obj"];
 
@@ -1068,17 +1073,17 @@ class ajax_users_posts{
                 
                     //set the timezone to `Dhaka/Asia`
                     date_default_timezone_set("Asia/Dhaka");
-
+                    
                     //insert the post to the database
                     $insert_post=$post_obj->insert(array(
                         "fields"=>array(
-                            "post_title"=>htmlspecialchars(trim($_POST["post_title"])),
-                            "post_content"=>$_POST["post_desc"],
+                            "post_title"=>htmlentities(trim($_POST["post_title"]), ENT_QUOTES),
+                            "post_content"=>htmlentities(trim($_POST["post_desc"]), ENT_QUOTES),
                             "post_author"=>$this->user_info["user_id"],
                             "post_date"=>date("d F, Y_h:i:sA"),
-                            "post_cat"=>htmlspecialchars(trim($_POST["post_category"])),
+                            "post_cat"=>$_POST["post_category"],
                             "post_link"=>$random_str_link,
-                            "post_status"=>htmlspecialchars(trim($_POST["post_visibility"])),
+                            "post_status"=>$_POST["post_visibility"],
                             "post_read"=>0
                         )
                     ));
@@ -1356,7 +1361,6 @@ class ajax_users_posts{
             
         }
 
-
         //use the function to delete my_post from dashboard
         public function delete_my_posts()
         {
@@ -1614,7 +1618,6 @@ class ajax_users_posts{
             // print_r($output);
 
         }
-        
         
         //use the function to search from my posts
         public function search_my_posts()

@@ -52,7 +52,6 @@
                         "cat_obj"=>$this->model("catagory"),
                         "pr_obj"=>$this->model("post_rating"),
                         "comment_obj"=>$this->model("comment"),
-                        "cr_obj"=>$this->model("comment_replies"),
                         "sp_obj"=>$this->model("saved_post"),
                         "ufile_obj"=>$this->model("user_files")
                     );
@@ -391,6 +390,9 @@
 
                             //store p   ost model's object from $this->model_objs variable
                             $post_obj=$this->model_objs["post_obj"];
+
+                            //store the options for fetching data
+                            $this->data["total_posts"]=$this->user_post_meta()["all_posts_num"];
 
                             //store the options for fetching data
                             $this->data["user_post_meta"]=$this->user_post_meta();

@@ -674,20 +674,22 @@ input.btn{
         color: #e8411b;
     }
 
-    &--postDelete &__icon{
+    &--postDelete &__icon,
+    &--commentDelete &__icon{
         border-color: #e8411b;
     }
 
-    &--postDelete &__icon::after{
+        text-align: center;
+        margin: 0;
+        text-transform: capitalize;
+    &--postDelete &__icon::after,
+    &--commentDelete &__icon::after{
         content: "\f071";
         color: #e8411b;
     }
     
 
     &__title{
-        text-align: center;
-        margin: 0;
-        text-transform: capitalize;
         font-weight: 600;
     }
 

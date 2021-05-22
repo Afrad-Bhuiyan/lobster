@@ -228,19 +228,18 @@ $(function(){
 
                     //append all the HTML in parent element
                     $(".my-posts__col-body").append(response);
-            
                 }
             });
+
         }
-
         
-
-
         // //store data-load_post attribute value
-        // const load_posts=$(".elements__my-posts").data("load_posts");
+        const load_posts=$(".elements__my-posts").data("load_posts");
 
         //check if logged in user posted any posts
-        if(true){    
+            
+        if(load_posts){    
+
             load_my_posts();
         }
 
@@ -472,9 +471,7 @@ $(function(){
 
         //Initialize and configer CKeditor
         ClassicEditor.create(editor,{
-
             removePlugins:["BlockQuote","ImageUpload","MediaEmbed","Indent"],
-
             heading: {
                 options: [
                     { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
@@ -484,6 +481,7 @@ $(function(){
                     { model: 'heading6', view: 'h6', title: 'Heading 6', class: 'ck-heading_heading6' }
                 ]
             }
+
         }).then(function(newEditor){
 
             data=newEditor;
@@ -661,9 +659,8 @@ $(function(){
         //store the posts publish button
         const form_btn_publish=$(".pp-sec__form-btn--publish");
 
-     
         form_btn_publish.on("click",function(e){
-            
+
             e.preventDefault();
 
             const form_data=new FormData(publish_form);
@@ -714,7 +711,6 @@ $(function(){
                         }
                         
                         window.location.href=`${user_profile_link()}dashboard/posts?sub_option=my_posts&filter=all`;
-
                     }
 
 

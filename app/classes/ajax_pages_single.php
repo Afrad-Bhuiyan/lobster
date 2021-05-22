@@ -95,9 +95,37 @@ class ajax_pages_single{
             return $output;
         }
 
-        
+        //use the function for fetching 'profile' and `bg` image of a single user
+        private function fetch_post_files($post_id,$pfile_usage)
+        {
+
+            $output = array();
+
+            //store the user_files's model from $this->model_objs variable
+            $pfile_obj=$this->model_objs["pfile_obj"];
+
+            $fetch_file=$pfile_obj->select(array(
+                "where"=>"post_files.post_id={$post_id} AND post_files.pfile_usage='{$pfile_usage}'"
+            ));
+
+            if($fetch_file["status"] == 1 && $fetch_file["num_rows"] == 1){
+
+                $fetched_file=$fetch_file["fetch_all"][0];
+                
+                $output=array(
+                    "name"=>$fetched_file["pfile_name"],
+                    "ext"=>$fetched_file["pfile_ext"],
+                    "status"=>$fetched_file["pfile_status"],
+                    "dimension"=>unserialize($fetched_file["pfile_dimension"])
+                );
+            }
+
+            return $output;
+        }
+
          //use the function to fetch ratings of `post`, `comment`, `comment reply`
-         private function fetch_rates($rate_for, $rate_for_id){
+        private function fetch_rates($rate_for, $rate_for_id)
+        {
 
             //Default output 
             $output = array(
@@ -150,7 +178,8 @@ class ajax_pages_single{
 
         //use the function to check logged user rated any thing  
         //such as `post`, `comment`, `comment_replies`
-        private function if_user_rated($rate_for,$rate_for_id){
+        private function if_user_rated($rate_for,$rate_for_id)
+        {
 
             $output = null;
 
@@ -176,6 +205,34 @@ class ajax_pages_single{
         }
         
 
+        //use the function to check if logged user saved the post
+        private function if_user_saved_the_post($post_id)
+        {
+
+            $output = null;
+            
+            if(!empty($this->user_info)){
+
+                //store the `saved_post` model's object from $this->modal variable
+                $sp_obj = $this->model_objs["sp_obj"];
+
+                $check_post_saved = $sp_obj->select(array(
+                     "where"=>"saved_posts.post_id={$post_id} AND saved_posts.user_id={$this->user_info['user_id']}"
+                ));
+
+                if($check_post_saved["status"] == 1 && $check_post_saved["num_rows"] == 1){
+                    
+                    $output = true;
+                    
+                }else{
+                    
+                    $output = false;
+                 }
+            }
+
+            return $output;
+        }
+
     /**
      * ===========================
      * All private functions  ends 
@@ -188,7 +245,6 @@ class ajax_pages_single{
      * All Public functions starts
      * ===========================
      */
-
 
         //(2.Single Post page) load single post comments
         public function load_comments()
@@ -321,10 +377,7 @@ class ajax_pages_single{
 
                         //set the view replies htmt to blank
                         $comments["all"][$comment_index]["view_replies_html"] = "";
-
                     }
-                
-
                 }
             }
 
@@ -439,7 +492,7 @@ class ajax_pages_single{
                                     <div class='sp-single-comm__ratings'>
                                         <ul class='sp-single-comm__list sp-single-comm__list--ratings'>
                                             <li class='sp-single-comm__list-item'>
-                                                <button class='sp-single-comm__btn sp-single-comm__btn--rate {$comment_like_active} sp-single-comm__btn--like' type='button'> 
+                                                <button class='sp-single-comm__btn sp-single-comm__btn--rate {$comment_like_active} sp-single-comm__btn--like' type='button' data-rate_for='comment' data-rate_for_id={$comment['comment_id']}> 
                                                     <i class='fa fa-thumbs-up sp-single-comm__btn-icon'></i>
                                                     <span class='sp-single-comm__btn-txt'>
                                                         Like ({$comment['comment_ratings']['likes']['total']})
@@ -448,7 +501,7 @@ class ajax_pages_single{
                                             </li>   
 
                                             <li class='sp-single-comm__list-item'>
-                                                <button class='sp-single-comm__btn sp-single-comm__btn--rate {$comment_dislike_active} sp-single-comm__btn--dislike' type='button'> 
+                                                <button class='sp-single-comm__btn sp-single-comm__btn--rate {$comment_dislike_active} sp-single-comm__btn--dislike' type='button' data-rate_for='comment' data-rate_for_id={$comment['comment_id']}> 
                                                     <i class='fa fa-thumbs-down sp-single-comm__btn-icon'></i>
                                                     <span class='sp-single-comm__btn-txt'>
                                                         Dislike ({$comment['comment_ratings']['dislikes']['total']})
@@ -467,7 +520,7 @@ class ajax_pages_single{
                                     {$comment['view_replies_html']}
                                 </div>
                         ";
-                        if(true):
+                        if(!empty($this->user_info) && $this->user_info["user_id"] == $post_info['post_author']):
                             $output["html"] .= "
                                 <div class='sp-single-comm__dropdown sp-single-comm__dropdown--primary'>
                                     <button class='sp-single-comm__btn sp-single-comm__btn--ddToggle' type='button'>
@@ -481,7 +534,7 @@ class ajax_pages_single{
                                     <div class='sp-single-comm__dropdown-opts'>
                                         <ul class='sp-single-comm__list sp-single-comm__list--primary'>
                                             <li class='sp-single-comm__list-item'>
-                                                <button class='sp-single-comm__btn sp-single-comm__btn--ddOpts sp-single-comm__btn--delete' type='button'>
+                                                <button class='sp-single-comm__btn sp-single-comm__btn--ddOpts sp-single-comm__btn--delete' type='button' data-delete='comment' data-delete_id='{$comment['comment_id']}'>
                                                     <i class='fa fa-trash sp-single-comm__btn-icon'></i>
                                                     <span class='sp-single-comm__btn-txt'>Delete</span>
                                                 </button>
@@ -649,14 +702,14 @@ class ajax_pages_single{
                                 <div class='sp-single-comm__ratings'>
                                     <ul class='sp-single-comm__list sp-single-comm__list--ratings'>
                                         <li class='sp-single-comm__list-item'>
-                                            <button class='sp-single-comm__btn ${reply_like_active} sp-single-comm__btn--rate sp-single-comm__btn--like' type='button'> 
+                                            <button class='sp-single-comm__btn ${reply_like_active} sp-single-comm__btn--rate sp-single-comm__btn--like' type='button' data-rate_for='comment_reply' data-rate_for_id={$reply['reply_id']}> 
                                                 <i class='fa fa-thumbs-up sp-single-comm__btn-icon'></i>
                                                 <span class='sp-single-comm__btn-txt'>Like ({$reply['reply_ratings']['likes']['total']})</span>
                                             </button>                        
                                         </li>   
 
                                         <li class='sp-single-comm__list-item'>
-                                            <button class='sp-single-comm__btn ${reply_dislike_active} sp-single-comm__btn--rate sp-single-comm__btn--dislike' type='button'> 
+                                            <button class='sp-single-comm__btn ${reply_dislike_active} sp-single-comm__btn--rate sp-single-comm__btn--dislike' type='button' data-rate_for='comment_reply' data-rate_for_id={$reply['reply_id']}> 
                                                 <i class='fa fa-thumbs-down sp-single-comm__btn-icon'></i>
                                                 <span class='sp-single-comm__btn-txt'>Dislike ({$reply['reply_ratings']['dislikes']['total']})</span>
                                             </button>                        
@@ -689,7 +742,7 @@ class ajax_pages_single{
                                 <div class='sp-single-comm__dropdown-opts'>
                                     <ul class='sp-single-comm__list sp-single-comm__list--secondary'>
                                         <li class='sp-single-comm__list-item'>
-                                            <button class='sp-single-comm__btn sp-single-comm__btn--ddOpts sp-single-comm__btn--delete' type='button'>
+                                            <button class='sp-single-comm__btn sp-single-comm__btn--ddOpts sp-single-comm__btn--delete' type='button' data-delete='comment_reply' data-delete_id='{$reply['reply_id']}'>
                                                 <i class='fa fa-trash sp-single-comm__btn-icon'></i>
                                                 <span class='sp-single-comm__btn-txt'>Delete</span>
                                             </button>
@@ -1088,7 +1141,575 @@ class ajax_pages_single{
             // print_r($output);
            echo json_encode($output);
         }
-   
+
+        //use the function to rate `comment` or`comment replies` or `post`
+        public function  add_rate()
+        {
+
+            //Return the final output
+            $output = array();
+
+            if(!empty($this->user_info)){
+
+                //first validate the post variable
+                $_POST=filter_var_array($_POST, FILTER_SANITIZE_STRING);
+
+                //store the current rate_action of user
+                $rate_action = (isset($_POST["rate_action"])) ? $_POST["rate_action"] : null;
+                
+                //store the `rate_for` where user is trying to rate
+                $rate_for = (isset($_POST["rate_for"])) ? $_POST["rate_for"] : null;
+                
+                //store the `rate_for_id` 
+                $rate_for_id = (isset($_POST["rate_for_id"])) ? $_POST["rate_for_id"] : null;
+
+                //store the `rate` model's object from $this->model_objs variable
+                $rate_obj = $this->model_objs["rate_obj"];
+                $post_obj = $this->model_objs["post_obj"];
+                $comment_obj = $this->model_objs["comment_obj"];
+                $reply_obj = $this->model_objs["reply_obj"];
+                $nf_obj = $this->model_objs["nf_obj"];
+
+                //first check user previously rated or not
+                $prev_rating=$this->if_user_rated($rate_for,$rate_for_id);
+
+                //store all the information to send a notification
+                $nf_fields = array(
+                    "nf_title"=>"",
+                    "nf_date"=>date("d F, Y_h:i:sA"),
+                    "from_user_id"=>$this->user_info["user_id"],
+                    "to_user_id"=>"",
+                    "post_id"=>"",
+                    "nf_status"=>"unread"
+                );
+
+                if($rate_for == "post"){
+
+                    $post_info = array();
+
+                    $fetch_post_info = $post_obj->select(array(
+                        "column_name"=>"
+                            posts.post_id,
+                            posts.post_title,
+                            posts.post_author
+                        ",
+                        "where"=>"posts.post_id={$rate_for_id}"
+                    ));
+
+                    if($fetch_post_info["status"] == 1 && $fetch_post_info["num_rows"] == 1){
+
+                        $post_info = $fetch_post_info["fetch_all"][0];
+                    }
+
+                    $nf_fields["nf_title"] = "<strong>{$this->user_info['user_name']} {$rate_action}d on your post: </strong>\r\n<span>{$this->functions->short_str_word($post_info['post_title'],12)}</span>";
+
+                    $nf_fields["to_user_id"] = $post_info["post_author"];
+
+                    $nf_fields["post_id"] = $post_info["post_id"];
+
+                }else if($rate_for == "comment"){
+
+                    $comment_info = array();
+
+                    $fetch_comment_info = $comment_obj->select(array(
+                        "column_name"=>"
+                            comments.comment_id,
+                            comments.comment_author,
+                            comments.comment_content,
+                            comments.post_id
+                        ",
+                        "where"=>"comments.comment_id={$rate_for_id}"
+                    ));
+
+                    if($fetch_comment_info["status"] == 1 && $fetch_comment_info["num_rows"] == 1){
+
+                        $comment_info = $fetch_comment_info["fetch_all"][0];
+                    }
+
+                    $nf_fields["nf_title"] = "<strong>{$this->user_info['user_name']} {$rate_action}d on your comment: </strong>\r\n<span>{$this->functions->short_str_word($comment_info['comment_content'],12)}</span>";
+
+                    $nf_fields["to_user_id"] = $comment_info["comment_author"];
+
+                    $nf_fields["post_id"] = $comment_info["post_id"];
+
+                }else if($rate_for == "comment_reply"){
+
+                    $reply_info = array();
+
+                    $fetch_reply_info = $reply_obj->select(array(
+                        "column_name"=>"
+                            replies.reply_id,
+                            replies.user_id,
+                            replies.reply_content,
+                            replies.comment_id,
+                            comments.post_id
+                        ",
+                        "join"=>array(
+                            "comments"=>"comments.comment_id = replies.comment_id"
+                        ),
+                        "where"=>"replies.reply_id={$rate_for_id}"
+                    ));
+
+                    if($fetch_reply_info["status"] == 1 && $fetch_reply_info["num_rows"] == 1){
+
+                        $reply_info = $fetch_reply_info["fetch_all"][0];
+                    }
+
+                    $reply_info["reply_content"] = html_entity_decode($reply_info["reply_content"]);
+
+                    $reply_info["reply_content"] = strip_tags($reply_info["reply_content"]);
+
+                    preg_match_all("/@[a-z|A-Z|0-9|_]*/",$reply_info["reply_content"],$username);
+                    
+                    if(isset($username[0][0])){
+
+                        //replace the `(0-9)*` pattern with an empty string
+                        $reply_info["reply_content"]=str_replace("{$username[0][0]}","",$reply_info["reply_content"]);
+    
+                        //remove space from left and right sides
+                        $reply_info["reply_content"]=trim($reply_info["reply_content"]);
+                    }
+                    
+                    
+                    
+
+                    $nf_fields["nf_title"] = "<strong>{$this->user_info['user_name']} {$rate_action}d on you reply: </strong>\r\n<span>{$this->functions->short_str_word($reply_info['reply_content'],12)}</span>";
+
+                    $nf_fields["to_user_id"] = $reply_info["user_id"];
+
+                    $nf_fields["post_id"] = $reply_info["post_id"];
+
+                }
+                
+
+
+        
+                if($prev_rating !== null ){
+
+                    /**
+                     * User Previously rated, Now 
+                     * we have to get the previously rating
+                     */
+                    
+                    if($prev_rating == $rate_action){
+
+                        /**
+                         * User is trying to remove his/her 
+                         * previouse rating permanantly. so let's delete a record
+                         */
+
+                         //delete a rate of the current user
+                         $delete_rate=$rate_obj->delete(array(
+                             "where"=>"rates.rate_for='{$rate_for}' AND rates.rate_for_id={$rate_for_id} AND rates.user_id={$this->user_info['user_id']}"
+                         ));
+
+                         if($delete_rate["status"] !== 1  && $delete_rate["affected_rows"] == 0){
+
+                            $output = array(
+                                "error_status"=>100,
+                                "errors"=>$delete_rate
+                            );
+                            
+                         }else{
+
+                            $output = array(
+                                "error_status"=>0
+                            );
+                         }
+        
+                    }else{
+                        
+                        /**
+                         * User is trying to change his/her 
+                         * previouse rating. so let's update his/her previous rating
+                         */
+
+                            //delete a rate of the current user
+                            $update_rate=$rate_obj->update(array(
+                                "fields"=>array(
+                                    "rate_action"=>$rate_action
+                                ),
+                                "where"=>"rates.rate_for='{$rate_for}' AND rate_for_id={$rate_for_id}"
+                            ));
+
+                            if($update_rate["status"] !== 1  && $update_rate["affected_rows"] == 0){
+
+                                $output = array(
+                                    "error_status"=>100,
+                                    "errors"=>$update_rate
+                                );
+                            
+                            }else{
+
+                                $output = array(
+                                    "error_status"=>0
+                                );
+                            }
+                    }
+
+                
+                }else{
+
+                    /**
+                     * user didn't rate previously,
+                     * let's add a rating
+                     */
+
+                    //add a rating
+                    $add_rate=$rate_obj->insert(array(
+                        "fields"=>array(
+                            "rate_for"=>$rate_for,
+                            "rate_for_id"=>$rate_for_id,
+                            "user_id"=>$this->user_info["user_id"],
+                            "rate_action"=>$rate_action
+                        )
+                    ));
+
+                    if($add_rate["status"] !== 1 && !isset($add_rate["insert_id"])){
+
+                        $output = array(
+                            "error_status"=>100,
+                            "errors"=>$add_rate
+                        );
+                    
+                    }else{
+
+                        if($this->user_info["user_id"] !== $nf_fields["to_user_id"]){
+
+                            $send_nf = $nf_obj->insert(array(
+                                "fields"=>$nf_fields
+                            ));
+                        }
+
+                        $output = array(
+                            "error_status"=>0
+                        );
+                    }
+                }
+                
+
+            }else{
+
+                $output = array(
+                    "error_status"=>1
+                );
+            }
+            
+            echo json_encode($output); 
+
+        }
+
+        //use the function to delete a comments and replies
+        public function delete_comments()
+        {
+
+            $output = array();
+
+            //first validate the post variable
+            $_POST=filter_var_array($_POST, FILTER_SANITIZE_STRING);
+
+            //store the deletation type  
+            $delete = (isset($_POST["delete"])) ? $_POST["delete"] : null;
+
+            //store the delete id which will be used to delete the record
+            $delete_id = (isset($_POST["delete_id"])) ? $_POST["delete_id"] : null;
+        
+            //store all models
+            $comment_obj = $this->model_objs["comment_obj"];
+            $reply_obj = $this->model_objs["reply_obj"];
+            $rate_obj = $this->model_objs["rate_obj"];
+
+    
+            if($delete == "comment"){
+
+                //first fetch all the replies of the comment
+                $fetch_replies=$reply_obj->select(array(
+                    "where"=>"replies.comment_id = {$delete_id}"
+                ));
+            
+                
+                if($fetch_replies["status"] == 1 && $fetch_replies["num_rows"] > 0){
+                    /**
+                     * If the comment has replies,
+                     * first delete all of them
+                     */
+
+                    $delete_replies=$reply_obj->delete(array(
+                        "where"=>"replies.comment_id = {$delete_id}"
+                    ));
+                }
+
+                //first fetch all the rate of the comment
+                $fetch_rate=$rate_obj->select(array(
+                    "where"=>"rates.rate_for = 'comment' AND rates.rate_for_id={$delete_id}"
+                ));
+            
+                
+                if($fetch_rate["status"] == 1 && $fetch_rate["num_rows"] > 0){
+                    /**
+                     * If the comment has replies,
+                     * first delete all of them
+                     */
+
+                    $delete_rate=$rate_obj->delete(array(
+                        "where"=>"rates.rate_for ='comment' AND rates.rate_for_id={$delete_id}"
+                    ));
+                }
+
+                //delete comments based where delete id matchs with comment id
+                $delete_comment=$comment_obj->delete(array(
+                    "where"=>"comments.comment_id={$delete_id}"
+                ));
+            
+                if($delete_comment["status"] == 1 && $delete_comment["affected_rows"] == 1){
+                    
+                    $output = array(
+                        "error_status"=>0
+                    );
+
+                }else{
+
+                    $output = array(
+                        "error_status"=>1,
+                        "errors"=>$delete_comment
+                    );
+                }
+         
+            }else if($delete == "comment_reply"){
+                
+
+                //first fetch all the rate of the comment
+                $fetch_rate=$rate_obj->select(array(
+                    "where"=>"rates.rate_for = 'comment_reply' AND rates.rate_for_id={$delete_id}"
+                ));
+        
+                
+                if($fetch_rate["status"] == 1 && $fetch_rate["num_rows"] > 0){
+                    /**
+                     * If the comment has replies,
+                     * first delete all of them
+                     */
+
+                    $delete_rate=$rate_obj->delete(array(
+                        "where"=>"rates.rate_for ='comment_reply' AND rates.rate_for_id={$delete_id}"
+                    ));
+                }
+
+                        
+                //delete comment reply where delete_id matchs with reply_id
+                $delete_reply=$reply_obj->delete(array(
+                    "where"=>"replies.reply_id={$delete_id}"
+                ));
+            
+                if($delete_reply["status"] == 1 && $delete_reply["affected_rows"] == 1){
+                    
+                    $output = array(
+                        "error_status"=>0
+                    );
+
+                }else{
+
+                    $output = array(
+                        "error_status"=>1,
+                        "errors"=>$delete_reply
+                    );
+                }
+            }
+    
+
+
+            echo json_encode($output);
+        
+        }
+
+        //use the function to load 'like' and `dislike` button in single post
+        public function load_post_rate_btns()
+        {
+
+            //first validate the post variable
+            $_POST=filter_var_array($_POST, FILTER_SANITIZE_STRING);
+
+            //store all the info related to the post
+            $post_info = array();
+
+            //store the `post` model's object from $this->modal variable
+            $post_obj = $this->model_objs["post_obj"];
+            
+            $fetch_post_info=$post_obj->select(array(
+                "column_name"=>"posts.post_id, posts.post_link, posts.post_author",
+                "where"=>"posts.post_link='{$_POST['post_link']}'"
+            ));
+
+            if($fetch_post_info["status"] == 1 && $fetch_post_info["num_rows"] == 1){
+            
+                $post_info = $fetch_post_info["fetch_all"][0];
+            }
+
+            //fetch post rating `like` and `dislike
+            $post_rates=$this->fetch_rates("post",$post_info["post_id"]);
+
+            //check logged use rated the current post
+            $check_rated =$this->if_user_rated("post",$post_info["post_id"]);
+
+            //store pressed class for like button
+            $like_btn_pressed = ($check_rated == "like") ? "sp-content__btn--pressed" : "";
+            
+            //store pressed class for dilike button
+            $dislike_btn_pressed = ($check_rated == "dislike") ? "sp-content__btn--pressed" : "";
+            
+        
+            $output = array(
+                "like_btn"=>"
+                    <button class='sp-content__btn sp-content__btn--rating sp-content__btn--like {$like_btn_pressed}' type='button' data-rate_for='post' data-rate_for_id='{$post_info['post_id']}'>
+                        <i class='fa fa-thumbs-up sp-content__btn-icon'></i>
+                        <span class='sp-content__btn-txt'>{$post_rates['likes']['total']}</span>
+                    </button>
+                ",
+                "dislike_btn"=>"
+                    <button class='sp-content__btn sp-content__btn--rating sp-content__btn--dislike {$dislike_btn_pressed}' type='button' data-rate_for='post' data-rate_for_id='{$post_info['post_id']}'>
+                        <i class='fa fa-thumbs-down sp-content__btn-icon'></i>
+                        <span class='sp-content__btn-txt'>{$post_rates['dislikes']['total']}</span>
+                    </button>
+                
+                "
+            );
+
+            echo json_encode($output);
+
+        }
+
+        //use the function to load save post button
+        public function load_post_save_btn()
+        {
+
+            //first validate the post variable
+            $_POST=filter_var_array($_POST, FILTER_SANITIZE_STRING);
+
+            //store all the info related to the post
+            $post_info = array();
+
+            //store the `post` model's object from $this->modal variable
+            $post_obj = $this->model_objs["post_obj"];
+
+            //fetch post information
+            $fetch_post_info=$post_obj->select(array(
+                "column_name"=>"posts.post_id, posts.post_link, posts.post_author",
+                "where"=>"posts.post_link='{$_POST['post_link']}'"
+            ));
+
+            if($fetch_post_info["status"] == 1 && $fetch_post_info["num_rows"] == 1){
+            
+                $post_info = $fetch_post_info["fetch_all"][0];
+            }
+        
+            if($this->if_user_saved_the_post($post_info['post_id'])){
+
+                $output = array(
+                    "save_btn"=>"
+                        <button class='sp-content__btn sp-content__btn--save sp-content__btn--pressed' type='button' data-post_id='{$post_info['post_id']}'>
+                            <i class='fa fa-floppy-o sp-content__btn-icon'></i>
+                            <span class='sp-content__btn-txt'>Saved</span>
+                        </button>
+                    "
+                );
+
+            }else{
+                
+                $output = array(
+                    "save_btn"=>"
+                        <button class='sp-content__btn sp-content__btn--save' type='button' data-post_id='{$post_info['post_id']}'>
+                            <i class='fa fa-floppy-o sp-content__btn-icon'></i>
+                            <span class='sp-content__btn-txt'>Save</span>
+                        </button>
+                    "
+                );
+            }
+
+            
+            echo json_encode($output);
+
+        }
+
+        //use the function to add a post in save list
+       public function add_to_save_list()
+       {
+
+            $output = array();
+
+            if(!empty($this->user_info)){
+
+                //first validate the post variable
+                $_POST=filter_var_array($_POST, FILTER_SANITIZE_STRING);
+
+                //store `post_id` index from $_POST variable
+                $post_id = isset($_POST["post_id"]) ? $_POST["post_id"] : null;
+
+                //store the `saved_post` model's object from $this->modal variable
+                $sp_obj = $this->model_objs["sp_obj"];
+                
+              
+                if($this->if_user_saved_the_post($post_id)){
+
+                    //user already saved the post let's remove from her/his saved list
+                    $delete_saved_post=$sp_obj->delete(array(
+                        "where"=>"saved_posts.user_id={$this->user_info['user_id']} AND saved_posts.post_id={$post_id}"
+                    ));
+                
+                    if($delete_saved_post["status"] == 1 && $delete_saved_post["affected_rows"] == 1){
+
+                        $output = array(
+                            "error_status"=>0
+                        );
+
+                    }else{
+
+                        $output = array(
+                            "error_status"=>100,
+                            "errors"=>$delete_saved_post
+                        );
+
+                    }
+
+                }else{
+                    
+                    //user did not save the post. let's add the post in saved list
+                    $saved_post=$sp_obj->insert(array(
+                        "fields"=>array(
+                            "user_id"=>$this->user_info["user_id"],
+                            "post_id"=>$post_id
+                        )
+                    ));
+                
+                    if($saved_post["status"] == 1 && isset($saved_post["insert_id"])){
+
+                        $output = array(
+                            "error_status"=>0
+                        );
+
+                    }else{
+
+                        $output = array(
+                            "error_status"=>100,
+                            "errors"=>$saved_post
+                        );
+
+                    }
+                }
+                
+            }else{
+
+                $output = array(
+                    "error_status"=>1
+                );
+            }
+
+
+           echo json_encode($output);
+
+        
+       }
+
+    
 
     /**
      * =========================

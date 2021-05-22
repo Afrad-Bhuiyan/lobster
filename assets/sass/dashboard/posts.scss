@@ -43,6 +43,7 @@
     // border: 1px solid black;
 
     &__btn{
+        $btn: &;
         border: none;
         background-color: transparent;
         display: inline-block;
@@ -71,7 +72,6 @@
             &:focus svg{
                 fill: $secondary;
             }
-        
         }
 
         &--delete{
@@ -89,24 +89,44 @@
                 border-color: #d6d6d6;
                 color: $secondary;
             }
-        }
 
-        &--delete &-icon{
-           margin: 0 .15rem 0 0;
-        }
-        
-        &--delete &-text{
-            margin: 0 0 0 .15rem;
+            #{$btn}-icon{
+                margin: 0 .15rem 0 0;
+            }
+
+            #{$btn}-text{
+                margin: 0 0 0 .15rem;
+            }
         }
 
         &--hide{
             display: none;
         }
 
+        &--letsPublish{
+            font-size: 1.4rem;
+            font-weight: 500;
+            color:$btn-primary-text;
+            background-color: $btn-primary-bg;
+            padding: 1rem 2rem;
+            margin: 0 auto;
+            letter-spacing: .05rem;
+            border-radius: .25rem;
+            transition: all 150ms ease-in-out;
+            
+            &:hover,
+            &:focus{
+                color:$btn-primary-text;
+                background-color:$btn-primary-hover;
+            }
+            
+            &:focus,
+            &:active{
+                box-shadow: 0px 0px .2rem .1rem $btn-primary-shadow;
+            }
+        }
+
     }
-
-
-    
 
     &__img{
         display: block;
@@ -119,7 +139,6 @@
             margin: 0 .5rem;
         }
     }
-
 
     &__container{
         padding: 2rem 15px;
@@ -340,15 +359,16 @@
 
     &__tbl-wrap{
         width: 100%;
+        min-height: 35rem;
         overflow-x: auto;
         position: relative;
         // border: 1px solid red;
     }
 
     &__tbl{
-        width: 100%;
-        min-width: max-content;
-        border: .15rem solid #eee;
+        min-width: 100%;
+        width: max-content;
+        // border: .15rem solid #eee;
         background-color: $white;
     }
 
@@ -361,10 +381,7 @@
     }
 
     &__tr{
-        width: 100%;
-        display: flex;
         border: .15rem solid transparent;
-        
         &:nth-child(even){
             background-color: #f9f9f9;
         }
@@ -430,8 +447,6 @@
        
     }
 
-    
-    
     &__checkbox{
         display: flex;
         margin: 0 .5rem 0 0;
@@ -577,9 +592,6 @@
         margin: 0 0 0 .25rem;
     }
 
-    
-    
-
     &__pagination{
         //border: 1px solid black;
         display: flex;
@@ -616,6 +628,37 @@
         &--active{
             color: $white;
             background-color: $primary;
+        }
+    }
+
+    &__msg{
+        $msg: &;
+        display: flex;
+        flex-direction: column;
+        // border: 1px solid black;
+
+        &--notFound{
+            padding: 1.5rem 0;
+        }
+
+        &-title{
+            margin: 0;
+
+            #{$msg}--notFound &{
+                margin-bottom: .5rem;
+                text-align: center;
+            }
+        }
+
+        &-desc{
+            margin: 0;
+
+            #{$msg}--notFound &{
+                font-size: 1.3rem;
+                font-weight: 500;
+                margin-bottom: 2rem;
+                text-align: center;
+            }
         }
     }
 }

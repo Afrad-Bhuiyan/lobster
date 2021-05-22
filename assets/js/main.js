@@ -200,6 +200,89 @@
         })
     }
 
+     //use the object to show modals
+     const modal={
+
+        modal_content:{
+
+            post_delete:{
+                modal_class:"modal--commentDelete",
+                modal_title:"Delete Warning",
+                modal_text:`You are about to delete a public comment from your post. Are you sure to proceed with the action? This action can't be undone`,
+                modal_false_btn_text:`Cancel`,
+                modal_true_btn_text:`Yes. Procced`,
+                onTrue:function(){},
+                onFalse:function(){}
+            },
+        },
+    
+        open:function(modal_name,options = null){
+
+            let selected_modal=this.modal_content[modal_name];
+
+            if(options !== null){
+
+                selected_modal = Object.assign(selected_modal,options);
+            }
+
+            const html = `
+                <div class="modal fade ${selected_modal.modal_class}">
+                    <div class="modal-dialog modal-dialog-centered modal__dialog">
+                        <div class="modal-content modal__content">
+                            <div class="modal__content-wrap">
+                                <div class="modal__head">
+                                    <div class="modal__icon"></div>
+                                    <h3 class="modal__title">
+                                        ${selected_modal.modal_title}
+                                    </h3>
+                                </div>
+
+                                <div class="modal__body">
+                                    <p class="modal__text">
+                                        ${selected_modal.modal_text}
+                                    </p>
+                                </div>
+                                
+                                <div class="modal__footer">
+                                    <button class="modal__btn modal__btn--false modal__btn--cancel" type="button">
+                                        <span class="modal__btn-text">
+                                            ${selected_modal.modal_false_btn_text}
+                                        </span>
+                                    </button>
+
+                                    <button class="modal__btn modal__btn--true modal__btn--proceed" type="button">
+                                        <span class="modal__btn-text">
+                                            ${selected_modal.modal_true_btn_text}
+                                        </span>
+                                    </button>
+                                </div>
+                            </div>  
+                        </div>
+                    </div>
+                </div>
+            `
+            $(".modal").remove();
+
+            $("body").append(html);
+
+            setTimeout(() => {
+
+                $(`.${selected_modal.modal_class}`).modal({
+                    backdrop:"static",
+                    keyboard:true
+                });
+
+                $(`.${selected_modal.modal_class}`).modal('show');
+                
+                $(`.${selected_modal.modal_class} .modal__btn--true`).on("click", selected_modal.onTrue);
+                
+                $(`.${selected_modal.modal_class} .modal__btn--false`).on("click",selected_modal.onFalse);
+
+            }, 50);
+        }
+
+    }
+    
 
     /*=========================
     Code for Header part starts
@@ -809,7 +892,275 @@
                     obj.init();
 
                 });
+
+                $(document).on("click",".sp-single-comm__btn--rate",function(e){
+
+                    const data={
+                        rate_action:$(this).hasClass("sp-single-comm__btn--like") ? "like" : "dislike", 
+                        rate_for:$(this).data("rate_for"),
+                        rate_for_id:$(this).data("rate_for_id")
+                    }
+    
+                    $.ajax({
+                        url:`${domain()}ajax_pages?class=single&method=add_rate`,
+                        method:"POST",
+                        data:data,
+                        dataType:"json",
+                        success:function(response){
+
+
+                            if(response.error_status == 1){
+
+                                alert("Please login first");
+
+                            
+                            }else if(response.error_status == 100){
+
+                                alert("something went wrong. please try again");
+
+                            }else if(response.error_status == 0){
+
+                                load_comments();
+
+                            }
+
+                           // console.log(response);
+                        }
+                    });
+                   
+                
+
+
+
+                });
+
+
+                $(document).on("click",".sp-single-comm__btn--ddToggle",function(){
+
+
+                    //store dropdown optios element
+                    const dropdown_opts = $(this).parent().find(".sp-single-comm__dropdown-opts");
+                            
+                    const obj={
+                    
+                        open:function(){
+
+                            //store the object
+                            const that=this;
+                            
+                            //remove any existing  .document-wrap elemenet
+                            $(".document-wrap").remove();
+
+                            //append a .document-wrap element into the body
+                            $("body").append(`<div class="document-wrap"></div>`);
+
+                            if(!dropdown_opts.hasClass("sp-single-comm__dropdown-opts--show")){
+
+                                //add the block class in dropdown options
+                                dropdown_opts.addClass("sp-single-comm__dropdown-opts--block");
+                                
+                                setTimeout(function(){
+                                    
+                                    //add the show class in dropdown options
+                                    dropdown_opts.addClass("sp-single-comm__dropdown-opts--show");
+
+                                    //call the close function from object
+                                    $(".document-wrap").on("click",that.close);
+                                
+                                },50);
+                            }
+                        },
+
+                        close:function(){
+
+                            //remove the .documen-wrap first
+                            $(".document-wrap").remove();
+                            
+                            if(dropdown_opts.hasClass("sp-single-comm__dropdown-opts--show")){
+                                
+                                //remove the show from options
+                                dropdown_opts.removeClass("sp-single-comm__dropdown-opts--show");
+                                
+                                setTimeout(function(){
+                                    
+                                    //remove the block class from options
+                                    dropdown_opts.removeClass("sp-single-comm__dropdown-opts--block");
+
+                                },155);
+                            }  
+                        }
+                    }
+
+                    // //call the open function to show the popup
+                    obj.open();
+
+                });
+
+                $(document).on("click",".sp-single-comm__btn--delete",function(e){
+                    
+                    //store the data to send to the serverside
+                    const data={
+                        delete:$(this).data("delete"),
+                        delete_id:$(this).data("delete_id")
+                    }
+
+                    modal.open("post_delete",{
             
+                        onTrue:function(){
+        
+                            //store the true button
+                            const trueBtn = $(this);
+                        
+                            //store the selected modal
+                            const selected_modal = trueBtn.parents(".modal");
+                            
+                            $.ajax({
+                                url:`${domain()}ajax_pages?class=single&method=delete_comments`,
+                                method:"POST",
+                                data:data,
+                                dataType:"json",
+                                beforeSend:function(){
+                                    trueBtn.find("span").text("Procced...")
+                                },
+                                success:function(response){
+
+                                    if(response.error_status == 1){
+
+                                        trueBtn.addClass("modal__btn--error").find("span").text("Error. Try again");
+                                        
+                                        setTimeout(function(){
+
+                                            //call the modal function to hide
+                                            selected_modal.modal("hide");
+                        
+                                            selected_modal.on("hidden.bs.modal",function(e){
+                        
+                                                //permanantly remove the modal from the dom
+                                                $(this).remove();
+                                                
+                                                console.log(response);
+                                            });
+
+                                        },500);
+                                    
+                                    }else if(response.error_status == 0){
+
+                                        trueBtn.find("span").text("Deleted Successfully");
+                                        
+                                        setTimeout(function(){
+
+                                            //call the modal function to hide
+                                            selected_modal.modal("hide");
+                        
+                                            selected_modal.on("hidden.bs.modal",function(e){
+                        
+                                                //permanantly remove the modal from the dom
+                                                $(this).remove();
+                                                
+                                                load_comments();
+                                            });
+
+                                        },150);
+                                    }
+
+                                    console.log(response)
+                                }
+                            })
+        
+    
+                        },
+
+                        onFalse:function(){
+        
+                            //store the true button
+                            const falsBtn = $(this);
+                            
+                            //store the selected modal
+                            const selected_modal = falsBtn.parents(".modal");
+                            
+                            //call the modal function to hide
+                            selected_modal.modal("hide");
+        
+                            selected_modal.on("hidden.bs.modal",function(e){
+        
+                                //permanantly remove the modal from the dom
+                                $(this).remove();
+                            });
+                        }
+                    });
+
+                });
+
+                $(document).on("click",".sp-content__btn--rating",function(e){
+
+                    const data={
+                        rate_action:$(this).hasClass("sp-content__btn--like") ? "like" : "dislike", 
+                        rate_for:$(this).data("rate_for"),
+                        rate_for_id:$(this).data("rate_for_id")
+                    }
+
+                    $.ajax({
+                        url:`${domain()}ajax_pages?class=single&method=add_rate`,
+                        method:"POST",
+                        data:data,
+                        dataType:"json",
+                        success:function(response){
+
+
+                            if(response.error_status == 1){
+
+                                alert("Please login first");
+
+                            
+                            }else if(response.error_status == 100){
+
+                                alert("something went wrong. please try again");
+
+                            }else if(response.error_status == 0){
+
+                                load_post_rate_btns();
+                            }
+
+                           console.log(response);
+                        }
+                    });
+                   
+              
+                
+
+
+                });
+
+                $(document).on("click",".sp-content__btn--save",function(e){
+
+                    $.ajax({
+                        url:`${domain()}ajax_pages?class=single&method=add_to_save_list`,
+                        method:"POST",
+                        data:{
+                            post_id:$(this).data("post_id")
+                        },
+                        dataType:"json",
+                        success:function(response){
+
+                            if(response.error_status == 1){
+
+                                alert("Please login first");
+                                
+                            }else if(response.error_status == 100){
+                                
+                                alert("Somthing went wrong. Please try again");
+                                console.log(response);
+
+                            }else if(response.error_status == 0){
+
+                                load_post_save_btn();
+                            }
+
+                            console.log(response);
+                        }
+                    });
+                });
+                
             }
 
             //load all the comments from server
@@ -855,14 +1206,12 @@
                     }
                 })
             };
-        
-            //================================
 
-            //load post ratings such as `like` and `dislike` from server
-            function load_post_ratings(post_link){
+             //load post ratings such as `like` and `dislike` from server
+            function load_post_rate_btns(){
                 
                 $.ajax({
-                    url:`${domain()}ajax_posts/load_post_rating`,
+                    url:`${domain()}ajax_pages?class=single&method=load_post_rate_btns`,
                     method:"POST",
                     data:{
                         post_link:post_link
@@ -872,46 +1221,37 @@
 
                         if(response){
 
-                            $(".sp-content__meta-btn--rating").remove();
-                            
-                            $(".sp-content__meta-item--like").append(response.like_btn);
+                            $(".sp-content__meta-list-item--like").html("").append(response.like_btn);
 
-                            $(".sp-content__meta-item--dislike").append(response.dislike_btn);
-
-                            //console.log(response);
+                            $(".sp-content__meta-list-item--dislike").html("").append(response.dislike_btn);
                         }
-                    
+
+                       // console.log(response);
                     }
                 })
             }
-
+    
             //load the save post button with pressed class
-            function load_save_post_btn(post_link){
+            function load_post_save_btn(){
 
                 $.ajax({
-                    url:`${domain()}ajax_posts/load_save_post_btn`,
+                    url:`${domain()}ajax_pages?class=single&method=load_post_save_btn`,
                     method:"POST",
                     data:{
                         post_link:post_link
                     },
                     dataType:"json",
                     success:function(response){
-                        
-                        if(response.error == 0){
 
-                            $(".sp-content__meta-btn--save").remove();
+                        if(response){
 
-                            $(".sp-content__meta-item--save").append(response.save_btn);
-
-                        }else if(response.error == 1){
-
-                            console.log(response);
+                            $(".sp-content__meta-list-item--save").html("").append(response.save_btn);
                         }
-
-                    // console.log(response);
                     }
                 })
-            }   
+            }
+
+            //================================
 
             //load total subscribers and subscribe button
             function load_total_subs_and_btn(post_link){
@@ -961,10 +1301,10 @@
 
        
         // //load post ratings such as `like` and `dislike`
-        // load_post_ratings(post_link);
+        load_post_rate_btns();
 
         // //load the save post button
-        // load_save_post_btn(post_link);
+        load_post_save_btn();
 
         // //load total subscribers and subscirbe button
         // load_total_subs_and_btn(post_link);

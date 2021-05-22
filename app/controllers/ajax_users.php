@@ -69,7 +69,7 @@ class ajax_users extends ajax_controller {
                     "pfile_obj"=>$this->model("post_files"),
                     "pr_obj"=>$this->model("post_rating"),
                     "comment_obj"=>$this->model("comment"),
-                    "cr_obj"=>$this->model("comment_replies"),
+                    "reply_obj"=>$this->model("reply"),
                     "sp_obj"=>$this->model("saved_post"),
                     "token_obj"=>$this->model("token")
                 );
@@ -632,7 +632,6 @@ class ajax_users extends ajax_controller {
         }
 
 
-       
 
     /**
      * ===========================

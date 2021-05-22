@@ -1,6 +1,5 @@
 <?php 
 
-
     class config{
 
         public function db_info($param){

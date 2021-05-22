@@ -7,12 +7,12 @@
     $total_posts=(isset($data["total_posts"])) ? $data["total_posts"] : null;
 
     // echo "<pre>";
-    // print_r($user_post_meta);
+    // print_r($data);
     // echo "</pre>";
 ?>
 
-    
-    <div class="elements__my-posts my-posts">
+    <?php  if($data["total_posts"] > 0): ?>
+    <div class="elements__my-posts my-posts" data-load_posts="true">
         <div class="container my-posts__container">
             <div class="row my-posts__row">
                 <div class="col-12 my-posts__col">
@@ -91,6 +91,31 @@
             </div>
         </div>
     </div>
+
+    <?php  else:?>
+        <div class="elements__my-posts my-posts" data-load_posts="false">
+            <div class="container my-posts__container">
+                <div class="row my-posts__row">
+                    <div class="col-12 col-md-6 my-posts__col">
+                        <div class="my-posts__msg my-posts__msg--notFound">
+                            <h4 class="my-posts__msg-title">No posts found</h4>
+
+                            <p class="my-posts__msg-desc">
+                                You haven't published any posts yet
+                            </p>
+                            
+                            <a class="my-posts__btn my-posts__btn--letsPublish" href="<?php echo $config->domain("users/afradbhuiyan/dashboard/posts?sub_option=publish") ?>">
+                                Let's publish a post
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <?php  endif;?>
+
+
+
 <?php 
        include "app/views/dashboard/includes/footer.dash.php";
 

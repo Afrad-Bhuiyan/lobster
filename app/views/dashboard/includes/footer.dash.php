@@ -1,6 +1,7 @@
             </div><!--elements-->
         </section>
     </main>
+
     <script>
         /*=====Global Functions=====*/
     
@@ -168,83 +169,7 @@
             })
         }
 
-        //use the function to add a modal
-        function show_popup_modal(modal_name = null){
-
-            const modal_content={
-                role_change:{
-                    modal_class:"modal--roleChange",
-                    modal_title:"Attention",
-                    modal_text:`
-                        You are about to delete a public comment from your post. Are you sure to proceed with the action? This action can't be undone
-                    `,
-                    modal_false_btn_text:`Cancel`,
-                    modal_true_btn_text:`Yes. Procced`
-                }
-            }
-
-            const modal=`
-                <div class="modal fade ${modal_content[modal_name].modal_class}">
-                    <div class="modal-dialog modal-dialog-centered modal__dialog">
-                        <div class="modal-content modal__content">
-                            <div class="modal__content-wrap">
-                                <div class="modal__head">
-                                    <div class="modal__icon"></div>
-                                    <h3 class="modal__title">
-                                        ${modal_content[modal_name].modal_title}
-                                    </h3>
-                                </div>
-
-                                <div class="modal__body">
-                                    <p class="modal__text">
-                                        ${modal_content[modal_name].modal_text}
-                                    </p>
-                                </div>
-                                
-                                <div class="modal__footer">
-                                    <button class="modal__btn modal__btn--false modal__btn--cancel" type="button">
-                                        <span class="modal__btn-text">
-                                            ${modal_content[modal_name].modal_false_btn_text}
-                                        </span>
-                                    </button>
-
-                                    <button class="modal__btn modal__btn--true modal__btn--proceed" type="button">
-                                        <span class="modal__btn-text">
-                                            ${modal_content[modal_name].modal_true_btn_text}
-                                        </span>
-                                    </button>
-                                </div>
-                            </div>  
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            $(".modal").remove();
-            
-            $("body").append(modal);
-
-            $(`.${modal_content[modal_name].modal_class}`).modal("show");
-            
-            $(`
-                .${modal_content[modal_name].modal_class} .modal__btn--true,
-                .${modal_content[modal_name].modal_class} .modal__btn--false
-            `).on("click",function(){
-
-                $(`.${modal_content[modal_name].modal_class}`).modal("hide");
-
-                if($(this).hasClass("modal__btn--true")){
-
-                    return true;
-                    
-                }else if($(this).hasClass("modal__btn--false")){
-                    
-                    return false;
-                }
-
-            });
-        }
-
+        //use the object to show modals
         const modal={
 
             modal_content:{
