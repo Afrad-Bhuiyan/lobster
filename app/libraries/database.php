@@ -136,6 +136,7 @@
                         $output['status']=1;
                         $output["num_rows"]=$sql_run->num_rows;
                         $output["fetch_all"]=$sql_run->fetch_all(MYSQLI_ASSOC);
+                        $output["sql"]=$sql;
                      
 
                         return $output;
@@ -246,15 +247,14 @@
                         
                         $output["status"]=1;
                         $output["affected_rows"]=$this->mysqli->affected_rows;
-
+        
                         return $output;
 
                     }else{
 
                         $output["status"]=0;
                         $output["error"]=$this->error_msg("query_error");
-    
-
+                
                         return $output;
 
                     }

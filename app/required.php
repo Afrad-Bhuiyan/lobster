@@ -7,6 +7,7 @@
     include "libraries/ajax_controller.php";
     include "libraries/core.php";
     include "libraries/database.php";
+    include "libraries/BrowserDetection.php";
     
     $init=new core;
 

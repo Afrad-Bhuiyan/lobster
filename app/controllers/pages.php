@@ -55,7 +55,10 @@
                         "pfile_obj"=>$this->model("post_files"),
                         "cat_obj"=>$this->model("catagory"),
                         "rate_obj"=>$this->model("rate"),
-                        "nf_obj"=>$this->model("notification")
+                        "nf_obj"=>$this->model("notification"),
+                        "post_read_obj"=>$this->model("post_read"),
+                        "reply_obj"=>$this->model("reply"),
+                        "comment_obj"=>$this->model("comment"),
                     );
 
                     if($this->if_user_logged_in()){
@@ -261,6 +264,128 @@
                 return $output;
 
             }
+
+            //use the function to fetch ratings for `post`, `comment`, `comment reply`
+            private function fetch_rates($rate_for, $rate_for_id)
+            {
+
+                //Default output 
+                $output = array(
+                    "likes"=>array(
+                        "total"=>0,
+                        "users"=>array()
+                    ),
+
+                    "dislikes"=>array(
+                        "total"=>0,
+                        "users"=>array()
+                    )
+                );
+
+                //store catagory rate's object from $this->model_obj variable
+                $rate_obj = $this->model_objs["rate_obj"];
+
+                //fetch like ratings
+                $fetch_like_rate=$rate_obj->select(array(
+                "where"=>"rates.rate_for='{$rate_for}' AND rates.rate_for_id={$rate_for_id} AND rates.rate_action='like'"
+                ));
+
+                //fetch dislike rating
+                $fetch_dislike_rate=$rate_obj->select(array(
+                "where"=>"rates.rate_for='{$rate_for}' AND rates.rate_for_id={$rate_for_id} AND rates.rate_action='dislike'"
+                ));
+
+                if($fetch_like_rate["status"] == 1 && $fetch_like_rate["num_rows"] > 0){
+
+                    $output["likes"]["total"] = $fetch_like_rate["num_rows"];
+
+                    foreach($fetch_like_rate["fetch_all"] as $rate_index=>$single_rate){
+
+                        $output["likes"]["users"][] = $single_rate["user_id"]; 
+                    }
+                }
+                
+                if($fetch_dislike_rate["status"] == 1 && $fetch_dislike_rate["num_rows"] > 0){
+
+                    $output["dislikes"]["total"] = $fetch_dislike_rate["num_rows"];
+
+                    foreach($fetch_dislike_rate["fetch_all"] as $rate_index=>$single_rate){
+
+                        $output["dislikes"]["users"][] = $single_rate["user_id"]; 
+                    }
+                }
+
+                return $output;
+            }
+            
+            //use the function to get post overview such as `like`, `dislikes`, `comments`, `reads`
+            private function get_post_overview($post_id)
+            {
+
+                
+                //use the function and fetch the post ratings
+                $fetch_post_rating = $this->fetch_rates("post",$post_id);
+
+                $output = array(
+                    "read"=>0,
+                    "likes"=>$fetch_post_rating["likes"]["total"],
+                    "dislikes"=>$fetch_post_rating["dislikes"]["total"],
+                    "comments"=>0
+                );
+
+                //store post_read model's object
+                $post_read_obj=$this->model_objs["post_read_obj"];
+
+                //store comemnt_replies model's object
+                $reply_obj=$this->model_objs["reply_obj"];
+
+                //store comment model's object
+                $comment_obj=$this->model_objs["comment_obj"];
+
+                //store reply model's object
+                $reply_obj=$this->model_objs["reply_obj"];
+
+                //fetch post's read
+                $fetch_post_read=$post_read_obj->select(array(
+                    "column_name"=>"post_reads.total_read",
+                    "where"=>"post_reads.post_id={$post_id}"
+                ));
+
+                if($fetch_post_read["status"] == 1 && $fetch_post_read["num_rows"] == 1){
+
+                    //store the  posts read
+                    $output["read"]=$fetch_post_read["fetch_all"][0]["total_read"];
+                }
+
+                
+                //fetch comment based on $post_id
+                $fetch_post_comments=$comment_obj->select(array(
+                    "where"=>"comments.post_id={$post_id}"
+                ));
+            
+                if($fetch_post_comments["status"] == 1 && $fetch_post_comments["num_rows"] > 0){
+
+                    //store the total comments
+                    $output["comments"]=$fetch_post_comments["num_rows"];
+                
+                    foreach($fetch_post_comments["fetch_all"] as $comment_index=>$comment){
+
+                        //fetch comment replies based on $comment["comment_id"]
+                        $fetch_comment_replies=$reply_obj->select(array(
+                            "where"=>"replies.comment_id={$comment['comment_id']}"
+                        ));
+
+                        if($fetch_comment_replies["status"]  == 1 && $fetch_comment_replies["num_rows"] > 0){
+
+                            //do addition total comment replies with total comments
+                            $output["comments"]=$output["comments"] + $fetch_comment_replies["num_rows"];
+                        }
+                    }
+                
+                }
+
+                return $output;
+            }
         
         /**
          * =============================
@@ -430,7 +555,6 @@
                 //store all the catagores
                 $catagories = array();
                 
-
                 //fetch a single posts
                 $fetch_post = $post_obj->select(array(
                     "column_name"=>"
@@ -439,24 +563,28 @@
                         posts.post_content,
                         posts.post_author,
                         posts.post_date,
-                        posts.post_read,
+                        posts.post_link,
                         users.user_name
                     ",
                     "join"=>array(
                         "users"=>"users.user_id = posts.post_author"
                     ),
                     "where"=>"posts.post_link='{$post_link}'"
+
                 ));
 
-                if($fetch_post["status"] == 1 && $fetch_post["num_rows"] == 1){
+                if($fetch_post["status"] == 1 && $fetch_post["num_rows"] > 0){
 
                     //store all the info of a single post
                     $single_post = $fetch_post["fetch_all"][0];
 
                     //convert entities to HTML tag
                     $single_post["post_title"] = html_entity_decode($single_post["post_title"]);
-
+                    
+                    //convert entities to HTML tag
                     $single_post["post_content"] = html_entity_decode($single_post["post_content"]);
+                    
+                    $single_post["total_read"] = $this->get_post_overview($single_post["post_id"])["read"];
                     
                     //fetch post image
                     $single_post["pfile_info"] = $this->fetch_post_files($single_post["post_id"],"post_thumb");
@@ -469,11 +597,13 @@
                             "profile_img"=>$this->fetch_user_files($single_post["post_author"],"profile_img")  
                         )
                     );
+                    
                 }else{
 
+      
                     //call the error_404 to show the 404 error
-                    $this->functions->error_pages()->error_404();  
-                    
+                    $this->functions->error_pages()->error_404(); 
+
                     die();
                 }
             

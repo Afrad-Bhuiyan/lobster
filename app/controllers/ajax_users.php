@@ -67,11 +67,13 @@ class ajax_users extends ajax_controller {
                     "nf_obj"=>$this->model("notification"),
                     "post_obj"=>$this->model("post"),
                     "pfile_obj"=>$this->model("post_files"),
-                    "pr_obj"=>$this->model("post_rating"),
+                    // "pr_obj"=>$this->model("post_rating"),
+                    "rate_obj"=>$this->model("rate"),
                     "comment_obj"=>$this->model("comment"),
                     "reply_obj"=>$this->model("reply"),
                     "sp_obj"=>$this->model("saved_post"),
-                    "token_obj"=>$this->model("token")
+                    "token_obj"=>$this->model("token"),
+                    "post_read_obj"=>$this->model("post_read")
                 );
 
 

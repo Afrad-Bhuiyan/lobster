@@ -17,6 +17,9 @@ class ajax_pages extends ajax_controller
         
         //store the PHPMailer class object
         private $mail;
+
+        //store the PHPMailer class object
+        private $browser_detect;
         
         //Here we will store all the required model's object
         private $model_objs=array();
@@ -61,6 +64,9 @@ class ajax_pages extends ajax_controller
                 //store the PHPMailer class object
                 $this->mail= new PHPMailer;
 
+                //store the BrowserDetection class object
+                $this->browser_detect= new BrowserDetection;
+
                 //store all the models
                 $this->model_objs=array(
                     "user_obj"=>$this->model("user"),
@@ -72,7 +78,9 @@ class ajax_pages extends ajax_controller
                     "rate_obj"=>$this->model("rate"),
                     "cat_obj"=>$this->model("catagory"),
                     "nf_obj"=>$this->model("notification"),
-                    "sp_obj"=>$this->model("saved_post")
+                    "sp_obj"=>$this->model("saved_post"),
+                    "sub_obj"=>$this->model("subscriber"),
+                    "post_read"=>$this->model("post_read")
                 );
 
                 if($this->if_user_logged_in()){
@@ -109,6 +117,7 @@ class ajax_pages extends ajax_controller
                         "config"=>$this->config,
                         "functions"=>$this->functions,
                         "mail"=>$this->mail,
+                        "browser_detect"=>$this->browser_detect,
                         "user_info"=>$this->user_info,
                     );
 
@@ -564,327 +573,8 @@ class ajax_pages extends ajax_controller
 
         }
 
-     
-    
-        //(2.Single Post page)
-        public function fetch_subscribers($param){
-            /*
-                $param=array(
-                    "sub_obj"=>"",
-                    "sub_owner"=>8,
-                )
-             */
-            $output = [
-                "total_sub"=>0,
-                "user_id"=>array(),
-            ];
-    
-             $sub_obj=$param["sub_obj"];
-    
-             $sub_owner=$param["sub_owner"];
-    
-            $fetch_subscribers=$sub_obj->select(array(
-                "where"=>"subscribers.sub_owner={$sub_owner}"
-            ));
-    
-            if($fetch_subscribers["status"] == 1 && $fetch_subscribers["num_rows"] > 0 ){
-    
-                $output["total_sub"]=$fetch_subscribers["num_rows"];
-    
-                foreach($fetch_subscribers["fetch_all"] as $sub_index=>$sub){
-    
-                    $output["user_id"][]=$sub["user_id"];
-                }
-            
-            }
-    
-            return $output;
-        }
-
-        //(2.Single Post page) load subscribe button and total subscriber
-        public function load_total_subs_and_btn()
-        {
-
-            //first validate the post variable
-            $_POST=filter_var_array($_POST, FILTER_SANITIZE_STRING);
-
-            //store the post_link index from $_POST variable
-            $post_link=$_POST["post_link"];
-
-            //Here will store the sub_owner
-            $sub_owner="";
-
-            //include all the requried models
-            $post_obj=$this->model("post");
-            $sub_obj=$this->model("subscriber");
-
-            //fetch post_id based on $post_link
-            $fetch_post_id=$post_obj->select(array(
-                "column_name"=>"posts.post_author",
-                "where"=>"posts.post_link='{$post_link}'"
-            ));
-
-            if($fetch_post_id["status"] == 1 && $fetch_post_id["num_rows"] == 1){
-
-                //set the $sub_owner with fetched post_author
-                $sub_owner = $fetch_post_id["fetch_all"][0]["post_author"];
-
-            }else{
-
-                echo (isset($fetch_post_id["error"])) ? $fetch_post_id["error"] : "somehting went wrong in ajax_request on line 60";
-                die();
-            }
-            
-            //Here we will store the final output
-            $output=[
-                "total_sub"=>"0 Subscriber",
-                "user_id"=>array(),
-                "sub_btn"=>"            
-                    <button class='sp-content__btn sp-content__btn--subscribe' data-sub_owner='{$sub_owner}'>
-                        <span>Subscribe</span>
-                    </button>
-                "
-            ];
-
-            $fetch_subscribers=$sub_obj->select(array(
-                "where"=>"subscribers.sub_owner={$sub_owner}"
-            ));
-
-            if($fetch_subscribers["status"] == 1 && $fetch_subscribers["num_rows"] > 0 ){
-
-                if($fetch_subscribers["num_rows"] > 1){
-                    //store total subscirbers number in $output's `total_sub` index
-                    $output["total_sub"]="{$fetch_subscribers["num_rows"]} Subscribers";
-                    
-                }else{
-                    
-                    $output["total_sub"]="{$fetch_subscribers["num_rows"]} Subscriber";
-
-                }
-
-                foreach($fetch_subscribers["fetch_all"] as $sub_index=>$sub){
-
-                    //countinue a loop for each uesr_id
-                    $output["user_id"][]=$sub["user_id"];
-                }
-            }
-
-            if($this->functions->if_user_logged_in()){
-
-                $logged_in_user_id=$_SESSION["user_id"];
-
-                if(!empty($output["user_id"]) && in_array($logged_in_user_id, $output["user_id"])){
-                    
-                    $output["sub_btn"]="
-                        <button class='sp-content__btn sp-content__btn--subscribe sp-content__btn--pressed' data-sub_owner='{$sub_owner}'>
-                            <span>Subcribed</span>
-                        </button>
-                    ";
-                }
-            }
-
-            //return the final output
-            echo json_encode($output);
-            
-        }
-        
-
-        //========================================
-
-    
-        //(2.Single Post page) save a post in saved list
-        public function save_posts(){
-
-            $output=[];
-
-            if($this->functions->if_user_logged_in()){
-                
-                //first validate the $_POST variable
-                $_POST=filter_var_array($_POST, FILTER_SANITIZE_STRING);
-
-                //store the post_id from $_POST variable
-                $post_id=$_POST["post_id"];
-                
-                //store the loggedin user's user_id $_SESSION variable
-                $logged_in_user_id=$_SESSION["user_id"];
-
-                //include all required models
-                $sp_obj=$this->model("saved_post");
-
-                $fetch_saved_posts=$sp_obj->select(array(
-                    "where"=>"saved_posts.post_id={$post_id} AND saved_posts.user_id={$logged_in_user_id}"
-                ));
-
-                if($fetch_saved_posts["status"] == 1){
-
-                    if($fetch_saved_posts["num_rows"] == 1){
-
-                        //condition true means that user wants to unsave the post
-                        $unsave_post=$sp_obj->delete(array(
-                            "where"=>"saved_posts.post_id={$post_id} AND saved_posts.user_id={$logged_in_user_id}"
-                        ));
-
-                        if($unsave_post["status"] == 1 && $unsave_post["affected_rows"] == 1){
-
-                            $output["error"]=0;
-
-                            $output["action"]="unsave";
-                        
-                        }else{
-
-                            $output["error"]=1;
-
-                            $output["error_msg"]=(isset($unsave_post["error"])) ? $unsave_post["error"] : "somethin went wrong in ajax_posts on in 1596";
-                        }
-                    
-                    }else{
-
-                        //condition false means that user wants to save the post
-                        $add_to_save_posts=$sp_obj->insert(array(
-                            "fields"=>array(
-                                "user_id"=>$logged_in_user_id,
-                                "post_id"=>$post_id,
-
-                            )
-                        ));
-
-                        if($add_to_save_posts["status"] == 1 && isset($add_to_save_posts["insert_id"])){
-
-                            $output["error"]=0;
-
-                            $output["action"]="save";
-                            
-
-                        }else{
-
-                            $output["error"]=1;
-
-                            $output["error_msg"]=(isset($add_to_save_posts["error"])) ? $add_to_save_posts["error"] : "somethin went wrong in ajax_posts on in 1620";
-                        }
-                    }
-
-                }else{
-
-                    $output["error"]=1;
-
-                    $output["error_msg"]=$fetch_saved_posts["error"];
-                }
-
-            }else{
-
-                $output["error"]=100;
-            }
-            
-
-            echo json_encode($output);
-        }
-
-        //========================================
-
-
-
-        //(2.Single Post page) add a subscriber into the database
-        public function subscribe(){
-
-            $output=[];
-
-            if($this->functions->if_user_logged_in()){
-
-                //first validate the $_POST variable
-                $_POST=filter_var_array($_POST, FILTER_SANITIZE_STRING);
-
-                $sub_owner=$_POST["sub_owner"];
-
-                $logged_in_user_id=$_SESSION["user_id"];
-
-                if($logged_in_user_id !== $sub_owner){
-
-                    //include allr required model
-                    $sub_obj=$this->model("subscriber");
-
-                    $fetch_subscribers=$this->fetch_subscribers(array(
-                        "sub_obj"=>$sub_obj,
-                        "sub_owner"=>$sub_owner
-                    ));
-
-                    if(!empty($fetch_subscribers["user_id"]) &&  in_array($logged_in_user_id,$fetch_subscribers["user_id"])){
-
-                        /**
-                         * user already subscribed 
-                         * now we have to unsubscribe
-                         */
-                        
-                        //To unsubscibe we have delete the the entire row
-                        $unsubscribe=$sub_obj->delete(array(
-                            "where"=>"subscribers.sub_owner={$sub_owner} AND subscribers.user_id={$logged_in_user_id}"
-                        ));
-
-                        if($unsubscribe["status"] == 1 && $unsubscribe["affected_rows"] == 1){
-                            
-                            $output["error"]=0;
-                
-                            $output["action"]="unsubscribe";
-                            
-                        }else{
-
-                            $output["error"]=1;
-
-                            $output["error_msg"]=(isset($unsubscribe["error"])) ? $unsubscribe["error"] : "somehting went wrong in ajax_posts on line 1724";
-                        }
-
-                    }else{
-                        
-                        /**
-                         * user did not subscribed 
-                         * now we have to subscribe
-                         */
-
-                        date_default_timezone_set("Asia/Dhaka"); 
-                        //To subscribe we have to insert a row
-                        $subscribe=$sub_obj->insert(array(
-                            "fields"=>array(
-                                "sub_owner"=>$sub_owner,
-                                "user_id"=>$logged_in_user_id,
-                                "sub_date"=>date("d F, Y_h:i:sA")
-                            )
-                        ));
-
-                        if($subscribe["status"] == 1 && isset($subscribe["insert_id"])){
-
-                                $output["error"]=0;
-                                $output["action"]="subscribe";
-
-                        }else{
-
-                            $output["error"]=1;
-                            $output["error_msg"]=(isset($subscribe["error"])) ? $subscribe["error"] : "somehting went wrong in ajax_posts on line 1754";
-                        }
-                    
-                    }
-
-                }else{
-
-                    $output["error"]=1;
-
-                    $output["error_msg"]="you can't subscriber yourself";
-
-                }
-
-            }else{
-
-                $output["error"]=100;
-            }
-
-
-            echo json_encode($output);
-
-        }
-
-
         //Default method
         public function index(){}
-
-
         
         //use the funtion to fetch notifications when clicked on bell icon
         public function fetch_notifications()

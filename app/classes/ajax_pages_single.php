@@ -18,6 +18,9 @@ class ajax_pages_single{
     //store the PHPMailer class object
     private $mail;
     
+    //store the PHPMailer class object
+    private $browser_detect;
+    
     //Here we will store all the required model's object
     private $model_objs=array();
 
@@ -47,6 +50,9 @@ class ajax_pages_single{
                 
                 //store the `mail class from $thie variable
                 $this->mail=$objs["mail"];
+
+                //store the `mail class from $thie variable
+                $this->browser_detect=$objs["browser_detect"];
 
                 //store the `mail class from $thie variable
                 $this->user_info=$objs["user_info"];
@@ -230,6 +236,41 @@ class ajax_pages_single{
                  }
             }
 
+            return $output;
+        }
+
+        //use the function to check if the logged user subscribed the post author
+        private function fetch_subscribers($sub_owner)
+        {
+
+            $output = array(
+                "total_subscribers"=>0,
+                "users"=>array()
+            );
+            
+            //store the `subscirbe` model' from $this->model_obj variable
+            $sub_obj = $this->model_objs["sub_obj"];
+
+            //fetch total subscribers
+            $fetch_subs=$sub_obj->select(array(
+                "column_name"=>"*",
+                "where"=>"subscribers.sub_owner={$sub_owner}"
+            ));
+
+            if($fetch_subs["status"] == 1  && $fetch_subs["num_rows"] > 0){
+
+                
+                //store total subscribers
+                $output["total_subscribers"] = $fetch_subs["num_rows"];
+                
+                foreach($fetch_subs["fetch_all"] as $index=>$array){
+                    
+                    //store user id's whome subscribed
+                    $output["users"][] = $array["user_id"];
+                }
+
+            }
+            
             return $output;
         }
 
@@ -1679,8 +1720,8 @@ class ajax_pages_single{
                             "post_id"=>$post_id
                         )
                     ));
-                
-                    if($saved_post["status"] == 1 && isset($saved_post["insert_id"])){
+                     
+               if($saved_post["status"] == 1 && isset($saved_post["insert_id"])){
 
                         $output = array(
                             "error_status"=>0
@@ -1709,7 +1750,451 @@ class ajax_pages_single{
         
        }
 
+
+       //use the funtion to load subscribe button and total subscribers
+       public function load_subscribe_btn()
+       {
+
+            //first validate the post variable
+            $_POST=filter_var_array($_POST, FILTER_SANITIZE_STRING);
+
+            //store all the info related to the post
+            $post_info = array();
+
+            //store the `post` model's object from $this->modal variable
+            $post_obj = $this->model_objs["post_obj"];
+            
+            $fetch_post_info=$post_obj->select(array(
+                "column_name"=>"posts.post_id, posts.post_link, posts.post_author",
+                "where"=>"posts.post_link='{$_POST['post_link']}'"
+            ));
+
+            if($fetch_post_info["status"] == 1 && $fetch_post_info["num_rows"] == 1){
+            
+                $post_info = $fetch_post_info["fetch_all"][0];
+            }
+
+        
+            //get information about subscribers
+            $subscribers_info=$this->fetch_subscribers($post_info["post_author"]);
+
+            if($subscribers_info["total_subscribers"] > 1){
+
+                $subscribers_info["total_subscribers"] = $this->functions->number_format_short($subscribers_info["total_subscribers"]) . " Subscribers";
+            
+            }else{
+
+                $subscribers_info["total_subscribers"] = $this->functions->number_format_short($subscribers_info["total_subscribers"]) . " Subscriber";
+            }
+
+            if(!empty($this->user_info)){
+
+                //if user subscribe then store the `pressed` class
+                $subscribed_class = (in_array($this->user_info["user_id"],$subscribers_info["users"])) ? "sp-content__btn--pressed" : null;
+                
+                $output = array(
+                    "total_subscribers"=>$subscribers_info["total_subscribers"],
+                    "subs_btn"=>"
+                        <button class='sp-content__btn sp-content__btn--subscribe {$subscribed_class}' data-sub_owner='{$post_info["post_author"]}'>
+                            <span class='sp-content__btn-txt'>Subscribed</span>
+                        </button>
+                    "
+                );
+                
+            }else{
+
+                $output = array(
+                    "total_subscribers"=>$subscribers_info["total_subscribers"],
+
+                    "subs_btn"=>"
+                        <button class='sp-content__btn sp-content__btn--subscribe' data-sub_owner='{$post_info["post_author"]}'>
+                            <span class='sp-content__btn-txt'>Subscribe</span>
+                        </button>
+                    "
+                );
+            }
+
+            echo json_encode($output);
+       }
+
+
+       //use the function to subscribe a user
+       public function add_to_subscribe_list()
+       {
+
+            $output = array();
+
+            if(!empty($this->user_info)){
+
+                //first validate the post variable
+                $_POST=filter_var_array($_POST, FILTER_SANITIZE_STRING);
+            
+                //store `sub_owner` index from $_POST variable
+                $sub_owner = (isset($_POST["sub_owner"])) ? $_POST["sub_owner"] : null;
+
+                //store the `subscirbe` model' from $this->model_obj variable
+                $sub_obj = $this->model_objs["sub_obj"];
+
+
+                if($sub_owner !== $this->user_info["user_id"]){
+
+                    //store all the subscribsers
+                    $subscribers_info=$this->fetch_subscribers($sub_owner);
+
+                    if(!in_array($this->user_info["user_id"],$subscribers_info["users"])){
+
+                        /**
+                         * logged users didn't subscribers. 
+                         * let's add to subscribe list
+                         */
+                        
+                         //insert subscribers
+                       $insert_subscribers=$sub_obj->insert(array(
+                            "fields"=>array(
+                                "sub_owner"=>$sub_owner,
+                                "user_id"=>$this->user_info["user_id"],
+                                "sub_date"=>date("d F, Y_h:i:sA")
+                            )
+                        ));
+                        
+                        if($insert_subscribers["status"] && isset($insert_subscribers["insert_id"])){
+
+                            $output = array(
+                                "error_status"=>0,
+                                "action"=>"subscribe"
+                            );
+                        
+                        }else{
+
+                            $output = array(
+                                "error_status"=>100,
+                                "errors"=>$insert_subscribers
+                            );
+                        }
+
+                    
+            
+                    }else{
+
+
+                        /**
+                         * logged users already subscribed. 
+                         * let's delete and unsubscribe the user
+                         */
+                                
+                            //insert subscribers
+                            $delete_subscribers=$sub_obj->delete(array(
+                                "fields"=>array(
+                                    "sub_owner"=>$sub_owner,
+                                    "user_id"=>$this->user_info["user_id"],
+                                    "sub_date"=>date("d F, Y_h:i:sA")
+                                )
+                            ));
+                    
+                            if($delete_subscribers["status"] && $delete_subscribers["affected_rows"] == 1){
+
+                                $output = array(
+                                    "error_status"=>0,
+                                    "action"=>"unsubscribe"
+                                );
+                            
+                            }else{
+
+                                $output = array(
+                                    "error_status"=>100,
+                                    "errors"=>$delete_subscribers
+                                );
+                            }
+
+            
+                        //logged users didn't subscribers
+                    }
+
+
+                }else{
+
+                    $output = array(
+                        "error_status"=>2
+                    );
+                }
+              
+             
+            }else{
+
+                $output = array(
+                    "error_status"=>1
+                );
+            }
+            
+           echo json_encode($output);
+       }
+
+
+        //Use the function to load on sidebar
+        public function load_posts_on_sidebar()
+        {
+
+            //store the final output 
+            $output="";
+
+            //first validate the post variable
+            $_POST=filter_var_array($_POST, FILTER_SANITIZE_STRING);
+
+            //store the catagory_id index from $_POST variable
+            $cat_id=(isset($_POST["cat_id"])) ? $_POST["cat_id"] : null;
+
+            //store the `post` model's object from $this->modal variable
+            $post_obj = $this->model_objs["post_obj"];
+
+            //store all the info related to the post
+            $post_info = array();
+
+            //fetch post information
+            $fetch_post_info=$post_obj->select(array(
+                "column_name"=>"posts.post_id, posts.post_link, posts.post_author",
+                "where"=>"posts.post_link='{$_POST['post_link']}'"
+            ));
+
+            if($fetch_post_info["status"] == 1 && $fetch_post_info["num_rows"] == 1){
+
+                $post_info = $fetch_post_info["fetch_all"][0];
+            }
+
+            $post_param=array(
+                "column_name"=>"
+                    posts.post_id,
+                    posts.post_title,
+                    posts.post_date,
+                    posts.post_read,
+                    posts.post_link,
+                    posts.post_author,
+                    users.user_name
+                ",
+                "join"=>array(
+                    "users"=>"users.user_id = posts.post_author"
+                )
+            );
+
+            if($cat_id != 1){
+                  
+                  //load catagory wise posts
+                  $post_param["where"]="NOT posts.post_id={$post_info['post_id']} AND posts.post_cat={$cat_id} AND posts.post_status='published'";
+                
+            }else{
+                 //load all posts
+                 $post_param["where"]="NOT posts.post_id={$post_info['post_id']} AND posts.post_status='published'";
+            }
+
+            //store all the posts for sidebar
+            $sidebar_posts = array();
+
+            //fetch posts all the posts for sidebar
+            $fetch_posts=$post_obj->select($post_param);
+
+            if($fetch_posts["status"] == 1 && $fetch_posts["num_rows"] > 0){
+
+                //store all the fetched posts in $sidebar_posts
+                $sidebar_posts = $fetch_posts["fetch_all"];
+
+                foreach($sidebar_posts as $post_index=>$post){
+
+                    //fetech post_thumb for each post
+                    $sidebar_posts[$post_index]["pfile_info"]= $this->fetch_post_files($post['post_id'],"post_thumb");
+                }
+            }
+
+
+            if(!empty($sidebar_posts)){
+
+                foreach($sidebar_posts as $post_index=>$post){
+
+                    $post['post_date']=str_replace(", ", "-", $post['post_date']);
+                    $post['post_date']=str_replace(" ","-",$post['post_date']);
+                    $post['post_date']=str_replace("_"," ",$post['post_date']);
+                    $pfile_infp = $post["pfile_info"];
+
+                    $output .="
+                        <div class='sidebar-lg__sp'>
+                            <a class='sidebar-lg__sp-thumb' href='{$this->config->domain("posts?v={$post['post_link']}")}'>
+                                <img  src='{$this->config->domain("app/uploads/posts/{$pfile_infp['name']}-md.{$pfile_infp['ext']}")}' alt='{$post['post_title']}' width='{$pfile_infp['dimension']['md']['width']}' height='{$pfile_infp['dimension']['md']['height']}'>
+                            </a>
+                            
+                            <div class='sidebar-lg__sp-content'>
+                                <h6 class='sidebar-lg__sp-title'>
+                                    <a href='{$this->config->domain("posts?v={$post['post_link']}")}'>
+                                        {$this->functions->short_str_word($post['post_title'], 6)}
+                                    </a>    
+                                </h6>
+
+                                <a class='sidebar-lg__sp-username' href='{$this->config->domain("users/{$post['user_name']}")}'>
+                                    {$post['user_name']}
+                                </a>
+                                
+                                <div class='sidebar-lg__sp-meta'>
+                                    <ul class='sidebar-lg__sp-meta-list'>
+                                        <li class='sidebar-lg__sp-meta-item'>
+                                            <span>
+                                                {$post['post_read']} read
+                                            </span>
+                                        </li>
+
+                                        <li class='sidebar-lg__sp-meta-item'>
+                                            <span>
+                                                {$this->functions->get_time_in_ago($post['post_date'])}
+                                            </span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    ";
+                }
+
+            }else{
+
+                $output .= "
+                    <div class='sidebar-lg__msg sidebar-lg__sp--notfound'>
+                        <div class='sidebar-lg__msg-body'>
+                            <p>Not found any posts</p>
+                        </div>
+                    </div>
+                ";
+            }
+
+            echo $output;
+        
+        }
+
+        //use the function to count a single post's read
+        public function count_read()
+        {
+
+            //first validate the post variable
+            $_POST=filter_var_array($_POST, FILTER_SANITIZE_STRING);
+
+            //store the `post` model's object from $this->modal variable
+            $post_obj = $this->model_objs["post_obj"];
+  
+            //store all the info related to the post
+            $post_info = array();
+  
+            //fetch post information
+            $fetch_post_info=$post_obj->select(array(
+                "column_name"=>"posts.post_id, posts.post_link, posts.post_author",
+                "where"=>"posts.post_link='{$_POST['post_link']}'"
+            ));
+
+            if($fetch_post_info["status"] == 1 && $fetch_post_info["num_rows"] == 1){
+
+                $post_info = $fetch_post_info["fetch_all"][0];
+            }
+            
+            //store `post_reads` model's object from $this->model_obj
+            $post_read_obj=$this->model_objs["post_read"];
+            
+            //store user's public ip address
+            $ip_address = (isset($_SERVER["REMOTE_ADDR"])) ? $_SERVER["REMOTE_ADDR"] : "";
+            // $ip_address = "123.253.198.131";
+
+            //fetch all the post_reads information
+            $fetch_reads=$post_read_obj->select(array(
+                "where"=>"post_reads.ip_address='{$ip_address}' AND post_reads.post_id={$post_info["post_id"]}"
+            ));
+
+            if($fetch_reads["status"] == 1 && $fetch_reads["num_rows"] == 1){
+
+                /**
+                 * User previously visited this post page. Now we have to check 
+                 * if users visited this page with a new browser, then you are going to increase a read
+                 */
+                
+                 if(!isset($_COOKIE["LOBSTER_VISITED"])){
+
+                    $read_info=array(
+                        "browser_name"=>$this->browser_detect->getName(),
+                        "browser_version"=>$this->browser_detect->getVersion(),
+                        "platform"=>$this->browser_detect->getPlatform(),
+                        "created_at"=>date("d F, Y_h:i:sA")
+                    );
+                    
+                    //convert the array into a string to store it into the database
+                    $read_info=serialize($read_info);
+
+                    //add `\` before the `""` double quotation mark
+                    $read_info=str_replace('"','\"',$read_info);
+                    
+                    $update_read=$post_read_obj->update(array(
+                        "fields"=>array(
+                            "read_info"=>$read_info,
+                            "total_read"=> $fetch_reads["fetch_all"][0]["total_read"] + 1
+                        ),
+                        "where"=>"post_reads.ip_address='{$ip_address}' AND post_reads.post_id={$post_info['post_id']}"
+                    ));
+
+                    if($update_read["status"] == 1 && $update_read["affected_rows"] > 0){
+
+                        //set a cookie to check if a user previously visited the page
+                        setcookie("LOBSTER_VISITED","YES",time() + (86400 * 30), "/");
+                    }
+                 }
+
+            
+
+            }else{
+
+                 /**
+                 * User didn't visit the post page now we have to add a record to 
+                 * by using the user's public ip address
+                 */
+            
+                //store the profile width and height
+                $read_info=array(
+                    "browser_name"=>$this->browser_detect->getName(),
+                    "browser_version"=>$this->browser_detect->getVersion(),
+                    "platform"=>$this->browser_detect->getPlatform(),
+                    "created_at"=>date("d F, Y_h:i:sA")
+                );
+                
+                //set a cookie to check if a user previously visited the page
+                setcookie("LOBSTER_VISITED","",time() - (86400 * 30), "/");
+
+                //convert the array into a string to store it into the database
+                $read_info=serialize($read_info);
+
+                //add `\` before the `""` double quotation mark
+                $read_info=str_replace('"','\"',$read_info);
+
+                 //insert record for the read
+                $insert_read = $post_read_obj->insert(array(
+                     "fields"=>array(
+                         "ip_address"=>$ip_address,
+                         "read_info"=>$read_info,
+                         "post_id"=>$post_info["post_id"],
+                         "total_read"=>1
+                     )
+                ));
+
+                if($insert_read["status"] == 1 && isset($insert_read["insert_id"])){
+
+                    //set a cookie to check if a user previously visited the page
+                    setcookie("LOBSTER_VISITED","YES",time() + (86400 * 30), "/");
+
+                    print_r($insert_read);
+
+                }
+                
+              
+         
+         
+            }
+
     
+
+           
+
+
+        }
+
 
     /**
      * =========================

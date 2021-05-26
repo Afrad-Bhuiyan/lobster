@@ -47,7 +47,6 @@ class ajax_users_posts{
             //store the `mail class from $thie variable
             $this->mail=$objs["mail"];
 
-        
             //store the `mail class from $thie variable
             $this->user_info=$objs["user_info"];
         }
@@ -60,93 +59,130 @@ class ajax_users_posts{
      * All private functions  starts 
      * =============================
      */
-    
-        //use the function for fetching post ratings for a single posts 
-        //such as `like`, `comment`, 'read' 
-        private function fetch_post_rating($post_id)
+
+        //use the function to fetch ratings for `post`, `comment`, `comment reply`
+        private function fetch_rates($rate_for, $rate_for_id)
         {
+
+            //Default output 
+            $output = array(
+                "likes"=>array(
+                    "total"=>0,
+                    "users"=>array()
+                ),
+
+                "dislikes"=>array(
+                    "total"=>0,
+                    "users"=>array()
+                )
+            );
+
+            //store catagory rate's object from $this->model_obj variable
+            $rate_obj = $this->model_objs["rate_obj"];
+
+            //fetch like ratings
+            $fetch_like_rate=$rate_obj->select(array(
+            "where"=>"rates.rate_for='{$rate_for}' AND rates.rate_for_id={$rate_for_id} AND rates.rate_action='like'"
+            ));
+
+            //fetch dislike rating
+            $fetch_dislike_rate=$rate_obj->select(array(
+            "where"=>"rates.rate_for='{$rate_for}' AND rates.rate_for_id={$rate_for_id} AND rates.rate_action='dislike'"
+            ));
+
+            if($fetch_like_rate["status"] == 1 && $fetch_like_rate["num_rows"] > 0){
+
+                $output["likes"]["total"] = $fetch_like_rate["num_rows"];
+
+                foreach($fetch_like_rate["fetch_all"] as $rate_index=>$single_rate){
+
+                    $output["likes"]["users"][] = $single_rate["user_id"]; 
+                }
+            }
             
-            //store comment model's object
-            $comment_obj=$this->model_objs["comment_obj"];
+            if($fetch_dislike_rate["status"] == 1 && $fetch_dislike_rate["num_rows"] > 0){
 
-            //store post model's object
-            $post_obj=$this->model_objs["post_obj"];
+                $output["dislikes"]["total"] = $fetch_dislike_rate["num_rows"];
 
-            //store post_rating model's object
-            $pr_obj=$this->model_objs["pr_obj"];
+                foreach($fetch_dislike_rate["fetch_all"] as $rate_index=>$single_rate){
+
+                    $output["dislikes"]["users"][] = $single_rate["user_id"]; 
+                }
+            }
+
+            return $output;
+        }
+
+        //use the function to get post overview such as `like`, `dislikes`, `comments`, `reads`
+        private function get_post_overview($post_id)
+        {
+
+            
+            //use the function and fetch the post ratings
+            $fetch_post_rating = $this->fetch_rates("post",$post_id);
+
+            $output = array(
+                "read"=>0,
+                "likes"=>$fetch_post_rating["likes"]["total"],
+                "dislikes"=>$fetch_post_rating["dislikes"]["total"],
+                "comments"=>0
+            );
+
+            //store post_read model's object
+            $post_read_obj=$this->model_objs["post_read_obj"];
 
             //store comemnt_replies model's object
             $reply_obj=$this->model_objs["reply_obj"];
 
-            //Return the final output
-            $output=[];
-            
+            //store comment model's object
+            $comment_obj=$this->model_objs["comment_obj"];
+
+            //store reply model's object
+            $reply_obj=$this->model_objs["reply_obj"];
+
             //fetch post's read
-            $fetch_post_read=$post_obj->select(array(
-                "column_name"=>"posts.post_read",
-                "where"=>"posts.post_id={$post_id}"
+            $fetch_post_read=$post_read_obj->select(array(
+                "column_name"=>"post_reads.total_read",
+                "where"=>"post_reads.post_id={$post_id}"
             ));
 
-            if($fetch_post_read["status"] == 1 && $fetch_post_read["num_rows"]){
+            if($fetch_post_read["status"] == 1 && $fetch_post_read["num_rows"] == 1){
 
                 //store the  posts read
-                $output["read"]=$fetch_post_read["fetch_all"][0]["post_read"];
+                $output["read"]=$fetch_post_read["fetch_all"][0]["total_read"];
             }
 
-            //fetch post's like
-            $fetch_post_like=$pr_obj->select(array(
-                "where"=>"post_ratings.post_id={$post_id} AND post_ratings.pr_action='like'"
-            ));
             
-            if($fetch_post_like["status"] == 1){
-        
-                //store the  posts read
-                $output["likes"]=$fetch_post_like["num_rows"];
-            }
-
-            //fetch post's dislike
-            $fetch_post_dislike=$pr_obj->select(array(
-                "where"=>"post_ratings.post_id={$post_id} AND post_ratings.pr_action='dislike'"
-            ));
-            
-            if($fetch_post_dislike["status"] == 1){
-        
-                //store the  posts read
-                $output["dislikes"]=$fetch_post_dislike["num_rows"];
-            }
-
             //fetch comment based on $post_id
             $fetch_post_comments=$comment_obj->select(array(
                 "where"=>"comments.post_id={$post_id}"
             ));
         
-            if($fetch_post_comments["status"] == 1){
+            if($fetch_post_comments["status"] == 1 && $fetch_post_comments["num_rows"] > 0){
 
                 //store the total comments
                 $output["comments"]=$fetch_post_comments["num_rows"];
-                
-                if($fetch_post_comments["num_rows"] > 0){
+            
+                foreach($fetch_post_comments["fetch_all"] as $comment_index=>$comment){
 
-                    foreach($fetch_post_comments["fetch_all"] as $comment_index=>$comment){
+                    //fetch comment replies based on $comment["comment_id"]
+                    $fetch_comment_replies=$reply_obj->select(array(
+                        "where"=>"replies.comment_id={$comment['comment_id']}"
+                    ));
 
-                        //fetch comment replies based on $comment["comment_id"]
-                        $fetch_comment_replies=$reply_obj->select(array(
-                            "where"=>"replies.replies_for='comment_reply' AND replies.replies_for_id={$comment['comment_id']}"
-                        ));
+                    if($fetch_comment_replies["status"]  == 1 && $fetch_comment_replies["num_rows"] > 0){
 
-                        if($fetch_comment_replies["status"]  == 1 && $fetch_comment_replies["num_rows"] > 0){
-
-                            //do addition total comment replies with total comments
-                            $output["comments"]=$output["comments"] + $fetch_comment_replies["num_rows"];
-                        }
+                        //do addition total comment replies with total comments
+                        $output["comments"]=$output["comments"] + $fetch_comment_replies["num_rows"];
                     }
                 }
             
             }
 
             return $output;
-        }  
-        
+        }
+
+
         //use the function for printing my posts table
         private function print_my_posts_table(array $posts)
         {
@@ -226,7 +262,7 @@ class ajax_users_posts{
                         $post_date= $post_date[0];
 
                         $pfile_info= $post["pfile_info"];
-                        $post_ratings= $post["post_ratings"];
+                        $post_overview= $post["post_overview"];
 
                         $output .= "
                             <tr class='my-posts__tr my-posts__tr--tbody'>
@@ -306,7 +342,7 @@ class ajax_users_posts{
                                 <td class='my-posts__td my-posts__td--read'>
                                     <div class='my-posts__td-wrap'>
                                         <div class='my-posts__td-text'>
-                                            {$post_ratings["read"]}
+                                            {$post_overview["read"]}
                                         <div>
                                     </div>
                                 </td>
@@ -314,7 +350,7 @@ class ajax_users_posts{
                                 <td class='my-posts__td my-posts__td--likes'>
                                     <div class='my-posts__td-wrap'>
                                         <div class='my-posts__td-text'>
-                                            {$post_ratings["likes"]}
+                                            {$post_overview["likes"]}
                                         <div>
                                     </div>
                                 </td>
@@ -322,7 +358,7 @@ class ajax_users_posts{
                                 <td class='my-posts__td my-posts__td--dislikes'>
                                     <div class='my-posts__td-wrap'>
                                         <div class='my-posts__td-text'>
-                                            {$post_ratings["dislikes"]}
+                                            {$post_overview["dislikes"]}
                                         <div>
                                     </div>
                                 </td>
@@ -330,7 +366,7 @@ class ajax_users_posts{
                                 <td class='my-posts__td my-posts__td--comments'>
                                     <div class='my-posts__td-wrap'>
                                         <div class='my-posts__td-text'>
-                                            {$post_ratings["comments"]}
+                                            {$post_overview["comments"]}
                                         <div>
                                     </div>
                                 </td>
@@ -808,7 +844,7 @@ class ajax_users_posts{
             $filter=$_POST["filter"];
             
             //store `user_id` index from $_SESSION variable 
-            $logged_user_id=$_SESSION["user_id"];
+            $logged_user_id=$this->user_info["user_id"];
 
             $post_obj=$this->model_objs["post_obj"];
         
@@ -888,13 +924,16 @@ class ajax_users_posts{
                 //fetch post ratings for each posts
                 foreach($my_posts["all"] as $post_index=>$post){
 
-                    $my_posts["all"][$post_index]["post_ratings"]=$this->fetch_post_rating($post['post_id']);
+                  
+
+                    // $my_posts["all"][$post_index]["post_ratings"]=$this->fetch_post_rating($post['post_id']);
+                    $my_posts["all"][$post_index]["post_overview"]=$this->get_post_overview($post['post_id']);
 
                     $my_posts["all"][$post_index]["pfile_info"]=$this->fetch_post_files($post["post_id"],"post_thumb");
                 }
             }
 
-            //$total_pages=3 but user is trying to access the 4 number page. In that throw this error
+            //$total_pages=3 but user is trying to access the 4 number page. In that case throw this error
             if($total_pages != 0 && $page_no > $total_pages){
 
                 $output .="
@@ -914,6 +953,7 @@ class ajax_users_posts{
 
                 //finally return the output in a table format
                 $output .= $this->print_my_posts_table($my_posts);
+
 
             }else{
 
@@ -978,7 +1018,6 @@ class ajax_users_posts{
                         </ul>
                     </div>
                 ";
-
             }
 
             echo $output;
@@ -1395,10 +1434,7 @@ class ajax_users_posts{
 
             //store the post model's  object from $this->model_objs variable
             $post_obj=$this->model_objs["post_obj"];
-            
-            //store the post_ratings model's  object from $this->model_objs variable
-            $pr_obj=$this->model_objs["pr_obj"];
-
+        
             if($selected_value !== "most_read_posts"){
                 
                 /**
@@ -1447,33 +1483,22 @@ class ajax_users_posts{
                     foreach($fetch_posts["fetch_all"] as $post_index=>$post){
 
                         //store all options for fetching post ratings
-                        $fetch_options=array();
+                        $fetch_post_rating = $this->fetch_rates("post",$post["post_id"]);
+                        
+                        if($selected_value == "most_liked_posts" && $fetch_post_rating['likes']["total"] !== 0){ 
 
-                        if($selected_value == "most_liked_posts"){ 
+                            $all_info[$fetch_post_rating['likes']["total"]] = $post["post_id"];
 
-                            //set posts.pr_action ='like' if user select to see most liked posts
-                            $fetch_options["where"]="post_ratings.post_id={$post['post_id']} AND post_ratings.pr_action='like'";
-                            
-                        }elseif($selected_value == "most_disliked_posts"){
-                            
-                            //set posts.pr_action ='dislike' if user select to see most disliked posts
-                            $fetch_options["where"]="post_ratings.post_id={$post['post_id']} AND post_ratings.pr_action='dislike'";
-                        }
+                        }elseif($selected_value == "most_disliked_posts" && $fetch_post_rating['dislikes']["total"] !== 0){
 
-                        //fetch post rating for each user's posts
-                        $fetch_post_rating=$pr_obj->select($fetch_options);
-
-                        if($fetch_post_rating["status"] == 1 && $fetch_post_rating["num_rows"] > 0){
-                            
-                            //store the array in $all_info
-                            $all_info[$fetch_post_rating["num_rows"]]=$post["post_id"];
-                            
+                            $all_info[$fetch_post_rating['dislikes']["total"]] = $post["post_id"];
                         }
                     }
                     
                     //sorting the array in DESC format according to indexes
                     krsort($all_info);
 
+             
                     if(!empty($all_info)){
 
                         $posts=array(
@@ -1503,7 +1528,7 @@ class ajax_users_posts{
 
                             foreach($posts["all"] as $post_index=>$post){
 
-                                $posts["all"][$post_index]["post_ratings"]=$this->fetch_post_rating($post['post_id']);
+                                $posts["all"][$post_index]["post_overview"]=$this->get_post_overview($post['post_id']);
                                 
                                 $posts["all"][$post_index]["pfile_info"]=$this->fetch_post_files($post['post_id'],"post_thumb");
                             }
@@ -1548,14 +1573,15 @@ class ajax_users_posts{
                         posts.post_link,
                         posts.post_date,
                         posts.post_status,
-                        catagories.cat_name
+                        catagories.cat_name,
+                        post_reads.total_read
                     ",
                     "join"=>array(
-                        "catagories"=>"catagories.cat_id = posts.post_cat"
+                        "catagories"=>"catagories.cat_id = posts.post_cat",
+                        "post_reads"=>"post_reads.post_id = posts.post_id"
                     ),
-
                     "order"=>array(
-                        "column"=>"posts.post_read",
+                        "column"=>"post_reads.total_read",
                         "type"=>"DESC"
                     )
                 );
@@ -1589,13 +1615,11 @@ class ajax_users_posts{
                     
                     foreach($posts["all"] as $post_index=>$post){
                         
-                        $posts["all"][$post_index]["post_ratings"]=$this->fetch_post_rating($post['post_id']);
+                        $posts["all"][$post_index]["post_overview"]=$this->get_post_overview($post['post_id']);
                         $posts["all"][$post_index]["pfile_info"]=$this->fetch_post_files($post['post_id'],"post_thumb");
                     }
-                    
-
+                
                    $output .= $this->print_my_posts_table($posts);
-
 
                 }else{
 
@@ -1692,6 +1716,7 @@ class ajax_users_posts{
                     
                     //store all ratings in $posts["all"]
                     $posts["all"][$post_index]["post_ratings"]=$this->fetch_post_rating($post['post_id']);
+                 
 
                     $posts["all"][$post_index]["pfile_info"]=$this->fetch_post_files($post['post_id'],"post_thumb");
                 }

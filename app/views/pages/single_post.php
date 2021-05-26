@@ -11,7 +11,6 @@
 
     $post_auth_profile=isset($post_auth_info["ufile_info"]["profile_img"]) ? $post_auth_info["ufile_info"]["profile_img"] : null;
 
-
     // echo "<pre>";
     // print_r($data);
     // echo "</pre>";
@@ -38,7 +37,7 @@
                                     <ul class="sp-content__meta-list sp-content__meta-list--left">
                                         <li class="sp-content__meta-list-item">
                                             <span class="sp-content__meta-list-txt">
-                                                56,362 read
+                                                <?php echo  number_format($single_post['total_read']) . " read" ?>
                                             </span>
                                         </li>
                                         
@@ -77,15 +76,17 @@
                                                 <img class='sp-content__img sp-content__img--postAuthor' src='{$config->domain("app/uploads/users/profile/{$post_auth_profile['name']}-sm.{$post_auth_profile['ext']}")}' alt='{$post_auth_info['user_name']}'/>
                                             "
                                         ?>
-                                        <a class="sp-content__link sp-content__link--uname" href="<?php echo $config->domain("users/{$post_auth_info['user_name']}") ?>">
-                                            afradbhuiyan
-                                        </a>
+                                        <div class="sp-content__auth-info">
+                                            <a class="sp-content__link sp-content__link--uname" href="<?php echo $config->domain("users/{$post_auth_info['user_name']}") ?>">
+                                                afradbhuiyan
+                                            </a>
+                                            <span class="sp-content__txt sp-content__txt--subs">
+                                            </span>
+                                        </div>
                                     </div>
 
                                     <div class="sp-content__auth-side sp-content__auth-side--right">
-                                        <button class='sp-content__btn sp-content__btn--subscribe' data-sub_owner='1'>
-                                            <span>Subcribed</span>
-                                        </button>
+                                        <!--Subscribe button will be appended-->
                                     </div>
                                 </div>
 
@@ -110,29 +111,30 @@
 
                     <div class="col-12 col-lg-4 d-none d-lg-block main-wrap__col main-wrap__col--sb">
                         <div class="main-wrap__col-wrap main-wrap__col-wrap--sb">
-
                             <div class="sidebar-lg">
-                                <div class="sidebar-lg__filters">
-                                    <button class="sidebar-lg__filter-btn sidebar-lg__filter-btn--action sidebar-lg__filter-btn--prev" type="button">
+                                <div class="sidebar-lg__filter">
+                                    <button class="sidebar-lg__btn sidebar-lg__btn--ctrl sidebar-lg__btn--prev" type="button">
                                         <i class="fa fa-angle-left"></i>
                                     </button>
-
                                     <div class="sidebar-lg__filter-wrap">
                                         <div class="sidebar-lg__filter-track">
-                                            <button class="sidebar-lg__filter-btn sidebar-lg__filter-btn--cat sidebar-lg__filter-btn--active" type="button"  data-cat_id='0'>All</button>
                                             <?php 
                                                 if($catagories !== null){
                                                     foreach($catagories as $cat_index=>$cat){
+
+                                                        $filter_btn_active = ($cat["cat_id"] == 1) ? "sidebar-lg__btn--active" : "";
+
                                                         echo "
-                                                            <button class='sidebar-lg__filter-btn sidebar-lg__filter-btn--cat' type='button' data-cat_id='{$cat['cat_id']}'>{$cat['cat_name']}</button>
+                                                            <button class='sidebar-lg__btn sidebar-lg__btn--cat {$filter_btn_active}' type='button' data-cat_id='{$cat['cat_id']}'>
+                                                                {$cat['cat_name']}
+                                                            </button>
                                                         ";
                                                     }
                                                 }
                                             ?>
                                         </div>
                                     </div>
-
-                                    <button class="sidebar-lg__filter-btn sidebar-lg__filter-btn--action sidebar-lg__filter-btn--next" type="button">
+                                    <button class="sidebar-lg__btn sidebar-lg__btn--ctrl sidebar-lg__btn--next" type="button">
                                         <i class="fa fa-angle-right"></i>
                                     </button>
                                 </div>

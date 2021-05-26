@@ -44,26 +44,5 @@
     ?>
     
     <script id="main-js" src="<?php echo $config->domain("assets/js/main.js") ?>" data-type="<?php echo $data_type ?>"></script>
-     
-     <script>
-     
-          //get the post request url
-          function post_request_url(){
-
-               let output;
-
-               if(location.hostname !== "projects.afradbhuiyan.com"){
-
-               output=`${location.origin}/lobster/<?php echo "ajax_users/{$user_info['user_name']}"; ?>`;
-
-               }else{
-               output=`${location.origin}/lobster/<?php echo "ajax_users/{$user_info['user_name']}"; ?>`;
-               }
-
-               return output;
-          }
-
-     </script>
-
 </body>
 </html>

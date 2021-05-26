@@ -139,6 +139,12 @@
                         </div>
                     ";
                 }
+                
+         
+       
+
+
+
 
         ?>
     
@@ -290,15 +296,19 @@
                             </button>
 
                             <div class="ph-filter__slider-wrap">
-                                <div class="ph-filter__slider-track">
-                                    <button class="ph-filter__btn ph-filter__btn--cat ph-filter__btn--active" type="button" data-cat_id="0">All</button>
-                                    
+                                <div class="ph-filter__slider-track">                                    
                                     <?php
                                         if(isset($data["catagories"])){
 
                                             foreach($data["catagories"] as $cat_index=>$cat){
+
+                                                $filter_btn_action = ($cat["cat_id"] == 1) ? "ph-filter__btn--active" : "";
+                                               
+
                                                 echo "
-                                                    <button class='ph-filter__btn ph-filter__btn--cat' type='button' data-cat_id='{$cat['cat_id']}'>{$cat['cat_name']}</button>    
+                                                    <button class='ph-filter__btn ph-filter__btn--cat {$filter_btn_action}' type='button' data-cat_id='{$cat['cat_id']}'>
+                                                        {$cat['cat_name']}
+                                                    </button>    
                                                 ";
                                             }
                                         } 

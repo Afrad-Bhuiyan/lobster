@@ -23,99 +23,6 @@
         
     }
 
-    //function for loading catagory wise post in home and single blog page
-    function load_posts(param){
-        /*
-            param={
-                catagory_id:0, (required)
-                load_position:"sidebar",(required)
-                post_link:post_link (required for single blog page),
-                remove_spinner_after:150(optional parameter)
-            }
-        */
-        const load_position=param.load_position
-
-        const remove_spinner_after=param.remove_spinner_after
-
-        $.ajax({
-            url:`${domain()}ajax_pages/load_posts`,
-            method:"POST",
-            data:param,
-            dataType:"json",
-            beforeSend:function(){
-
-                if(load_position == "sidebar"){
-
-                    $(".loading-spinner--sidebar").remove();
-                    $(".sidebar-lg__content").append(`
-                        <div class="loading-spinner loading-spinner--sidebar">
-                            <div class="loading-spinner__circle loading-spinner__circle--sidebar"></div>
-                        </div>
-                    `);
-
-                }else if(load_position == "home"){
-
-                    $(".loading-spinner--home").remove();
-
-                    $(".main-wrap__container--post").append(`
-                        <div class="loading-spinner loading-spinner--home">
-                            <div class="loading-spinner__circle loading-spinner__circle--home">
-                            </div>
-                        </div>
-                    `);
-                }
-            },
-            success:function(response){
-
-                if(response){
-
-                    if(load_position == "sidebar"){
-
-                        $(".sidebar-lg__sp").remove();
-    
-                        $(".sidebar-lg__content").append(response.html);
-
-                        if(remove_spinner_after){
-
-                            setTimeout(function(){
-
-                                $(".loading-spinner--sidebar").remove();
-
-                            },remove_spinner_after);
-                          
-                        }else{
-
-                            $(".loading-spinner--sidebar").remove();
-                        }
-    
-                    }else if(load_position == "home"){
-                        
-                        $(".main-wrap__row").remove(); 
-
-                        $(".main-wrap__container--post").append(response.html);
-
-                        if(remove_spinner_after){
-
-                            setTimeout(function(){
-
-                                $(".loading-spinner--home").remove();
-
-                            },remove_spinner_after);
-                          
-                        }else{
-
-                            $(".loading-spinner--home").remove();
-                        }
-
-                      
-                    }
-                }
-
-               // console.log(response);
-            }
-        });
-    }
-
     //call the function when a popup message needs to be appeared
     function show_popup_msg(param){
         /*
@@ -483,6 +390,102 @@
 
     if(script_type == "home"){
 
+        /**
+         * All Functions Starts
+         */
+
+        //function for loading catagory wise post in home and single blog page
+        function load_posts(param){
+            /*
+                param={
+                    catagory_id:0, (required)
+                    load_position:"sidebar",(required)
+                    post_link:post_link (required for single blog page),
+                    remove_spinner_after:150(optional parameter)
+                }
+            */
+            const load_position=param.load_position
+
+            const remove_spinner_after=param.remove_spinner_after
+
+            $.ajax({
+                url:`${domain()}ajax_pages/load_posts`,
+                method:"POST",
+                data:param,
+                dataType:"json",
+                beforeSend:function(){
+
+                    if(load_position == "sidebar"){
+
+                        $(".loading-spinner--sidebar").remove();
+                        $(".sidebar-lg__content").append(`
+                            <div class="loading-spinner loading-spinner--sidebar">
+                                <div class="loading-spinner__circle loading-spinner__circle--sidebar"></div>
+                            </div>
+                        `);
+
+                    }else if(load_position == "home"){
+
+                        $(".loading-spinner--home").remove();
+
+                        $(".main-wrap__container--post").append(`
+                            <div class="loading-spinner loading-spinner--home">
+                                <div class="loading-spinner__circle loading-spinner__circle--home">
+                                </div>
+                            </div>
+                        `);
+                    }
+                },
+                success:function(response){
+
+                    if(response){
+
+                        if(load_position == "sidebar"){
+
+                            $(".sidebar-lg__sp").remove();
+        
+                            $(".sidebar-lg__content").append(response.html);
+
+                            if(remove_spinner_after){
+
+                                setTimeout(function(){
+
+                                    $(".loading-spinner--sidebar").remove();
+
+                                },remove_spinner_after);
+                            
+                            }else{
+
+                                $(".loading-spinner--sidebar").remove();
+                            }
+        
+                        }else if(load_position == "home"){
+                            
+                            $(".main-wrap__row").remove(); 
+
+                            $(".main-wrap__container--post").append(response.html);
+
+                            if(remove_spinner_after){
+
+                                setTimeout(function(){
+
+                                    $(".loading-spinner--home").remove();
+
+                                },remove_spinner_after);
+                            
+                            }else{
+
+                                $(".loading-spinner--home").remove();
+                            }
+
+                        
+                        }
+                    }
+
+                // console.log(response);
+                }
+            });
+        }
 
         //first load all posts in home page
         // load_posts({
@@ -586,11 +589,11 @@
             $(this).addClass("ph-filter__btn--active");
 
             //load catagory wise posts
-            load_posts({
-                catagory_id:that.data("cat_id"),
-                load_position:"home",
-                remove_spinner_after:150
-            });
+            // load_posts({
+            //     catagory_id:that.data("cat_id"),
+            //     load_position:"home",
+            //     remove_spinner_after:150
+            // });
 
         });
 
@@ -1161,6 +1164,57 @@
                     });
                 });
                 
+                 $(document).on("click",".sp-content__btn--subscribe",function(e){
+
+                    $.ajax({
+                        url:`${domain()}ajax_pages?class=single&method=add_to_subscribe_list`,
+                        method:"POST",
+                        data:{
+                            sub_owner:$(this).data("sub_owner")
+                        },
+                        dataType:"json",
+                        success:function(response){
+
+                            if(response.error_status == 1){
+
+                                alert("Please login first");
+
+                            }else if(response.error_status == 2){
+
+                                alert("You can't subscrib yourself");
+
+
+                            }else if(response.error_status == 100){
+
+                                alert("something went wrong. Please try again");
+
+                                console.log(response);
+
+
+                            }else if(response.error_status == 0){
+
+                                load_subscribe_btn();
+
+                                if(response.action == "subscribe"){
+
+                                    const msg_param={
+                                        position_class:"popup-msg--bottom-left",
+                                        type_class:`popup-msg--rating popup-msg--sub`,
+                                        text:"<span>Add to Subscribed list</span>"
+                                    }
+                                            
+                                    show_popup_msg(msg_param);
+                                }
+
+                            }
+
+                           // console.log(response);
+                        }
+                    });
+
+
+                 });
+       
             }
 
             //load all the comments from server
@@ -1251,13 +1305,11 @@
                 })
             }
 
-            //================================
-
             //load total subscribers and subscribe button
-            function load_total_subs_and_btn(post_link){
+            function load_subscribe_btn(){
 
                 $.ajax({
-                    url:`${domain()}ajax_posts/load_total_subs_and_btn`,
+                    url:`${domain()}ajax_pages?class=single&method=load_subscribe_btn`,
                     method:"POST",
                     data:{
                         post_link:post_link
@@ -1267,18 +1319,66 @@
 
                         if(response){
 
-                        $(".sp-content__auth-subs").text("").text(response.total_sub);
-                            
-                        $(".sp-content__btn--subscribe").remove();
-
-                        $(".sp-content__auth-side--right").append(response.sub_btn)
-                        }
+                            $(".sp-content__txt--subs").text(response.total_subscribers);
                 
-                        //console.log(response);
+                            $(".sp-content__auth-side--right").html("").append(response.subs_btn)
+                        }
                     }
                 })
                 
             }
+
+            //laod post on sidebar when clicked on filter buttons            
+            function load_posts_on_sidebar(cat_id = 1){
+
+                $.ajax({
+                    url:`${domain()}ajax_pages?class=single&method=load_posts_on_sidebar`,
+                    method:"POST",
+                    data:{
+                        cat_id:cat_id,
+                        post_link:post_link
+                    },
+                    beforeSend:function(){
+
+                        $(".loading-spinner--sidebar").remove();
+
+                        $(".sidebar-lg__content").append(`
+                            <div class="loading-spinner loading-spinner--sidebar">
+                                <div class="loading-spinner__circle loading-spinner__circle--sidebar"></div>
+                            </div>
+                        `);
+
+                    },
+                    success:function(response){
+
+                        $(".sidebar-lg__content").html("").append(response);
+
+                        setTimeout(function(){
+
+                            $(".loading-spinner--sidebar").remove();
+
+                        },150);
+                    }
+                });
+            }
+        
+            function count_read(){
+                
+                $.ajax({
+                    url:`${domain()}ajax_pages?class=single&method=count_read`,
+                    method:"POST",
+                    data:{
+                        post_link: post_link
+                    },
+                    success:function(response){
+
+                        console.log(response);
+
+                    }
+                })
+            }
+
+            
 
         /**
          * All Functions Ends
@@ -1307,21 +1407,17 @@
         load_post_save_btn();
 
         // //load total subscribers and subscirbe button
-        // load_total_subs_and_btn(post_link);
+        load_subscribe_btn();
 
         //first load all the comments
         load_comments();
     
         setTimeout(add_events_after_loading_comments,1000);
 
-        //first load all posts in sidebar
-        // load_posts({
-        //     catagory_id:0,
-        //     load_position:"sidebar",
-        //     post_link:post_link,
-        // });
+        load_posts_on_sidebar();
 
-    
+        // count_read();   
+
         /**
          * Adding functionality in
          * in post catagories filter
@@ -1348,11 +1444,11 @@
     
                 if(entry.intersectionRatio < 1){
     
-                    $(".sidebar-lg__filter-btn--prev").addClass("sidebar-lg__filter-btn--block");
+                    $(".sidebar-lg__btn--prev").addClass("sidebar-lg__btn--block");
                     
                 }else{
                     
-                    $(".sidebar-lg__filter-btn--prev").removeClass("sidebar-lg__filter-btn--block");
+                    $(".sidebar-lg__btn--prev").removeClass("sidebar-lg__btn--block");
         
                 }
             });
@@ -1367,14 +1463,13 @@
             
             entries.forEach(function(entry,index){
 
-                
                 if(entry.intersectionRatio < 1){
     
-                    $(".sidebar-lg__filter-btn--next").addClass("sidebar-lg__filter-btn--block");
-                    
+                    $(".sidebar-lg__btn--next").addClass("sidebar-lg__btn--block");
+
                 }else{
                     
-                    $(".sidebar-lg__filter-btn--next").removeClass("sidebar-lg__filter-btn--block");
+                    $(".sidebar-lg__btn--next").removeClass("sidebar-lg__btn--block");
         
                 }
             })
@@ -1387,20 +1482,20 @@
         //moving the track when clicks on next/prev btn
         let a=0;
 
-        $(".sidebar-lg__filter-btn--action").on("click",function(){
+        $(".sidebar-lg__btn--ctrl").on("click",function(){
 
-            const total_cat_btns = $(".sidebar-lg__filter-btn--cat").length;
+            const total_cat_btns = $(".sidebar-lg__btn--cat").length;
             const track_width = $(".sidebar-lg__filter-track").outerWidth();
             const moving_num=track_width/total_cat_btns;
     
-            if($(this).hasClass("sidebar-lg__filter-btn--next")){
+            if($(this).hasClass("sidebar-lg__btn--next")){
                 a++;
                 $(".sidebar-lg__filter-track").css({
                     transform:`translateX(-${moving_num * a}px)`
                 });
             }
                 
-            if($(this).hasClass("sidebar-lg__filter-btn--prev")){
+            if($(this).hasClass("sidebar-lg__btn--prev")){
                 a--;
 
                 $(".sidebar-lg__filter-track").css({
@@ -1410,194 +1505,23 @@
             }
         });
 
-
-        //send a request to server to rate (`like` or `dislike`) the post 
-        $(document).on("click",".sp-content__meta-btn--rating",function(){
-
-            const that=$(this);
-
-            const data={
-                post_id:that.data("post_id")
-            };
-
-            let pr_action="";
-
-            if(that.hasClass("sp-content__meta-btn--like")){
-
-                pr_action="like";
-                
-            }else if(that.hasClass("sp-content__meta-btn--dislike")){
-                
-                pr_action="dislike";
-            }
-
-            data.pr_action=pr_action;
-
-            $.ajax({
-                url:`${domain()}ajax_posts/post_rating`,
-                method:"POST",
-                data:data,
-                dataType:"json",
-                success:function(response){
-
-                    if(response.error == 0){
-                        
-                        load_post_ratings(post_link);
-
-                        //show popup message at the bottom
-                        if(response.pr_action){
-
-                            const msg_param={
-                                position_class:"popup-msg--bottom-left",
-                                type_class:`popup-msg--rating popup-msg--${pr_action}`
-                            }
-
-                            if(pr_action == "like"){
-
-                                msg_param.text="<span>You liked the post</span>";
-                                
-                            }else if(pr_action == "dislike"){
-                                
-                                msg_param.text="<span>You disliked the post</span>";
-                            }
-    
-                            show_popup_msg(msg_param);
-                        }
-
-                    }else if(response.error == 1){
-
-                        
-                        alert("something went wrong");
-
-
-                    }else if(response.error == 100){
-
-                        alert("Please login first");
-
-                    }
-
-                    //console.log(response);
-                }
-            })
-            
-         
-
-        });
-
-        $(document).on("click",".sp-content__meta-btn--save",function(){
-            
-            const that=$(this);
-
-            $.ajax({
-                url:`${domain()}ajax_posts/save_posts`,
-                method:"POST",
-                data:{
-                    post_id:that.data("post_id")
-                },
-                dataType:"json",
-                success:function(response){
-                    
-                    if(response.error == 0){
-
-                        load_save_post_btn(post_link);
-
-                        if(response.action == "save"){
-
-                            const msg_param={
-                                position_class:"popup-msg--top-right",
-                                type_class:`popup-msg--success`,
-                                text:"<span>Add to save posts</span>"
-                            }
-                           
-                            show_popup_msg(msg_param)
-                        }
-
-                    }else if(response.error == 1){
-
-
-                        alert('something went wrong');
-
-                        console.log(response);
-
-                    }else if(response.error == 100){
-
-                        alert("Please login first");
-                    
-                    }
-
-                }
-            })
-
-        
-        });
-
-        //subscriber
-        $(document).on("click",".sp-content__btn--subscribe",function(){
-
-            const that=$(this);
-
-            $.ajax({
-                url:`${domain()}ajax_posts/subscribe`,
-                method:"POST",
-                data:{
-                    sub_owner:that.data("sub_owner")
-                },
-                dataType:"json",
-                success:function(response){
-
-                    if(response.error == 0){    
-
-                        load_total_subs_and_btn(post_link);
-
-                        if(response.action == "subscribe"){
-
-                            const msg_param={
-                                position_class:"popup-msg--bottom-left",
-                                type_class:`popup-msg--rating popup-msg--sub`,
-                                text:"<span>Add to Subscribed list</span>"
-                            }
-                           
-                            show_popup_msg(msg_param);
-
-                        }
-
-                    }else if(response.error == 1){
-
-                        alert(response.error_msg);
-
-                        console.log(response.error_msg);
-
-                    }else if(response.error == 100){
-
-                        alert("Please login first");
-                    }
-
-                    console.log(response);
-                }
-            })
-
-        });
-
          /**
          * add active class in filter catagory buttons
          */
 
-        $(".sidebar-lg__filter-btn--cat").on("click",function(){
+        $(".sidebar-lg__btn--cat").on("click",function(){
 
-            const that=$(this);
+            //store the clicked catagory button
+            const cat_btn=$(this);
 
             //first remove active class from catagory
-            $(".sidebar-lg__filter-btn--cat.sidebar-lg__filter-btn--active").removeClass("sidebar-lg__filter-btn--active");
+            $(".sidebar-lg__btn--cat.sidebar-lg__btn--active").removeClass("sidebar-lg__btn--active");
             
             //add active class on which user clicked
-            $(this).addClass("sidebar-lg__filter-btn--active");
+            $(this).addClass("sidebar-lg__btn--active");
 
-            load_posts({
-                catagory_id:that.data("cat_id"),
-                load_position:"sidebar",
-                post_link:post_link,
-                remove_spinner_after:150
-            });
+            //laod load based on the catagory
+            load_posts_on_sidebar(cat_btn.data("cat_id"))
         });
         
 
